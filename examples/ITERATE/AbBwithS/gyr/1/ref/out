@@ -1,0 +1,131 @@
+ format  1  0
+ 
+MONOMERS            
+N_monomer           
+                   3
+kuhn                
+    6.0700000000E+00    6.0700000000E+00    6.0700000000E+00
+ 
+CHAINS              
+N_chain             
+                   1
+N_block             
+                   2
+block_monomer       
+                   1                   2
+block_length        
+    6.5000000000E-01    3.5000000000E-01
+ 
+SOLVENTS            
+N_solvent           
+                   1
+solvent_monomer     
+                   3
+solvent_size        
+    3.0000000000E-03
+ 
+COMPOSITION         
+ensemble            
+                   0
+phi_chain           
+    9.0000000000E-01
+phi_solvent         
+    1.0000000000E-01
+ 
+INTERACTION         
+interaction_type    
+               'chi'
+chi                 
+    4.0000000000E+01
+    1.0000000000E+02    4.0000000000E+01
+ 
+UNIT_CELL           
+dim                 
+                   3
+crystal_system      
+             'cubic'
+N_cell_param        
+                   1
+cell_param          
+    2.8766520960E+01
+ 
+DISCRETIZATION      
+ngrid               
+                  56                  56                  56
+chain_step          
+    1.0000000000E-02
+ 
+FILE_PREFIXES       
+input_prefix        
+    '~/pscf/ins/15.'
+output_prefix       
+     '~/pscf/outs5/'
+ 
+BASIS               
+group_name          
+          'I a -3 d'
+ 
+ITERATE             
+max_itr             
+                 100
+error_max           
+    1.0000000000E-06
+domain              
+                   T
+itr_algo            
+           'broyden'
+N_cut               
+                1856
+ 
+SWEEP               
+s_max               
+    1.2000000000E+02
+d_phi_chain         
+   -5.0000000000E-03
+d_phi_solvent       
+    5.0000000000E-03
+end_increments      
+ 
+FINISH              
+ 
+THERMO              
+f_Helmholtz         
+   -9.9392399654E+01
+f_homo              
+   -9.6599994231E+01
+pressure            
+    4.3004272594E+01
+mu_chain            
+    1.4831684460E+01
+mu_solvent          
+   -2.0920992922E+00
+stress              
+    6.6927724680E-10
+ 
+DECOMPOSE           
+overlap_AB          
+    4.5772898206E-02
+overlap_BC          
+    3.4237575823E-02
+overlap_CA          
+    5.5705202718E-02
+f_enthalpy          
+    8.7709392329E+00
+f_head              
+    1.9846431297E+00
+f_tail              
+    1.3618286665E+00
+f_excess            
+   -1.1060981068E+02
+ 
+STATISTICS          
+N_star              
+                1856
+Final Error         
+    3.7218388727E-07
+Iterations          
+                   5
+Basis Time          
+    7.3548596000E+01
+SCF Time            
+    5.9715800005E+04

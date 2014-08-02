@@ -1,0 +1,85 @@
+
+ The original pscf code was developed on flory.cems.umn.edu, compiled with
+ pgf90, linked with fftw-2.
+ 
+ To make the code compilable on calhoun.msi.umn.edu, using intel compiler
+ ifort, linked with fftw-3, we made several changes on io-format and grammars.
+
+ Different compilation strategies can be chosen in Makefile.
+
+ -----------------------------------------------------------------------
+   Testing Notes
+ -----------------------------------------------------------------------
+                                                      2007-11-07, Jian
+   Made code compilable on NetFinity (nf.msi.umn.edu)
+      The compiler is the same as what's on flory; no problem encountered.
+      FFTW-3 installed.
+      The correct linking command has been documented in Makefile.
+
+
+                                                      2007-11-07, Jian
+    Made code compilable on Altix (altix.msi.umn.edu)
+      The compiler is the same as what's on calhoun, but seems to be more
+      strict.
+      The compilation is really slow compared to the others.
+      FFTW-3 installed.
+      The correct linking command has been documented in Makefile. (I did
+      a little hacking work to find the library. May not be standard, but
+      seems to work.)
+      The following problems are encountered:
+	 (1) ifort -free -c
+             /home/alta/qinjian/pscf/src/crystal/space_groups_mod.f
+	     fortcom: Warning: Optimization suppressed due to excessive
+             resource requirements; contact Intel Premier Support
+	     in file /home/alta/qinjian/pscf/src/crystal/space_groups_mod.f,
+             line 87, column 0
+	 (2) fortcom: Error: /home/alta/qinjian/pscf/src/rpa/spinodal_mod.f,
+	     line 958: Each ac-value expression in an array-constructor must
+             have the same type and type parameters.   [0]
+	     block_length(:,1) = (/0.5, 0, 0.5/) + i * dblock(:,1) 
+             ---------------------------^
+             Note: changing 0 to 0.0 can fixe the problem 
+
+ -----------------------------------------------------------------------
+   changes related to compiler
+ -----------------------------------------------------------------------
+
+   Intel compiler seems to be more strict at grammars. We've recognized
+ the following requirements and fixed the codes accordingly.
+ 
+ 1) io-format
+    "( ... )", the parenthesis can't be ignored.
+ 
+ 2) declaration of binary operator has to be in the form
+    operator(.dot.)
+ 
+ 3) the sequence of the arguments has to be correct, even if the correct
+    sequence can be guessed by the type of the arguments
+ 
+ 4) pointers
+ 
+    a) need to use "associated" to test the status rather than "allocated".
+       The returning value of "associated" can be
+          .true.  ---> associated with a block of memory
+          .false. ---> not associated 
+
+    b) better be nullified after the declaration using intrinsic function
+       "nullify", otherwise the status of the pointer is "un-defined", which
+       can not be detected correctly by function "associated".
+
+ -----------------------------------------------------------------------
+   changes related to fftw
+ -----------------------------------------------------------------------
+
+   We tried to use the same interface for the wrapping functions to fftw-2 and
+ fftw-3. Thus, in fftw3/create_fft_plan, the plan is not actually created, only
+ the grid dimension is updated. The plan in fftw-3 is created together with the
+ arrays storing data at the time when fft/ifft/fftc is called.
+
+   create_fft_plan has an optional logical argument "fft_c2c", used when creating
+ fft plan for fftw-2:
+         .true.                --->  create "complex <-> complex" plan
+         .false./not supplied  --->  create "real    <-> complex" plan
+ This argument has no effect in fftw-3.
+
+

@@ -1,0 +1,220 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<link rel="stylesheet" href="../GDoc.css" type="text/css">
+<title>crystal/unit_cell_mod_f</title>
+</head>
+<body bgcolor="#FFFFFF">
+<br />
+<p>
+[<a href="../toc.html#top">table of contents</a>]
+[<a href="../master_index.html#top">master index</a>]
+[<a href="../comment_index.html#top">comments</a>]
+[<a href="../module_index.html#top">modules</a>]
+[<a href="../program_index.html#top">programs</a>]
+[<a href="../variable_index.html#top">variables</a>]
+[<a href="../type_index.html#top">types</a>]
+[<a href="../procedure_index.html#top">procedures</a>]
+</p>
+<h3 align="center">TABLE OF CONTENTS</h3>
+<ul><li>module <a href="#unit_cell_mod">unit_cell_mod</a></li>
+<ul>
+<li>variable <a href="#crystal_system">crystal_system</a></li>
+<li>variable <a href="#N_cell_param">N_cell_param</a></li>
+<li>variable <a href="#cell_param">cell_param</a></li>
+<li>variable <a href="#R_basis">R_basis</a></li>
+<li>variable <a href="#G_basis">G_basis</a></li>
+<li>variable <a href="#dGG_basis">dGG_basis</a></li>
+<li>procedure <a href="#input_unit_cell">input_unit_cell</a></li>
+<li>procedure <a href="#output_unit_cell">output_unit_cell</a></li>
+<li>procedure <a href="#standard_cell_param">standard_cell_param</a></li>
+<li>procedure <a href="#make_unit_cell">make_unit_cell</a></li>
+<li>procedure <a href="#define_unit_cell">define_unit_cell</a></li>
+<li>procedure <a href="#make_G_basis">make_G_basis</a></li>
+</ul>
+<h2 id="unit_cell_mod" ><a href="unit_cell_mod_f_.html#unit_cell_mod" target="source">unit_cell_mod</a></h2>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Define crystal unit cell and lattice basis vectors
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+module <strong>unit_cell_mod</strong>
+   use <a href="../const_mod_f.html#const_mod">const_mod</a>     
+   use <a href="../io/io_mod_f.html#io_mod">io_mod</a>
+   implicit none
+
+   private
+
+   ! Public procedures
+   public :: <a href="#input_unit_cell">input_unit_cell</a>     ! read  <a href="../const_mod_f.html#dim">dim</a>, <a href="#crystal_system">crystal_system</a>, <a href="#cell_param">cell_param</a>
+   public :: <a href="#output_unit_cell">output_unit_cell</a>     ! write <a href="../const_mod_f.html#dim">dim</a>, <a href="#crystal_system">crystal_system</a>, <a href="#cell_param">cell_param</a>
+   public :: <a href="#standard_cell_param">standard_cell_param</a>  ! return parameters a,b,c, alpha,beta,gamma
+   public :: <a href="#make_unit_cell">make_unit_cell</a>       ! create lattice basis vectors, etc.
+   public :: <a href="#define_unit_cell">define_unit_cell</a>     ! reset cell parameters 
+   public :: <a href="#make_G_basis">make_G_basis</a>         ! make <a href="#G_basis">G_basis</a> from <a href="#R_basis">R_basis</a>
+
+   ! Public variables
+   public :: <a href="#crystal_system">crystal_system</a>, <a href="#N_cell_param">N_cell_param</a>, <a href="#cell_param">cell_param</a>
+   public :: <a href="#R_basis">R_basis</a>, <a href="#G_basis">G_basis</a>, <a href="#dGG_basis">dGG_basis</a>
+
+   character(30) :: <a href="#crystal_system">crystal_system</a>   ! type of crystal cell (cubic, etc.)
+   integer       :: <a href="#N_cell_param">N_cell_param</a>     ! # of unit cell parameters
+   real(<a href="../const_mod_f.html#long">long</a>)    :: <a href="#cell_param">cell_param</a>(6)    ! unit cell parameters
+   real(<a href="../const_mod_f.html#long">long</a>)    :: <a href="#R_basis">R_basis</a>(:,:)     ! (<a href="../const_mod_f.html#dim">dim</a>,<a href="../const_mod_f.html#dim">dim</a>) lattice bases a_i
+   real(<a href="../const_mod_f.html#long">long</a>)    :: <a href="#G_basis">G_basis</a>(:,:)     ! (<a href="../const_mod_f.html#dim">dim</a>,<a href="../const_mod_f.html#dim">dim</a>) reciprocal bases b_i
+   real(<a href="../const_mod_f.html#long">long</a>)    :: <a href="#dGG_basis">dGG_basis</a>(:,:,:) ! (<a href="../const_mod_f.html#dim">dim</a>,<a href="../const_mod_f.html#dim">dim</a>,6) derivatives of b_i.b_j
+</pre>
+<h2 id="crystal_system" ><a href="unit_cell_mod_f_.html#crystal_system" target="source">crystal_system</a></h2>
+<p><strong>VARIABLE</strong></p>  <pre>
+  character(30) <strong>crystal_system</strong> = string identifying crystal system
+ 
+  Allowed values:      
+     3D crystal systems (<a href="../const_mod_f.html#dim">dim</a> = 3):
+         'cubic', 'tetragonal', 'orthorhombic', 'monoclinic',  
+         'hexagonal', 'triclinic'
+     2D crystal systems (<a href="../const_mod_f.html#dim">dim</a> = 2)
+         'square', 'rectangular', 'rhombus', 'hexagonal', 'oblique'      
+     1D crystal system (<a href="../const_mod_f.html#dim">dim</a> = 1):
+            'lamellar'      
+</pre>
+<h2 id="N_cell_param" ><a href="unit_cell_mod_f_.html#N_cell_param" target="source">N_cell_param</a></h2>
+<p><strong>VARIABLE</strong></p>  <pre>
+  integer <strong>N_cell_param</strong>  = # of unit cell parameters 
+                          Different values needed for different crystal 
+                          systems (e.g., 1 for cubic, 6 for triclinic)
+</pre>
+<h2 id="cell_param" ><a href="unit_cell_mod_f_.html#cell_param" target="source">cell_param</a></h2>
+<p><strong>VARIABLE</strong></p>  <pre>
+  real(<a href="../const_mod_f.html#long">long</a>) <strong>cell_param</strong>(6) - array of cell parameters
+                             Only elements 1:<a href="#N_cell_param">N_cell_param</a> are used
+</pre>
+<h2 id="R_basis" ><a href="unit_cell_mod_f_.html#R_basis" target="source">R_basis</a></h2>
+<p><strong>VARIABLE</strong></p>  <pre>
+  real(<a href="../const_mod_f.html#long">long</a>) <strong>R_basis</strong>(:,:) - dimension(<a href="../const_mod_f.html#dim">dim</a>,<a href="../const_mod_f.html#dim">dim</a>)
+             <strong>R_basis</strong>(i,:) = a_i = Bravais lattice basis vector i
+</pre>
+<h2 id="G_basis" ><a href="unit_cell_mod_f_.html#G_basis" target="source">G_basis</a></h2>
+<p><strong>VARIABLE</strong></p>  <pre>
+  real(<a href="../const_mod_f.html#long">long</a>) <strong>G_basis</strong>(:,:) - dimension(<a href="../const_mod_f.html#dim">dim</a>,<a href="../const_mod_f.html#dim">dim</a>)
+             <strong>G_basis</strong>(i,:) = b_i = reciprocal lattice basis vector i
+</pre>
+<h2 id="dGG_basis" ><a href="unit_cell_mod_f_.html#dGG_basis" target="source">dGG_basis</a></h2>
+<p><strong>VARIABLE</strong></p>  <pre>
+  real(<a href="../const_mod_f.html#long">long</a>)   <strong>dGG_basis</strong>(:,:,:) - dimension(<a href="../const_mod_f.html#dim">dim</a>,<a href="../const_mod_f.html#dim">dim</a>,6)
+               <strong>dGG_basis</strong>(i,j,k) = d(b_i.dot.b_j)/d(<a href="#cell_param">cell_param</a>(k))
+               Needed in calculation of stress by perturbation theory
+</pre>
+<h2 id="input_unit_cell" ><a href="unit_cell_mod_f_.html#input_unit_cell" target="source">input_unit_cell</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>input_unit_cell</strong>(i_unit, fmt_flag)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Read data needed to construct unit cell from file i_unit.
+     Inputs <a href="../const_mod_f.html#dim">dim</a>, <a href="#crystal_system">crystal_system</a>, <a href="#N_cell_param">N_cell_param</a>, and <a href="#cell_param">cell_param</a> 
+     If necessary, allocates <a href="#R_basis">R_basis</a>, <a href="#G_basis">G_basis</a>, related arrays
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+     integer      i_unit   - unit # of <a href="../io/io_mod_f.html#input">input</a> file
+     character(1) fmt_flag - flag specifying <a href="../io/io_mod_f.html#input">input</a> format 
+</pre>
+<p><strong>COMMENT</strong></p>  <pre>
+     Allowed values of fmt_flag:
+        F -> formatted ascii <a href="../io/io_mod_f.html#input">input</a>
+        U -> unformatted <a href="../io/io_mod_f.html#input">input</a>
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>input_unit_cell</strong>(i_unit,fmt_flag)
+   integer, intent(IN)            :: i_unit
+   character(len = 1), intent(IN) :: fmt_flag
+</pre>
+<h2 id="output_unit_cell" ><a href="unit_cell_mod_f_.html#output_unit_cell" target="source">output_unit_cell</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>output_unit_cell</strong>(o_unit,fmt_flag)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Write <a href="#crystal_system">crystal_system</a>, <a href="#N_cell_param">N_cell_param</a>, and <a href="#cell_param">cell_param</a> to file 
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+     integer      o_unit   - unit # of <a href="../io/io_mod_f.html#output">output</a> file
+     character(1) fmt_flag - flag specifying <a href="../io/io_mod_f.html#output">output</a> format 
+</pre>
+<p><strong>COMMENT</strong></p>  <pre>
+     Allowed values of fmt_flag:
+         F  -> formatted <a href="../io/io_mod_f.html#output">output</a>
+         U  -> unformatted <a href="../io/io_mod_f.html#output">output</a>
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>output_unit_cell</strong>(o_unit,fmt_flag)
+   integer, intent(IN)            :: o_unit
+   character(len = 1), intent(IN) :: fmt_flag
+</pre>
+<h2 id="standard_cell_param" ><a href="unit_cell_mod_f_.html#standard_cell_param" target="source">standard_cell_param</a></h2>
+<p><strong>FUNCTION</strong></p>  <pre>
+     <strong>standard_cell_param</strong>(<a href="#cell_param">cell_param</a>)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Returns array (a, b, c, alpha, beta, gamma) for 3-d systems
+       a, b, c are lengths of the three Bravais basis vectors
+       alpha is the angle beween b, c
+       beta is the angle between a, c
+       gamma is the angle between a, b
+</pre>
+<p><strong>RETURN</strong></p>  <pre>
+     <strong>standard_cell_param</strong>(1:3) = (a,b,c)
+     <strong>standard_cell_param</strong>(4:6) = (alpha,beta,gamma)
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   function <strong>standard_cell_param</strong>(<a href="#cell_param">cell_param</a>)
+   real(<a href="../const_mod_f.html#long">long</a>), dimension(6), intent(IN) :: <a href="#cell_param">cell_param</a>
+   real(<a href="../const_mod_f.html#long">long</a>), dimension(6) :: <strong>standard_cell_param</strong>
+</pre>
+<h2 id="make_unit_cell" ><a href="unit_cell_mod_f_.html#make_unit_cell" target="source">make_unit_cell</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>make_unit_cell</strong> 
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Constructs Bravais and reciprocal lattice vectors, and
+     related arrays, from knowledge of module <a href="../io/io_mod_f.html#input">input</a> variables.
+</pre>
+<p><strong>COMMENT</strong></p>  <pre>
+     All inputs and outputs are module variables, rather than
+     explicit parameters. 
+     Inputs:  <a href="#crystal_system">crystal_system</a>, <a href="#N_cell_param">N_cell_param</a>, and <a href="#cell_param">cell_param</a>
+     Outputs: <a href="#R_basis">R_basis</a>, <a href="#G_basis">G_basis</a>, dRR_basis, <a href="#dGG_basis">dGG_basis</a>
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>make_unit_cell</strong> 
+</pre>
+<h2 id="define_unit_cell" ><a href="unit_cell_mod_f_.html#define_unit_cell" target="source">define_unit_cell</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>define_unit_cell</strong>( mylattice, my_N, my_param )
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Modify crystal system and/or unit cell parameters
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+     mylattice - crystal system
+     my_N      - number of cell parameters 
+     my_param  - array of cell parameters
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>define_unit_cell</strong>( mylattice, my_N, my_param )
+   character(*), intent(IN) :: mylattice
+   integer, intent(IN)      :: my_N
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN)   :: my_param(:)
+</pre>
+<h2 id="make_G_basis" ><a href="unit_cell_mod_f_.html#make_G_basis" target="source">make_G_basis</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>make_G_basis</strong>(<a href="#R_basis">R_basis</a>,<a href="#G_basis">G_basis</a>)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Construct array <a href="#G_basis">G_basis</a> of reciprocal lattice basis vectors 
+     from <a href="../io/io_mod_f.html#input">input</a> array <a href="#R_basis">R_basis</a> of Bravais lattice basis vectors 
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>make_G_basis</strong>(<a href="#R_basis">R_basis</a>,<a href="#G_basis">G_basis</a>)
+   use <a href="group_mod_f.html#group_mod">group_mod</a>, only : Inverse
+   real(<a href="../const_mod_f.html#long">long</a>),  intent(IN)  :: <a href="#R_basis">R_basis</a>(:,:)   ! (<a href="../const_mod_f.html#dim">dim</a>,<a href="../const_mod_f.html#dim">dim</a>) Bravais
+   real(<a href="../const_mod_f.html#long">long</a>),  intent(OUT) :: <a href="#G_basis">G_basis</a>(:,:)   ! (<a href="../const_mod_f.html#dim">dim</a>,<a href="../const_mod_f.html#dim">dim</a>) reciprocal
+</pre>
+</body>
+</html>

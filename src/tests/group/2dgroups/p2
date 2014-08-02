@@ -1,0 +1,13 @@
+ format  1  0
+Bravais = basis  (group p2)
+2       = dim
+2       = # symmetries
+
+1 (I)
+  1.0   0.0     0.0
+  0.0   1.0     0.0
+
+2 (2 0,0)
+ -1.0   0.0     0.0 
+  0.0  -1.0     0.0 
+

@@ -1,0 +1,80 @@
+
+Item_types:
+e  program
+m  module
+v  variable
+p  procedure
+t  type
+c  comment
+
+Section_types:
+PROGRAM
+MODULE
+PUBLIC VARIABLES
+PUBLIC PROCEDURES
+VARIABLE
+SUBROUTINE
+FUNCTION
+TYPE
+SYNOPSIS
+PURPOSE
+ARGUMENTS
+RETURN
+ALGORITHM
+COMMENT
+NOTE
+SOURCE
+AUTHOR
+HISTORY
+VERSION
+PRIVATE PROCEDURES
+
+Section_ignore:
+AUTHOR
+HISTORY
+VERSION
+PRIVATE PROCEDURES
+
+Src_dir:
+../src
+
+Doc_dir:
+api
+
+Com_char:
+!
+
+Filenames:
+pscf_pd.f
+iterate/iterate_mod.f
+iterate/sweep_mod.f
+iterate/response_pd_mod.f
+scf/scf_mod.f
+scf/chemistry_mod.f
+scf/chain_mod.f
+scf/step_mod.f
+grid/grid_mod.f
+grid/fft3_mod.f
+crystal/basis_mod.f
+crystal/unit_cell_mod.f
+crystal/group_mod.f
+crystal/space_groups_mod.f
+crystal/grid_basis_mod.f
+response/response_mod.f
+response/response_step_mod.f
+response/extrapolate_mod.f
+rpa/spinodal_mod.f
+rpa/rpa_mod.f
+io/string_mod.f
+io/io_mod.f
+io/version_mod.f
+io/field_io_mod.f
+const_mod.f
+
+Format:
+html
+
+Access:
+public
+
+Done

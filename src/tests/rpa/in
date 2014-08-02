@@ -1,0 +1,132 @@
+3
+
+N_monomer           
+              2
+names               
+            'A'            'B'
+kuhn                
+  1.0000000E+00  1.0000000E+00
+chi_flag            
+            'B'
+chi
+           0.39
+N_chain             
+              2
+N_block             
+              1
+	      1
+block_monomer  
+              1        
+              2        
+block_length   
+  5.0000000E+00  
+  5.0000000E+00 
+N_solvent
+              1
+solvent_monomer
+              1
+solvent_size
+           0.02
+ensemble            
+              0
+phi_chain                
+  0.5000000E+00
+  0.5000000E+00
+phi_solvent                
+  0.0000000E+00
+
+N_q
+              1
+0.01000
+------------------------------------------------------------------------
+N_monomer           
+              2
+names               
+            'A'            'B'
+kuhn                
+  1.0000000E+00  1.0000000E+00
+chi_flag            
+            'B'
+chi
+           1.049
+N_chain             
+              1
+N_block             
+              2             
+block_monomer  
+              1             2
+block_length   
+  5.0000000E+00   5.00000E+00
+N_solvent
+              1
+solvent_monomer
+              1
+solvent_size
+           0.02
+ensemble            
+              0
+phi_chain                
+  1.0000000E+00
+phi_solvent                
+  0.0000000E+00
+
+N_q
+13
+0.50000
+1.00000
+1.32000
+1.40000
+1.46000
+1.50500
+1.51000
+1.51500
+1.56000
+1.62000
+1.70000
+2.00000
+8.00000
+-----------------------------------------------------------------------
+N_monomer           
+              2
+names               
+            'A'            'B'
+kuhn                
+  1.0000000E+00  1.0000000E+00
+chi_flag            
+            'B'
+chi
+          0.899
+N_chain             
+              1
+N_block             
+              3
+block_monomer  
+              1              2              1
+block_length   
+  5.0000000E+00 10.0000000E+00  5.0000000E+00
+N_solvent
+              1
+solvent_monomer
+              1
+solvent_size
+           0.02
+ensemble            
+              0
+phi_chain                
+  1.0000000E+00
+phi_solvent                
+  0.0000000E+00
+
+N_q
+11
+0.10000
+1.40000
+1.46000
+1.50500
+1.51000
+1.51500
+1.56000
+1.62000
+1.70000
+2.00000
+8.00000

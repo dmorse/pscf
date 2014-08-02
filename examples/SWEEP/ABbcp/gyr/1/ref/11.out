@@ -1,0 +1,100 @@
+ format  1  0
+
+MONOMERS            
+N_monomer           
+                   2
+kuhn                
+    1.0000000000E+00    1.0000000000E+00
+
+CHAINS              
+N_chain             
+                   1
+N_block             
+                   2
+block_monomer       
+                   1                   2
+block_length        
+    3.4000000022E-01    6.5999999978E-01
+
+COMPOSITION         
+ensemble            
+                   0
+phi_chain           
+    1.0000000000E+00
+
+INTERACTION         
+interaction_type    
+               'chi'
+chi                 
+    1.5000000000E+01
+
+UNIT_CELL           
+dim                 
+                   3
+crystal_system      
+             'cubic'
+N_cell_param        
+                   1
+cell_param          
+    3.4765271733E+00
+
+DISCRETIZATION      
+ngrid               
+                  24                  24                  24
+chain_step          
+    1.0000000000E-02
+
+FILE_PREFIXES       
+input_prefix        
+               'in.'
+output_prefix       
+              'ref/'
+
+BASIS               
+group_name          
+          'I a -3 d'
+
+ITERATE             
+max_itr             
+                  30
+error_max           
+    1.0000000000E-08
+domain              
+                   T
+itr_algo            
+                'NR'
+N_cut               
+                  40
+
+SWEEP               
+s_max               
+    1.4000000000E+01
+d_block_length      
+   -1.0000000000E-02    1.0000000000E-02
+end_increments      
+
+FINISH              
+
+THERMO              
+f_Helmholtz         
+    2.2686597034E+00
+f_homo              
+    2.3660000011E+00
+pressure            
+    3.3563518734E+00
+mu_chain            
+    5.6250115768E+00
+stress              
+   -2.4655766157E-12
+
+STATISTICS          
+N_star              
+                 156
+Final Error         
+    2.9882669672E-09
+Iterations          
+                  13
+Basis Time          
+    1.3281432486E+02
+SCF Time            
+    4.0087502003E+01

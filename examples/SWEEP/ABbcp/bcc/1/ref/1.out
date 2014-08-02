@@ -1,0 +1,100 @@
+ format  1  0
+
+MONOMERS            
+N_monomer           
+                   2
+kuhn                
+    1.0000000000E+00    1.0000000000E+00
+
+CHAINS              
+N_chain             
+                   1
+N_block             
+                   2
+block_monomer       
+                   1                   2
+block_length        
+    3.8000000022E-01    6.1999999978E-01
+
+COMPOSITION         
+ensemble            
+                   0
+phi_chain           
+    1.0000000000E+00
+
+INTERACTION         
+interaction_type    
+               'chi'
+chi                 
+    1.5000000000E+01
+
+UNIT_CELL           
+dim                 
+                   3
+crystal_system      
+             'cubic'
+N_cell_param        
+                   1
+cell_param          
+    2.0662424156E+00
+
+DISCRETIZATION      
+ngrid               
+                  20                  20                  20
+chain_step          
+    1.0000000000E-02
+
+FILE_PREFIXES       
+input_prefix        
+               'in.'
+output_prefix       
+              'ref/'
+
+BASIS               
+group_name          
+          'I m -3 m'
+
+ITERATE             
+max_itr             
+                  20
+error_max           
+    1.0000000000E-08
+domain              
+                   T
+itr_algo            
+                'NR'
+N_cut               
+                 100
+
+SWEEP               
+s_max               
+    1.5000000000E+01
+d_block_length      
+   -1.0000000000E-02    1.0000000000E-02
+end_increments      
+
+FINISH              
+
+THERMO              
+f_Helmholtz         
+    2.3859750556E+00
+f_homo              
+    2.5340000008E+00
+pressure            
+    3.4274837050E+00
+mu_chain            
+    5.8134587607E+00
+stress              
+   -5.5302588498E-11
+
+STATISTICS          
+N_star              
+                 146
+Final Error         
+    5.5302588498E-09
+Iterations          
+                   7
+Basis Time          
+    8.6611253023E+01
+SCF Time            
+    1.2770314932E+01

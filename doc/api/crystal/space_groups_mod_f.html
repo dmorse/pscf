@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<link rel="stylesheet" href="../GDoc.css" type="text/css">
+<title>crystal/space_groups_mod_f</title>
+</head>
+<body bgcolor="#FFFFFF">
+<br />
+<p>
+[<a href="../toc.html#top">table of contents</a>]
+[<a href="../master_index.html#top">master index</a>]
+[<a href="../comment_index.html#top">comments</a>]
+[<a href="../module_index.html#top">modules</a>]
+[<a href="../program_index.html#top">programs</a>]
+[<a href="../variable_index.html#top">variables</a>]
+[<a href="../type_index.html#top">types</a>]
+[<a href="../procedure_index.html#top">procedures</a>]
+</p>
+<h3 align="center">TABLE OF CONTENTS</h3>
+<ul><li>module <a href="#space_groups_mod">space_groups_mod</a></li>
+<ul>
+<li>procedure <a href="#space_groups">space_groups</a></li>
+</ul>
+<h2 id="space_groups_mod" ><a href="space_groups_mod_f_.html#space_groups_mod" target="source">space_groups_mod</a></h2>
+<p><strong>MODULE</strong></p>  <pre>
+    <strong>space_groups_mod</strong>
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+    Module contains only the subroutine <a href="#space_groups">space_groups</a>, which returns 
+    a space group if passed a standard Hermann-Mauguin symbol or 
+    space group number, or if passed the name of a file containing 
+    the group elements.
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+module <strong>space_groups_mod</strong>
+   USE <a href="../const_mod_f.html#const_mod">const_mod</a>
+   USE <a href="group_mod_f.html#group_mod">group_mod</a>
+   implicit none
+</pre>
+<h2 id="space_groups" ><a href="space_groups_mod_f_.html#space_groups" target="source">space_groups</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+    <strong>space_groups</strong>(group_name,g,[found_arg])
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+    Routine contains lookup table for crystallographic space groups.
+    This routine is essentially a hard-coded database of the standard
+    crystallographic space groups.
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+    character(*)     :: group_name  
+    type(<a href="group_mod_f.html#group_type">group_type</a>) :: g           ! group
+    logical          :: found_arg   ! returns true if found (optional)
+</pre>
+<p><strong>COMMENT</strong></p>  <pre>
+    On <a href="../io/io_mod_f.html#input">input</a>:
+       group_name = an International Hermann-Mauguin symbol or number
+                     for a 1, 2, or 3D space group, or the name of a 
+                     file containing the group
+ 
+    On <a href="../io/io_mod_f.html#output">output</a>:
+       group_name = trimmed group name + any added default setting
+       g          = the group
+       found_arg  = .true. if group_name was found within routine
+ 
+    Algorithm:
+       Routine first looks for space group with a Hermann-Mauguin 
+       symbol or number that matches the string trim(group_name). 
+       It then tries extensions of group_name with default settings.
+       If this fails, it then tries to read the group from a file
+       named trim(group_name), which must contain the symmetry
+       operations for the group in the format defined in the
+       input_group and <a href="group_mod_f.html#output_group">output_group</a> routines of module group_mod.
+       Because the routine first tries to match a standard symbol
+       or space group number, the file name must not be an integer
+       or the ascii text representation of a group.
+ 
+    One-Dimensional Groups:
+ 
+       The only allowed one-dimensional groups are '1' (no symmetry)
+       and '-1' (centrosymmetric). The only allowed <a href="unit_cell_mod_f.html#crystal_system">crystal_system</a> is
+       'lamellar'.
+ 
+    Two-Dimensional Plane Groups:
+  
+       Plane group names are those used in the International Tables
+       for Crystallography, Volume A. To format these as ascii text
+       strings, we introduce a space between logical elements. Each
+       of the plane group names begins with a lower case 'p' or 'c',
+       where 'c' indicates a centered group. For example:
+  
+       plane group #  2, group_name = 'p 2'
+                   # 12, group_name = 'p 4 g m'
+                   # 17, group_name = 'p 6 m m'
+ 
+    Three-Dimensional Plane Groups:
+  
+       Space group names are the Hermann-Mauguin symbols used in the 
+       International Tables for Crystallography, Volume A. To format 
+       these as ascii text strings, we use the following rules: 
+       1) Add a single space between logical elements. 2) Inversion 
+       bars are represented by a - sign prefix. 3) screw axis 
+       subscripts are represented by integer suffixes, with no 
+       preceding space. For example:
+  
+       space group # 154  group_name = 'P 32 2 1'
+                   # 176  group_name = 'P 63/m'
+                   # 230, group_name = 'I a -3 d'
+    
+       Groups with more than one possible setting are represented by
+       strings of the form
+    
+                group_name//' : '//setting
+  
+       where setting = 1,2,H, or R is a single character that 
+       indicates a choice of setting. Setting of such groups are
+       labelled by either 1 and 2 or by H and R (where the latter 
+       represents hexagonal and rhombohedral settings). For example
+    
+            group #  48, group_name =  'P n n n : 1' (setting 1)
+                  #  48, group_name =  'P n n n : 2' (setting 2)
+ 
+            group # 146, group_name =  'R 3 : H' (hexag. setting)
+            group # 146, group_name =  'R 3 : R' (Rhomb. setting)
+    
+       If the routine cannot match the <a href="../io/io_mod_f.html#input">input</a> group_name as a group
+       symbol or number, it next tries to match the extension of 
+       the group_name by default settings '2' and 'H'.
+    
+       A list of valid names, with settings, is given in the file
+       src/crystal/SGNAMES 
+ 
+    Sources:
+ 
+       The select case structure for 3D groups was automatically
+       generated from an <a href="../io/io_mod_f.html#output">output</a> of the C++ package cctbx.
+       (http://cctbx.sourceforge.net)
+      
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>space_groups</strong>(group_name,g,found_arg)
+
+   character(len=*), intent(INOUT)  :: group_name
+   type(<a href="group_mod_f.html#group_type">group_type</a>), intent(OUT)    :: g           ! group
+   logical, intent(OUT), optional   :: found_arg   ! true if found
+</pre>
+</body>
+</html>

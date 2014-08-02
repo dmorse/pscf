@@ -1,0 +1,112 @@
+ format  1  0
+
+CHEMISTRY      
+N_monomer           
+              2
+names               
+            'A'            'B'
+kuhn                
+  1.0000000E+00  1.0000000E+00
+chi_flag            
+            'B'
+chi                 
+  5.9000000E+01
+N_chain             
+              1
+N_block             
+              2
+block_monomer  
+              1              2
+block_length   
+  3.4000000E-01  6.6000000E-01
+N_solvent           
+              0
+ensemble            
+              0
+phi_chain           
+  1.0000000E+00
+
+UNIT_CELL      
+dim                 
+              2
+crystal_system      
+    'hexagonal'
+N_cell_param        
+              1
+cell_param          
+  2.2955436E+00
+
+DISCRETIZATION 
+N_grids             
+             24             24
+chain_step          
+  1.0000000E-02
+
+FILE_PREFIXES  
+input_prefix        
+          'in.'
+output_prefix       
+             ''
+
+BASIS          
+group_name          
+      'P 6 m m'
+
+READ_OMEGA     
+reorder_omega       
+              F
+
+ITERATE        
+max_itr             
+             12
+N_cut               
+             61
+error_max           
+  1.0000000E-08
+domain              
+              T
+
+SWEEP          
+s_max               
+  4.0000000E+01
+d_chi               
+  1.0000000E+00
+end_increments 
+
+FINISH         
+
+THERMO         
+f_Helmholtz         
+  5.1110263E+00
+f_homo              
+  1.2239600E+01
+pressure            
+  3.1211444E+00
+mu_chain            
+  8.2321707E+00
+stress              
+ -4.6309242E-11
+
+DECOMPOSE      
+overlap_AB          
+  3.5951600E-02
+f_enthalpy          
+  2.1211444E+00
+f_head              
+  1.6417672E+00
+f_tail              
+  1.4058899E+00
+f_junction          
+  9.4885217E-01
+
+STATISTICS     
+N_star              
+             61
+Final Error         
+  5.5782087E-09
+Iterations          
+              9
+Basis Time          
+  4.7928190E-01
+SCF Time            
+  8.0326390E-01

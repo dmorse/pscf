@@ -1,0 +1,109 @@
+
+<p>
+The variables in the UNIT_CELL section of the input script specfy 
+the dimensionality dim of the crystal (which must be 1, 2, or 3), 
+the crystal system (e.g., cubic, tetragonal, etc. for 3D crystals), 
+the number of parameters N_cell_param required to specify the size 
+and shape of the unit cell for that crystal system (e.g., 1 for a 
+cubic lattice and 6 for a triclinic cell), and a list cell_param 
+of N_cell_param parameters. Listed below are the allowed 
+crystal system names, along with the required value for N_cell_param 
+and the meanings of the elements of the cell_param array. 
+</p>
+
+<hr/>
+
+<h3>1D Crystal Systems</h3>
+<p>
+The only allowed crystal system name for a one-dimensional 
+crystal is 'lamellar'. 
+</p>
+
+<hr/>
+
+<h3>2D Crystal Systems</h3>
+<p>
+For two dimensional crystals (dim=2), the parameters a and b are
+the lengths of the two Bravais lattice vectors, and gamma is the
+angle between them, in radians. 
+</p>
+<table width="60%">
+<tr>
+<th width="25%">systems</th>
+<th width="25%">N_cell_param</th>
+<th            >cell_param</th>
+</tr>
+<tr>
+<td>square</td>
+<td>1</td>
+<td>a</td>
+</tr>
+<tr>
+<td>rectangular</td>
+<td>2</td>
+<td>a, b</td>
+</tr>
+<tr>
+<td>hexagonal</td>
+<td>1</td>
+<td>a</td>
+</tr>
+<tr>
+<td>oblique</td>
+<td>3</td>
+<td>a, b, gamma</td>
+</tr>
+</table>
+
+<hr/>
+
+<h3>3D Crystal Systems</h3>
+<p>
+For three dimensional crystals (dim=3), the parameters a, b, and c 
+are the lengths of the three Bravais lattice vectors, alpha is the 
+angle between b and c, beta is the angle between c and a, and gamma 
+is the angle between a and b. 
+</p>
+<table width="60%">
+<tr>
+<th width="25%">3D systems</th>
+<th width="25%">N_cell_param</th>
+<th            >cell_param</th>
+</tr>
+<tr>
+<td>cubic</td>
+<td>1</td>
+<td>a</td>
+</tr>
+<tr>
+<td>tetragonal</td>
+<td>2</td>
+<td>a, c</td>
+</tr>
+<tr>
+<td>orthorhombic</td>
+<td>3</td>
+<td>a, b, c</td>
+</tr>
+<tr>
+<td>monoclinic</td>
+<td>4</td>
+<td>a, b, c, beta</td>
+</tr>
+<tr>
+<td>hexagonal</td>
+<td>2</td>
+<td>a, c</td>
+</tr>
+<tr>
+<td>trigonal</td>
+<td>2</td>
+<td>a, alpha</td>
+</tr>
+<tr>
+<td>triclinic</td>
+<td>6</td>
+<td>a, b, c alpha, beta, gamma</td>
+</tr>
+</table>
+

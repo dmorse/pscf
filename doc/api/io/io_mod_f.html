@@ -1,0 +1,421 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<link rel="stylesheet" href="../GDoc.css" type="text/css">
+<title>io/io_mod_f</title>
+</head>
+<body bgcolor="#FFFFFF">
+<br />
+<p>
+[<a href="../toc.html#top">table of contents</a>]
+[<a href="../master_index.html#top">master index</a>]
+[<a href="../comment_index.html#top">comments</a>]
+[<a href="../module_index.html#top">modules</a>]
+[<a href="../program_index.html#top">programs</a>]
+[<a href="../variable_index.html#top">variables</a>]
+[<a href="../type_index.html#top">types</a>]
+[<a href="../procedure_index.html#top">procedures</a>]
+</p>
+<h3 align="center">TABLE OF CONTENTS</h3>
+<ul><li>module <a href="#io_mod">io_mod</a></li>
+<ul>
+<li>procedure <a href="#input">input</a></li>
+<li>procedure <a href="#output">output</a></li>
+<li>comment <a href="#io_format">io_format</a></li>
+<li>procedure <a href="#set_io_units">set_io_units</a></li>
+<li>procedure <a href="#set_echo">set_echo</a></li>
+<li>procedure <a href="#set_com_style">set_com_style</a></li>
+<li>procedure <a href="#set_com_use">set_com_use</a></li>
+<li>procedure <a href="#set_output_fmt">set_output_fmt</a></li>
+</ul>
+<h2 id="io_mod" ><a href="io_mod_f_.html#io_mod" target="source">io_mod</a></h2>
+<p><strong>MODULE</strong></p>  <pre>
+    <strong>io_mod</strong> - generic subroutine interfaces for file io
+ 
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+ 
+    The generic subroutine interfaces '<a href="#input">input</a>' and '<a href="#output">output</a>' provide 
+    a standard interface for reading parameters from and writing 
+    to file. Similar interfaces are used for integer, real, logical,
+    and character(*) data, for 1D arrays of integers, real, or
+    character(*) data, and 2D arrays of integers or real data.
+ 
+    Input and <a href="#output">output</a> styles can be chosen from several that allow
+    each data item to be accompanied by a comment string, namely:
+    comment on line above data, comment before or after data on the
+    same line, or no comment. Subroutines with names beginning with
+    set_... allow the user to set values of private module variables
+    that determine default <a href="#input">input</a> and <a href="#output">output</a> formats. These default 
+    values may also be overridden by the use of optional arguments 
+    to <a href="#input">input</a> and <a href="#output">output</a> routines
+ 
+</pre>
+<p><strong>PUBLIC PROCEDURES</strong></p>  <pre>
+ 
+    <a href="#input">input</a>  - generic interface for <a href="#input">input</a> subroutines 
+    <a href="#output">output</a> - generic interface for <a href="#output">output</a> subroutine  
+ 
+    <a href="#set_io_units">set_io_units</a>   - set <a href="#input">input</a> and <a href="#output">output</a> file unit numbers
+    <a href="#set_com_style">set_com_style</a>  - set comment style (same for <a href="#input">input</a> and <a href="#output">output</a>)
+    <a href="#set_output_fmt">set_output_fmt</a> - set <a href="#output">output</a> format (field widths, float format)
+    <a href="#set_echo">set_echo</a>       - choose whether to echo <a href="#input">input</a>
+    <a href="#set_com_use">set_com_use</a>    - choose whether to echo <a href="#input">input</a> comments
+ 
+</pre>
+<h2 id="input" ><a href="io_mod_f_.html#input" target="source">input</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+ 
+    <strong>input</strong>  - generic interface for reading data from file
+    <a href="#output">output</a> - generic interface for writing data to file
+ 
+</pre>
+<p><strong>SYNOPSIS</strong></p>  <pre>
+ 
+    Scalar integer, real(<a href="../const_mod_f.html#long">long</a>), character(*) data
+ 
+        call <strong>input</strong>(data,[c,i,o,e,f,u])
+        call <a href="#output">output</a>(data,[c,o,e,f])     ! integer, real, and logical
+        call <a href="#output">output</a>(data,[c,o,e,f,l])   ! character(*)
+ 
+        data = variable to be read and/or written to file
+               integer, real(<a href="../const_mod_f.html#long">long</a>) 
+ 
+    Vectors (1D arrays) integer, real, or character data:
+ 
+        <strong>input</strong>(data,n,[c,s,i,o,e,f,u])
+        <a href="#output">output</a>(data,n,[c,s,o,e,f])      ! integer or real
+        <a href="#output">output</a>(data,n,[c,o,e,f,l])      ! character(*)
+ 
+        data(:) = 1D array to be to be read from file
+                  integer or real(<a href="../const_mod_f.html#long">long</a>) 
+ 
+        n       = logical dimension of data(1:n)
+                  integer
+ 
+    Matrices (2D arrays) of integer or real data (<strong>input</strong> & <a href="#output">output</a>)
+ 
+        <strong>input</strong>(data,m,n,[c,s,i,o,e,f,u])
+        <a href="#output">output</a>(data,m,n,[c,s,o,e,f])
+ 
+        data(:,:) = 2D array to be to be read from file
+                    integer or real(<a href="../const_mod_f.html#long">long</a>) 
+ 
+        m, n      = logical dimensions of data(1:m,1:n)
+                    integers
+ 
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+        
+        data = scalar, vector, or matrix data, as discussed above
+ 
+        c    = comment string for <a href="#output">output</a> (or echoed <strong>input</strong>)
+               character(*) (optional)
+  
+        i, o = <strong>input</strong> and <a href="#output">output</a> file unit numbers
+               integer (optional)
+  
+        e    = echo flag: e=1 echo <strong>input</strong>, e=0 no echo
+               integer (optional)
+ 
+        f    = comment style flag (see discussion)
+               character(1) (optional)
+ 
+        u    = comment usage flag (see discussion)
+               character(1) (optional) - only for <strong>input</strong>
+ 
+        l    = field width for character string <a href="#output">output</a>
+               integer(optional) - only for character <a href="#output">output</a>
+ 
+        s    = vector or matrix io format flag - see discussion below
+               character(1) (optional) - only for vector or matrix data
+ 
+</pre>
+<h2 id="output" ><a href="io_mod_f_.html#output" target="source">output</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+ 
+    <strong>output</strong> - generic interface for writing data to file
+ 
+</pre>
+<p><strong>SYNOPSIS</strong></p>  <pre>
+ 
+    Scalar integer, real(<a href="../const_mod_f.html#long">long</a>), character(*) data
+ 
+        call <strong>output</strong>(data,[c,o,e,f])     ! integer, real, and logical
+        call <strong>output</strong>(data,[c,o,e,f,l])   ! character(*)
+ 
+    Vectors (1D arrays) integer, real, or character data:
+ 
+        <strong>output</strong>(data,n,[c,s,o,e,f])      ! integer or real
+        <strong>output</strong>(data,n,[c,o,e,f,l])      ! character(*)
+ 
+    Matrices (2D arrays) of integer or real data (<a href="#input">input</a> & <strong>output</strong>)
+ 
+        <strong>output</strong>(data,m,n,[c,s,o,e,f])
+ 
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+   
+    See arguments of subroutine <a href="#input">input</a>
+ 
+</pre>
+<h2 id="io_format" ><a href="io_mod_f_.html#io_format" target="source">io_format</a></h2>
+<p><strong>COMMENT</strong></p>  <pre>
+ 
+    Comment styles:
+ 
+    The module defines four styles in which comments strings
+    can be associated with inputs and <a href="#output">output</a> data. These 
+    styles are associated with four possible values of a 
+    character(1) variable:
+ 
+    'N' -> None  - no comment 
+    'A' -> Above - comment on separate line above data
+    'L' -> Left  - comment to the left of data on the same line
+    'R' -> Right - comment to the right of data on the same line
+ 
+    The 'N' and 'A' style are defined for any type of data,
+    while only 'N' and 'A' are defined for matrix data.
+ 
+    A default comment style is given by the value of one the 
+    three global character(1) variables, which must have one of 
+    above values: 
+ 
+       scalar_com_style for scalar   (int, real, or char) 
+       vector_com_style for vectors  (int or real)
+       matrix_com_style for matrices (int or real)
+ 
+    These default comment style variables may modified by 
+    a subroutine call:
+    
+       call <a href="#set_com_style">set_com_style</a>([s],[v],[m])
+ 
+    in which optional character(1) variables s, v, and m hold
+    the desired values of the scalar, vector, and matrix 
+    comment styles, respectively. 
+ 
+    The default comment style may be overridden by passing 
+    <a href="#input">input</a> or <a href="#output">output</a> the optional character(1) argument f with 
+    one of the above values.
+ 
+ -----------------------------------------------------------------
+  Input format:
+    
+    All <a href="#input">input</a> routines use the default format read(iunit,*) for
+    both comments and data. As a result of this:
+ 
+    1) The spacing of data and comments within an <a href="#input">input</a> record 
+       is irrelevant.
+ 
+    2) Input comment strings must consist of single character(*)
+       tokens, i.e., they must either be strings with no spaces or 
+       other delimiters, or surrounded by quotation marks. 
+  
+    Rule (2) must be obeyed in the 'L' comment style in order to
+    to allow the comment to be distinguished from the <a href="#input">input</a> data.
+    In the 'A' and 'R' styles, if a comment string contains spaces, 
+    the data is read corectly, but only the first word of comment 
+    is actually read. 
+ 
+ -----------------------------------------------------------------
+  Output formats:
+ 
+    The <a href="#output">output</a> format is controlled by the following global
+    variables, whose values may be modified by calling 
+    set_output_format:
+ 
+    com_width  = width of comment <a href="#output">output</a> field        (integer)
+    data_width = width of data <a href="#output">output</a> field           (integer)
+    frac_width = # digits after decimal for reals #s  (integer)
+    fmt_ef     = format for reals = 'E','F', or 'ES'  (character*2)
+ 
+    The field width data_width is used for scalar integer, 
+    real, and character data.  Initial values are given in 
+    the declarations of these variables.
+ 
+    Row vectors are <a href="#output">output</a> on a single record by repeating the 
+    format string for the corresponding scalar, preceded by a
+    comment line in the 'A' comment style.
+   
+    Matrices are <a href="#output">output</a> as a sequence of row vectors, 
+    preceded by a comment line in the 'A' comment style.
+    If the symmetry flag s='A' or s='L', then only the
+    lower diagonal or below diagonal sector that is read
+    on <a href="#input">input</a> is <a href="#output">output</a> (see below)
+    
+ -----------------------------------------------------------------
+  Vector io format flag:
+ 
+    s = 'R'    Row vector - all data in one record
+               (default if argument s is absent)
+ 
+               Format (for comment style 'N' or 'A')
+ 
+                    data(1)  data(2) data(3) ... data(N)
+ 
+    s = 'C'    Column vector -each element on a separate line
+ 
+               Format (for comment style 'N' or 'A')
+ 
+                    data(1)  
+                    data(2) 
+                     ...
+                    data(N)
+ 
+ -----------------------------------------------------------------
+  Matrix io format flag:
+ 
+    s = 'N'    Normal or No symmetry
+               (default if argument s is absent)
+ 
+               Format for 3 x 3 matrix
+ 
+                 data(1,1) data(1,2) data(1,3) 
+                 data(2,1) data(2,2) data(2,3)
+                 data(3,1) data(3,2) data(3,3)
+ 
+    s = 'S'    Symmetric matrix
+               data(i,j) = data(j,i)
+               read only data(i,j) for j <= i, i=1,..,m
+ 
+               Format for 3 x 3 matrix:
+ 
+                 data(1,1) 
+                 data(2,1) data(2,2) 
+                 data(3,1) data(3,2) data(3,3)
+ 
+ 
+    s = 'L'    Symmetric matrix with zero diagonal elements
+               data(i,j) = data(j,i)
+               data(i,i) = 0
+               read only data(i,j) for j < i, i=2,..,m
+ 
+               Format for 3 x 3 matrix:
+ 
+                 data(2,1) 
+                 data(3,1) data(3,2) 
+ 
+ -----------------------------------------------------------------
+  Echoing: 
+ 
+    Input data and a comment are printed to an <a href="#output">output</a> file if:
+ 
+    1) The global variable default_echo has the value 
+       default_echo = 1, and the optional argument e is absent
+ 
+    2) the optional argument e is present, and e=1.
+ 
+    Echoed <a href="#output">output</a> is <a href="#output">output</a> using the same comment style as that
+    used for input. 
+ 
+    The default_echo variable may be reset by the subroutine call
+ 
+       call <a href="#set_echo">set_echo</a>(e)
+ 
+    where e is the desired integer default value (e=1 for echoing, 
+    e=0 for no echoing)
+ 
+ -----------------------------------------------------------------
+  Comment Usage:
+ 
+    The module defines three possible treatments of the
+    comments that are read from the <a href="#input">input</a> file with data,
+    which are associated with four possible values of a
+    character(1) com_use variable:
+ 
+    'K' -> Keep    - Return the <a href="#input">input</a> comment as argument c 
+                     on <a href="#output">output</a>, if c is present, and use it 
+                     in any echoed output.
+ 
+    'R' -> Replace - Replace the <a href="#input">input</a> comment by the <a href="#input">input</a> 
+                     value of argument c in any echoed output.
+ 
+    'C' -> Check   - Check that the <a href="#input">input</a> comment matches the
+                     <a href="#input">input</a> value of argument c, write error
+                     message if they do not match (not yet
+                     implemented)
+ 
+    The choice of one of these actions is determined either by
+    by the value of a global argument*1 variable default_com_use,
+    or the value of the character(1) argument 'u', if present,
+    both of which must take on one of the above values.
+ 
+</pre>
+<h2 id="set_io_units" ><a href="io_mod_f_.html#set_io_units" target="source">set_io_units</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+    <strong>set_io_units</strong>   - set <a href="#input">input</a> and <a href="#output">output</a> file unit numbers
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>set_io_units</strong>(i,o)
+   integer, intent(IN), optional :: i  ! default <a href="#input">input</a> unit #
+   integer, intent(IN), optional :: o  ! default <a href="#output">output</a> unit #
+</pre>
+<h2 id="set_echo" ><a href="io_mod_f_.html#set_echo" target="source">set_echo</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+    <strong>set_echo</strong>(e)    - choose whether to echo <a href="#input">input</a>
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>set_echo</strong>(e)
+   integer, intent(IN) :: e
+</pre>
+<h2 id="set_com_style" ><a href="io_mod_f_.html#set_com_style" target="source">set_com_style</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+    <strong>set_com_style</strong>(s,v,m)  - set comment style for <a href="#input">input</a> and <a href="#output">output</a>
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Allows new values to be set for the default comment
+     styles for scalars, vectors, and matrices. All 
+     arguments are optional character(1) variables which
+     must (if present) must have a valid value 'N', 'A',
+     'L' or 'R for a comment 
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>set_com_style</strong>(s,v,m)
+   character(1), intent(IN), optional :: s  ! scalar_com_style
+   character(1), intent(IN), optional :: v  ! vector_com_style
+   character(1), intent(IN), optional :: m  ! matrix_com_style
+</pre>
+<h2 id="set_com_use" ><a href="io_mod_f_.html#set_com_use" target="source">set_com_use</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+    <strong>set_com_use</strong>(u) - choose whether to echo <a href="#input">input</a> comments
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Reset default comment usage variable default_com_use 
+     to <a href="#input">input</a> value of argument u
+ -------------------------------------------------------------------
+   subroutine <strong>set_com_use</strong>(u)
+   character(1), intent(IN) :: u  ! new value of default_com_use
+</pre>
+<h2 id="set_output_fmt" ><a href="io_mod_f_.html#set_output_fmt" target="source">set_output_fmt</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+    <strong>set_output_fmt</strong> - set <a href="#output">output</a> format (field widths, float format)
+ 
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+  Routine allows new values to be set for the integer
+  variables com_width , data_width, and/or frac_width,
+  which determine field widths for comment and data 
+  fields, and for the character(2) fmt_ef, which is the
+  format specifier 'E' or 'F' used to <a href="#output">output</a> real numbers.
+ 
+  Also resets the format strings fmt_c, fmt_i, and/or 
+  fmt_r, as needed, so as to agree with the new values
+  of the field widths and fmt_ef.
+ 
+  Subroutine arguments (all are optional arguments):
+ 
+   c = com_width  = width of comment field
+   d = data_width = width of scalar data field
+   f = frac_width = # of digits after decimal in floats
+   e = fmt_ef     = 'E', 'F', or 'ES' format style for floats
+ 
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>set_output_fmt</strong>(c,d,f,e)
+   integer, intent(IN), optional      :: c  ! com_width 
+   integer, intent(IN), optional      :: d  ! data_width
+   integer, intent(IN), optional      :: f  ! frac_width
+   character(2), intent(IN), optional :: e  ! fmt_ef
+</pre>
+</body>
+</html>

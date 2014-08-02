@@ -1,0 +1,253 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<link rel="stylesheet" href="../GDoc.css" type="text/css">
+<title>iterate/iterate_mod_f</title>
+</head>
+<body bgcolor="#FFFFFF">
+<br />
+<p>
+[<a href="../toc.html#top">table of contents</a>]
+[<a href="../master_index.html#top">master index</a>]
+[<a href="../comment_index.html#top">comments</a>]
+[<a href="../module_index.html#top">modules</a>]
+[<a href="../program_index.html#top">programs</a>]
+[<a href="../variable_index.html#top">variables</a>]
+[<a href="../type_index.html#top">types</a>]
+[<a href="../procedure_index.html#top">procedures</a>]
+</p>
+<h3 align="center">TABLE OF CONTENTS</h3>
+<ul><li>module <a href="#iterate_mod">iterate_mod</a></li>
+<ul>
+<li>variable <a href="#max_itr">max_itr</a></li>
+<li>variable <a href="#error_max">error_max</a></li>
+<li>variable <a href="#domain">domain</a></li>
+<li>variable <a href="#iter_algo">iter_algo</a></li>
+<li>variable <a href="#N_cut">N_cut</a></li>
+<li>procedure <a href="#input_iterate_param">input_iterate_param</a></li>
+<li>procedure <a href="#output_iterate_param">output_iterate_param</a></li>
+<li>procedure <a href="#iterate_NR_startup">iterate_NR_startup</a></li>
+<li>procedure <a href="#iterate_NR">iterate_NR</a></li>
+<li>procedure <a href="#make_residual">make_residual</a></li>
+<li>procedure <a href="#Jacobian_response">Jacobian_response</a></li>
+</ul>
+<h2 id="iterate_mod" ><a href="iterate_mod_f_.html#iterate_mod" target="source">iterate_mod</a></h2>
+<p><strong>MODULE</strong></p>  <pre>
+    <strong>iterate_mod</strong>
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+    Iteration of SCF equations
+</pre>
+<p><strong>ALGORITHM</strong></p>  <pre>
+    Newton/Broyden algorithm that uses an approximate calculation 
+    for the initial Jacobian and Broyden updates to the <a href="../crystal/group_mod_f.html#inverse">inverse</a> 
+    Jacobian. The approximate initial Jacobian is calculatd from 
+    a corresponding approximate linear response matrix, which is 
+    calculated in response_pd_mod. See the docblock for <a href="#N_cut">N_cut</a> for 
+    a discussion of approximate response function. 
+ 
+    Subroutine <a href="#iterate_NR">iterate_NR</a> can either:
+      i)  Iterate omega in a fixed unit cell     (<a href="#domain">domain</a> = F)
+      ii) Iterate both omega and unit_cell_param (<a href="#domain">domain</a> = T)
+    depending upon value of logical module variable <a href="#domain">domain</a>
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+module <strong>iterate_mod</strong>
+   use <a href="../const_mod_f.html#const_mod">const_mod</a>
+   use <a href="../io/io_mod_f.html#io_mod">io_mod</a>
+   use <a href="response_pd_mod_f.html#response_pd_mod">response_pd_mod</a>
+   implicit none
+
+   private
+
+   ! public procedures
+   public :: <a href="#input_iterate_param">input_iterate_param</a>   ! <a href="../io/io_mod_f.html#input">input</a> iteration parameters 
+   public :: <a href="#output_iterate_param">output_iterate_param</a>  ! <a href="../io/io_mod_f.html#output">output</a> iteration variables
+   public :: <a href="#iterate_NR_startup">iterate_NR_startup</a>    ! allocates arrays needed by <a href="#iterate_NR">iterate_NR</a>
+   public :: <a href="#iterate_NR">iterate_NR</a>            ! main Newton-Raphson iteration routine
+
+   ! public variables
+   public :: <a href="#max_itr">max_itr</a>    ! maximum allowable number of iterations
+   public :: <a href="#error_max">error_max</a>  ! error tolerance: stop when error < <a href="#error_max">error_max</a>
+   public :: <a href="#domain">domain</a>     ! If true, adjust unit_cell_dimensions
+   public :: itr_algo   ! Iteration algorithm 
+   public :: <a href="#N_cut">N_cut</a>      ! dimension of cutoff response and Jacobian
+</pre>
+<h2 id="max_itr" ><a href="iterate_mod_f_.html#max_itr" target="source">max_itr</a></h2>
+<p><strong>VARIABLE</strong></p>  <pre>
+    integer <strong>max_itr</strong> - maximum allowed number of iterations
+</pre>
+<h2 id="error_max" ><a href="iterate_mod_f_.html#error_max" target="source">error_max</a></h2>
+<p><strong>VARIABLE</strong></p>  <pre>
+    real(<a href="../const_mod_f.html#long">long</a>) <strong>error_max</strong> - maximum error in converged solution
+                         - Stop when error < <strong>error_max</strong>
+</pre>
+<h2 id="domain" ><a href="iterate_mod_f_.html#domain" target="source">domain</a></h2>
+<p><strong>VARIABLE</strong></p>  <pre>
+    logical <strong>domain</strong> - If .true.,  iterate variable unit_cell shape
+                     If .false., iterate omega in fixed unit cell
+</pre>
+<h2 id="iter_algo" ><a href="iterate_mod_f_.html#iter_algo" target="source">iter_algo</a></h2>
+<p><strong>VARIABLE</strong></p>  <pre>
+    character(10) <strong>iter_algo</strong> - Iteration algorithm to be used
+                              For now, must <a href="../crystal/group_mod_f.html#equal">equal</a> 'NR' (Newton-Raphson)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+    This variable will eventually allow the user to select from more
+    than one iteration algorithm. Thus far, however, the only algorithm
+    that has been implemented is a quasi-Newton / Broyden algorithm, 
+    for which the value of <strong>iter_algo</strong> should be 'NR'. Implementation of
+    a more robust relaxation algorithm is planned. 
+</pre>
+<h2 id="N_cut" ><a href="iterate_mod_f_.html#N_cut" target="source">N_cut</a></h2>
+<p><strong>VARIABLE</strong></p>  <pre>
+    integer <strong>N_cut</strong>  - dimension of cutoff response and Jacobian
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+    The approximate linear response matrix used to construct the
+    initial Jacobian is obtained by numerically calculating the
+    response to the first <strong>N_cut</strong> basis functions to obtain an
+    <strong>N_cut</strong> x <strong>N_cut</strong> submatrix within the subspace spanned by these
+    functions, and using the analytically calculated response of
+    a homogenous gas to approximate the response to the remaining
+    basis functions.
+</pre>
+<h2 id="input_iterate_param" ><a href="iterate_mod_f_.html#input_iterate_param" target="source">input_iterate_param</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+    <strong>input_iterate_param</strong>
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+    Read parameters <a href="#max_itr">max_itr</a>, <a href="#error_max">error_max</a>, <a href="#domain">domain</a>, itr_algo, <a href="#N_cut">N_cut</a>
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>input_iterate_param</strong>
+</pre>
+<h2 id="output_iterate_param" ><a href="iterate_mod_f_.html#output_iterate_param" target="source">output_iterate_param</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+    <strong>output_iterate_param</strong>
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+    Read parameters <a href="#max_itr">max_itr</a>, <a href="#error_max">error_max</a>, <a href="#domain">domain</a>, <a href="#N_cut">N_cut</a>
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>output_iterate_param</strong>
+</pre>
+<h2 id="iterate_NR_startup" ><a href="iterate_mod_f_.html#iterate_NR_startup" target="source">iterate_NR_startup</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>iterate_NR_startup</strong>(N)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+    1) Set integer module variable N_residual = # of residuals
+    2) Allocate arrays needed by <a href="#iterate_NR">iterate_NR</a>
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+    integer N      = # of basis functions
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>iterate_NR_startup</strong>(N)
+   use <a href="../crystal/unit_cell_mod_f.html#unit_cell_mod">unit_cell_mod</a>, only : <a href="../crystal/unit_cell_mod_f.html#N_cell_param">N_cell_param</a>
+   use <a href="../scf/chemistry_mod_f.html#chemistry_mod">chemistry_mod</a>, only : <a href="../scf/chemistry_mod_f.html#N_monomer">N_monomer</a>, <a href="../scf/chemistry_mod_f.html#ensemble">ensemble</a>
+   integer, intent(IN)  :: N       ! # of basis functions
+</pre>
+<h2 id="iterate_NR" ><a href="iterate_mod_f_.html#iterate_NR" target="source">iterate_NR</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     subroutine <strong>iterate_NR</strong>
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Newton-Raphson iteration of the SCFT, using numerically
+     calculated Jacobian
+</pre>
+<p><strong>COMMENT</strong></p>  <pre>
+    1) Algorithm assumes that <a href="../scf/scf_mod_f.html#density_startup">density_startup</a>, <a href="#iterate_NR_startup">iterate_NR_startup</a>,
+       and <a href="../crystal/unit_cell_mod_f.html#make_unit_cell">make_unit_cell</a> have been called prior to iterate_NR.
+ 
+    2) Routine will simultaneously iterates omega field and unit 
+       cell parameters if <a href="#domain">domain</a> = .true., or iterate the omega
+       field for a fixed unit cell if <a href="#domain">domain</a> = .false.
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>iterate_NR</strong>(  &
+              N,           &!  # of basis functions
+              omega,       &!  chemical potential field (IN/OUT)
+              itr,         &!  actual number of interations
+              converge,    &!  = .true. if converged
+              error,       &!  final error = max(residuals)
+              rho,         &!  monomer <a href="../scf/scf_mod_f.html#density">density</a> field
+              f_Helmholtz, &!  Helmholtz free energy per monomer / kT
+              pressure,    &!  pressure * monomer volume / kT
+              stress       &!  d(free energy)/d(cell parameters)
+              )
+   !--------------------------------------------------------------------
+
+   use <a href="../io/io_mod_f.html#io_mod">io_mod</a>, only        : <a href="../io/io_mod_f.html#output">output</a>
+   use <a href="../crystal/unit_cell_mod_f.html#unit_cell_mod">unit_cell_mod</a>, only : <a href="../crystal/unit_cell_mod_f.html#N_cell_param">N_cell_param</a>, <a href="../crystal/unit_cell_mod_f.html#cell_param">cell_param</a>, &
+                             <a href="../crystal/unit_cell_mod_f.html#make_unit_cell">make_unit_cell</a>, <a href="../crystal/unit_cell_mod_f.html#G_basis">G_basis</a>, <a href="../crystal/unit_cell_mod_f.html#dGG_basis">dGG_basis</a>
+   use <a href="../crystal/basis_mod_f.html#basis_mod">basis_mod</a>, only     : <a href="../crystal/basis_mod_f.html#make_dGsq">make_dGsq</a>
+   use <a href="../scf/chemistry_mod_f.html#chemistry_mod">chemistry_mod</a>, only : <a href="../scf/chemistry_mod_f.html#N_monomer">N_monomer</a>, <a href="../scf/chemistry_mod_f.html#ensemble">ensemble</a>, <a href="../scf/chemistry_mod_f.html#mu_chain">mu_chain</a>, <a href="../scf/chemistry_mod_f.html#mu_solvent">mu_solvent</a>, &
+                             <a href="../scf/chemistry_mod_f.html#phi_solvent">phi_solvent</a>, <a href="../scf/chemistry_mod_f.html#phi_chain">phi_chain</a>, <a href="../scf/chemistry_mod_f.html#N_chain">N_chain</a>, <a href="../scf/chemistry_mod_f.html#N_solvent">N_solvent</a> 
+   use <a href="../scf/scf_mod_f.html#scf_mod">scf_mod</a>, only       : <a href="../scf/scf_mod_f.html#density">density</a>, <a href="../scf/scf_mod_f.html#scf_stress">scf_stress</a>, <a href="../scf/scf_mod_f.html#set_omega_uniform">set_omega_uniform</a>, &
+                             <a href="../scf/scf_mod_f.html#mu_phi">mu_phi</a>, <a href="../scf/scf_mod_f.html#free_energy">free_energy</a>
+   use <a href="../grid/grid_mod_f.html#grid_mod">grid_mod</a>, only      : <a href="../grid/grid_mod_f.html#make_ksq">make_ksq</a>
+
+   ! Arguments
+   integer, intent(IN)         :: N        
+   real(<a href="../const_mod_f.html#long">long</a>), intent(INOUT)   :: omega(:,:)  ! omega(<a href="../scf/chemistry_mod_f.html#N_monomer">N_monomer</a>,N)
+   integer, intent(OUT)        :: itr         
+   logical, intent(OUT)        :: converge
+   real(<a href="../const_mod_f.html#long">long</a>), intent(OUT)     :: error
+   real(<a href="../const_mod_f.html#long">long</a>), intent(OUT)     :: rho(:,:)    ! rho(<a href="../scf/chemistry_mod_f.html#N_monomer">N_monomer</a>,N)
+   real(<a href="../const_mod_f.html#long">long</a>), intent(OUT)     :: f_Helmholtz
+   real(<a href="../const_mod_f.html#long">long</a>), intent(OUT)     :: pressure
+   real(<a href="../const_mod_f.html#long">long</a>), intent(OUT)     :: stress(:)   ! stress(<a href="../crystal/unit_cell_mod_f.html#N_cell_param">N_cell_param</a>)
+</pre>
+<h2 id="make_residual" ><a href="iterate_mod_f_.html#make_residual" target="source">make_residual</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>make_residual</strong>( N, <a href="#domain">domain</a>, rho, stress, omega, residual )
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Calculate array residual(1:N_residual) 
+     Uses <a href="../io/io_mod_f.html#input">input</a> values of rho, omega, and stress arrays
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+    integer N              = # of basis functions
+    logical <a href="#domain">domain</a>         = T -> <a href="#domain">domain</a> iteration, F -> fixed cell
+    real(<a href="../const_mod_f.html#long">long</a>) rho(:,:)    = monomer <a href="../scf/scf_mod_f.html#density">density</a> field
+    real(<a href="../const_mod_f.html#long">long</a>) stress(:)   = stress components
+    real(<a href="../const_mod_f.html#long">long</a>) omega(:,:)  = chemical potential field
+    real(<a href="../const_mod_f.html#long">long</a>) residual(:) = residual array, dimension(1:N_residual)
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>make_residual</strong>( N, <a href="#domain">domain</a>, rho, stress, omega, residual )
+   use <a href="../crystal/unit_cell_mod_f.html#unit_cell_mod">unit_cell_mod</a>, only: <a href="../crystal/unit_cell_mod_f.html#N_cell_param">N_cell_param</a>
+   use <a href="../scf/chemistry_mod_f.html#chemistry_mod">chemistry_mod</a>, only: <a href="../scf/chemistry_mod_f.html#ensemble">ensemble</a>, <a href="../scf/chemistry_mod_f.html#N_monomer">N_monomer</a>, <a href="../scf/chemistry_mod_f.html#chi">chi</a>
+   implicit none
+
+   integer,    intent(IN) :: N
+   logical,    intent(IN) :: <a href="#domain">domain</a>
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN) :: rho(:,:)
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN) :: stress(:)
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN) :: omega(:,:)
+   real(<a href="../const_mod_f.html#long">long</a>), intent(OUT):: residual(:)
+</pre>
+<h2 id="Jacobian_response" ><a href="iterate_mod_f_.html#Jacobian_response" target="source">Jacobian_response</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>Jacobian_response</strong>(N, <a href="#N_cut">N_cut</a>, <a href="#domain">domain</a>, omega, Jacobian)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Construct Jacobian from response functions
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>Jacobian_response</strong>(N, <a href="#N_cut">N_cut</a>, <a href="#domain">domain</a>, omega, Jacobian)
+   use <a href="../scf/chemistry_mod_f.html#chemistry_mod">chemistry_mod</a>, only : <a href="../scf/chemistry_mod_f.html#ensemble">ensemble</a>, <a href="../scf/chemistry_mod_f.html#N_monomer">N_monomer</a>, <a href="../scf/chemistry_mod_f.html#chi">chi</a>
+   use <a href="../crystal/unit_cell_mod_f.html#unit_cell_mod">unit_cell_mod</a>, only : <a href="../crystal/unit_cell_mod_f.html#N_cell_param">N_cell_param</a>
+   implicit none
+
+   
+   integer, intent(IN)       :: N
+   integer, intent(IN)       :: <a href="#N_cut">N_cut</a>
+   logical, intent(IN)       :: <a href="#domain">domain</a>
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN)    :: omega(:,:)
+   real(<a href="../const_mod_f.html#long">long</a>), intent(OUT)   :: Jacobian(:,:)
+</pre>
+</body>
+</html>

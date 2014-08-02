@@ -1,0 +1,75 @@
+ format  1  0
+
+MONOMERS
+N_monomer           
+              3
+kuhn                
+  1.0000000E+00  1.0000000E+00  1.0000000E+00
+
+CHAINS
+N_chain             
+              1
+N_block             
+              3
+block_monomer  
+              1              2              3
+block_length   
+  2.0000000E-01  6.0000000E-01  2.0000000E-01
+
+SOLVENTS
+N_solvent           
+              0
+
+COMPOSITION
+ensemble            
+              0
+phi_chain           
+  1.0000000E+00
+
+INTERACTION
+interaction_type
+          'chi'
+chi                 
+  1.3000000E+01
+  3.5000000E+01  1.3000000E+01
+
+UNIT_CELL      
+dim                 
+              2
+crystal_system      
+  'rectangular'
+N_cell_param        
+              2
+cell_param          
+  1.3839280E+00  1.3839280E+00
+
+DISCRETIZATION 
+ngrid               
+             32             32
+chain_step          
+  1.0000000E-02
+
+FILE_PREFIXES  
+input_prefix        
+          'in.'
+output_prefix       
+             ''
+
+BASIS          
+group_name          
+      'p 2 m m'
+
+ITERATE        
+max_itr             
+            300
+error_max           
+  1.0000000E-08
+domain              
+              T
+itr_algo
+           'NR'
+N_cut               
+             60
+
+FINISH         
+

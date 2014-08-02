@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<link rel="stylesheet" href="../GDoc.css" type="text/css">
+<title>grid/fft3_mod_f</title>
+</head>
+<body bgcolor="#FFFFFF">
+<br />
+<p>
+[<a href="../toc.html#top">table of contents</a>]
+[<a href="../master_index.html#top">master index</a>]
+[<a href="../comment_index.html#top">comments</a>]
+[<a href="../module_index.html#top">modules</a>]
+[<a href="../program_index.html#top">programs</a>]
+[<a href="../variable_index.html#top">variables</a>]
+[<a href="../type_index.html#top">types</a>]
+[<a href="../procedure_index.html#top">procedures</a>]
+</p>
+<h3 align="center">TABLE OF CONTENTS</h3>
+<ul><li>module <a href="#fft_mod">fft_mod</a></li>
+<ul>
+<li>type <a href="#fft_plan">fft_plan</a></li>
+<li>procedure <a href="#create_fft_plan">create_fft_plan</a></li>
+<li>procedure <a href="#fft">fft</a></li>
+<li>procedure <a href="#ifft">ifft</a></li>
+<li>procedure <a href="#fftc">fftc</a></li>
+</ul>
+<h2 id="fft_mod" ><a href="fft3_mod_f_.html#fft_mod" target="source">fft_mod</a></h2>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Derived type <a href="#fft_plan">fft_plan</a>
+     Wrapper subroutines for fftw-3
+  COMMENTS
+     Consider use even/odd fftw, and r-to-r fftw in the future
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+module <strong>fft_mod</strong>
+   use <a href="../const_mod_f.html#const_mod">const_mod</a>
+   implicit none
+
+   PRIVATE 
+   PUBLIC :: <a href="#fft_plan">fft_plan</a>
+   PUBLIC :: <a href="#create_fft_plan">create_fft_plan</a>    ! initialize an <a href="#fft_plan">fft_plan</a>
+   PUBLIC :: <a href="#fftc">fftc</a>               ! complex FFT for 1, 2, or 3D
+   PUBLIC :: <a href="#fft">fft</a>                ! Forward FFT for 1, 2, or 3D
+   PUBLIC :: <a href="#ifft">ifft</a>               ! Inverse FFT for 1, 2, or 3D
+</pre>
+<h2 id="fft_plan" ><a href="fft3_mod_f_.html#fft_plan" target="source">fft_plan</a></h2>
+<p><strong>TYPE</strong></p>  <pre>
+     <strong>fft_plan</strong> 
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Contains grid dimensions for FFT grid and integer pointers to
+     the "<a href="../scf/scf_mod_f.html#plan">plan</a>" structures used by the FFTW package
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   type <strong>fft_plan</strong>
+      integer    ::  n(3)   ! grid dimensions, 0 for unused dimensions
+      integer*8  ::  f      ! fftw <a href="../scf/scf_mod_f.html#plan">plan</a> object for forward transform
+      integer*8  ::  r      ! fftw <a href="../scf/scf_mod_f.html#plan">plan</a> object for <a href="../crystal/group_mod_f.html#inverse">inverse</a> transform
+   end type <strong>fft_plan</strong>
+</pre>
+<h2 id="create_fft_plan" ><a href="fft3_mod_f_.html#create_fft_plan" target="source">create_fft_plan</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>create_fft_plan</strong>
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Creates an <a href="#fft_plan">fft_plan</a> object for grids with dimensions 
+     <a href="grid_mod_f.html#ngrid">ngrid</a>(1),..,<a href="grid_mod_f.html#ngrid">ngrid</a>(<a href="../const_mod_f.html#dim">dim</a>)
+ -------------------------------------------------------------------
+   subroutine <strong>create_fft_plan</strong>(<a href="grid_mod_f.html#ngrid">ngrid</a>,<a href="../scf/scf_mod_f.html#plan">plan</a>,fft_c2c)
+   integer,intent(IN)             :: <a href="grid_mod_f.html#ngrid">ngrid</a>(3) ! dimensions of grid
+   type(<a href="#fft_plan">fft_plan</a>),intent(OUT)     :: <a href="../scf/scf_mod_f.html#plan">plan</a>
+   logical, optional, intent(IN)  :: fft_c2c
+</pre>
+<h2 id="fft" ><a href="fft3_mod_f_.html#fft" target="source">fft</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+      <strong>fft</strong>(<a href="../scf/scf_mod_f.html#plan">plan</a>,in,out)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Calculates forward <strong>fft</strong> of in, returns result in out.
+     Wrapper for 1, 2, & 3 dimensional real -> complex transforms
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+     <a href="../scf/scf_mod_f.html#plan">plan</a>    - <strong>fft</strong> <a href="../scf/scf_mod_f.html#plan">plan</a> object
+     in, out - real(<a href="../const_mod_f.html#long">long</a>) 3D arrays 
+</pre>
+<p><strong>COMMENT</strong></p>  <pre>
+     in and out are dimensioned 0:<a href="grid_mod_f.html#ngrid">ngrid</a>(i)-1 for all i <= <a href="../const_mod_f.html#dim">dim</a>, 
+     and 0:0 for any unused dimensions with <a href="../const_mod_f.html#dim">dim</a> < i <= 3
+ -------------------------------------------------------------------
+   subroutine <strong>fft</strong>(<a href="../scf/scf_mod_f.html#plan">plan</a>,in,out)
+   type(<a href="#fft_plan">fft_plan</a>),intent(IN)   :: <a href="../scf/scf_mod_f.html#plan">plan</a>
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN)      :: in(0:,0:,0:)
+   complex(<a href="../const_mod_f.html#long">long</a>), intent(OUT)  :: out(0:,0:,0:)
+</pre>
+<h2 id="ifft" ><a href="fft3_mod_f_.html#ifft" target="source">ifft</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+      <strong>ifft</strong>(<a href="../scf/scf_mod_f.html#plan">plan</a>,in,out)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Calculates <a href="../crystal/group_mod_f.html#inverse">inverse</a> <a href="#fft">fft</a> of real array in, returns in out.
+     Wrapper for 1, 2, & 3 dimensional complex -> real transforms
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+     <a href="../scf/scf_mod_f.html#plan">plan</a> - <a href="#fft">fft</a> <a href="../scf/scf_mod_f.html#plan">plan</a> object
+     in   - complex(<a href="../const_mod_f.html#long">long</a>) 3D <a href="../io/io_mod_f.html#input">input</a> array
+     out  - real(<a href="../const_mod_f.html#long">long</a>) 3D <a href="../io/io_mod_f.html#input">input</a> array
+</pre>
+<p><strong>COMMENT</strong></p>  <pre>
+     in and out are dimensioned 0:<a href="grid_mod_f.html#ngrid">ngrid</a>(i)-1 for all i <= <a href="../const_mod_f.html#dim">dim</a>, 
+     and 0:0 for any unused dimensions with <a href="../const_mod_f.html#dim">dim</a> < i <= 3
+ -------------------------------------------------------------------
+   subroutine <strong>ifft</strong>(<a href="../scf/scf_mod_f.html#plan">plan</a>,in,out)
+   type(<a href="#fft_plan">fft_plan</a>),intent(IN)   :: <a href="../scf/scf_mod_f.html#plan">plan</a>
+   complex(<a href="../const_mod_f.html#long">long</a>), intent(IN)   :: in(0:,0:,0:)
+   real(<a href="../const_mod_f.html#long">long</a>), intent(OUT)     :: out(0:,0:,0:)
+</pre>
+<h2 id="fftc" ><a href="fft3_mod_f_.html#fftc" target="source">fftc</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+      <strong>fftc</strong>(direction,<a href="../scf/scf_mod_f.html#plan">plan</a>,in,out)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Calculates forward <a href="#fft">fft</a> of in, returns result in out.
+     Wrapper for 1, 2, & 3 dimensional real -> complex transforms
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+     <a href="../scf/scf_mod_f.html#plan">plan</a>    - <a href="#fft">fft</a> <a href="../scf/scf_mod_f.html#plan">plan</a> object
+     in, out - real(<a href="../const_mod_f.html#long">long</a>) 3D arrays 
+</pre>
+<p><strong>COMMENT</strong></p>  <pre>
+     in and out are dimensioned 0:<a href="grid_mod_f.html#ngrid">ngrid</a>(i)-1 for all i <= <a href="../const_mod_f.html#dim">dim</a>, 
+     and 0:0 for any unused dimensions with <a href="../const_mod_f.html#dim">dim</a> < i <= 3
+ -------------------------------------------------------------------
+   subroutine <strong>fftc</strong>(direction,<a href="../scf/scf_mod_f.html#plan">plan</a>,in,out)
+   integer,intent(IN)          :: direction
+   type(<a href="#fft_plan">fft_plan</a>),intent(IN)   :: <a href="../scf/scf_mod_f.html#plan">plan</a>
+   complex(<a href="../const_mod_f.html#long">long</a>), intent(IN)   :: in(0:,0:,0:)
+   complex(<a href="../const_mod_f.html#long">long</a>), intent(OUT)  :: out(0:,0:,0:)
+</pre>
+</body>
+</html>

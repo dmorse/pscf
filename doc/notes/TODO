@@ -1,0 +1,84 @@
+For release v0.9.0
+-----------------------------------
+
+1) Add more examples that use new file formats.
+   Examples of operation blocks with diblocks
+   Iterate/Sweep examples with solvent (Raghu)
+   Iterate/Sweep examples with ABC Triblock (Jian)
+
+2) Manual: (Dave)
+ a) Basic Usage (inputs and outputs, modes of operation)
+ b) Input Script (complete, and correct to match changes)
+ c) Output Summary
+ d) Units and Conventions (reference volume, lengths, mu)
+ e) Field Files
+ f) Python data analysis scripts
+ g) Appendix: Crystal systems 
+ h) Appendix: Space Groups
+
+Release v1.0.0
+---------------------------
+
+1) Clean up iteration algorithm:
+   a) Broyden update with less memory
+   b) Adapt response_mod so as to use rpa_mod for high wavenumbers
+2) Relaxational iteration (two-component only?)
+3) Generalize decomposition of free energy (Jian)
+4) Rewrite spinodal_mod module. Use rpa_mod and increments from sweep_mod
+5) Add multi-row integer and multi-row real input and output to io_mod
+6) Remove extr_order and extrap_order variables (hard coded)
+
+Release v1.1.0
+---------------------------
+1) Regression testing via Python scripts
+2) Generalization of linear response matrix to N_monomer > 2
+
+
+Release v1.2.0
+---------------------------
+1) Identification of irreducible representations in response
+2) Function to identify little group L(k) for specified k 
+3) Functions is_group and is_sub_group to check subgroups of L(k) 
+   used in perturbation.
+
+Later
+-----------------
+  1) subroutines to permute labelling of axes in space groups
+     and crystal systems
+  2) Creation of subgroup and basis for deformed crystal.
+  3) Star polymers
+  4) More general description of thermodynamics
+
+Major re-organization
+-----------------------------------------
+
+  In order to allow simultaneous simulation of multiple systems, and
+  reduce heavy, potentially confusing use of use association, replace 
+  module variables by derived types. This would change the program
+  organization to fully object orientated form. 
+
+  Introduce the following derived types to encapsulate module variables:
+
+        group_type
+        chains_type
+        +	
+        chemistry_type
+        unit_cell_type
+        basis_type
+	grid_type
+
+        system_type
+	  -> chemistry_type :: chem
+	  -> unit_cell      :: cell
+	  -> group_type     :: group
+	  -> grid_type      :: type
+	  -> basis_type     :: basis
+	  -> chain_type     :: chains(:)
+	  ds
+	  -> omega(:)
+	  -> rho(:)
+	  -> stress(:)
+	  f_Helmholtz
+	  pressure
+	  f_homo
+

@@ -1,0 +1,193 @@
+
+<p>
+Both the "omega" files and the "rho" file describe multicomponent
+fields, and both have the same format.  Shown below is an example:
+</p>
+
+<hr>
+<h3>Example</h3>
+<p>
+Here is an example of a "rho" file output from a simulation of a 
+lamellar phase for a diblock copolymer melt
+<pre class="file">
+ format  1  0
+dim                 
+                   1
+crystal_system      
+          'lamellar'
+N_cell_param        
+                   1
+cell_param          
+    1.3835952906E+00
+group_name          
+                '-1'
+N_monomer           
+                   2
+N_star              
+                  21
+  5.600000000000E-01  4.400000000000E-01       0     1
+  2.179734275940E-01 -2.179734275841E-01       1     2
+ -1.523969262415E-02  1.523969262143E-02       2     2
+ -5.575240954520E-03  5.575240954490E-03       3     2
+  1.108470498335E-03 -1.108470498556E-03       4     2
+  1.455449531056E-04 -1.455449530934E-04       5     2
+ -6.218980135235E-05  6.218980146350E-05       6     2
+ -8.059872486808E-07  8.059872753625E-07       7     2
+  2.826732709838E-06 -2.826732713547E-06       8     2
+ -2.194238294935E-07  2.194238338772E-07       9     2
+ -1.060764766149E-07  1.060764782164E-07      10     2
+  1.946388906884E-08 -1.946388995126E-08      11     2
+  3.010764186682E-09 -3.010764203812E-09      12     2
+ -1.161872573075E-09  1.161872692383E-09      13     2
+ -3.137859071779E-11  3.137865228352E-11      14     2
+  5.685537948359E-11 -5.685537190418E-11      15     2
+ -3.817653721188E-12  3.817577312625E-12      16     2
+ -2.332684668702E-12  2.332625641218E-12      17     2
+  4.053664853576E-13 -4.051318636739E-13      18     2
+  3.071545504276E-14 -3.077687877704E-14      19     2
+ -1.475930488937E-13 -4.916067553040E-14      20     1
+</pre>
+</p>
+<hr>
+<p>
+This file format contains a header, which has a format similar to 
+that of the input script, followed by a section that contains 
+coefficients of basis functions that are used to expand the field.
+</p>
+<p>
+The first line in the header simply specifies a number for the file 
+format being used (file format v1.0). The remaining several lines of 
+the header contain information about the crystal structure that is 
+required to interpret the field file (i.e., the dimensionality of 
+the periodicity, the crystal system, the unit cell parameters, and 
+the space group). The above example is for a lamellar structure with 
+inversion symmetry (space group -1). This followed by the number 
+N_monomer of different monomer types, and the number N_star of basis 
+functions (or "stars") used to expand the solution.
+</p>
+
+<p>
+The actually fields are specified after this header in N_monomer
+columns of coefficients of symmetry-adapted basis functions. 
+Each of the first N_monomer columns in the remainder of the file
+contains the coefficients of symmetry adapted basis functions in
+the expansion of a field component (in this case, a volume fraction 
+field) for one monomer type. The first column is thus a list of
+coefficients of basis functions for the volume fraction of monomer
+type 1, and the second column a corresponding list for monomer 
+type 2. 
+</p>
+
+<p>
+Each symmetry adapted basis function is a real function with the 
+space group symmetry specified in the file header, and is constructed 
+as a superposition of plane waves with wavevectors of equal magnitude 
+that are related by the symmetry elements of the space group or (in
+crystals that have no inversion center) by inversion. In a cubic
+crystal, such a set of basis vectors all have Miller indices that are 
+related to one another by permutations and/or sign changes, e.g.,
+(1,2,3), (3,2,1), (-3,2,1), etc. These basis functions are 
+constructed automatically using an algorithm that is described in 
+..... In the one dimensional example given here, the basis functions 
+are all proportional to cosines, and the first is a constant function. 
+</p>
+
+<p> Each basis function in a dimensional crystal is uniquely 
+identified by a set of Miller indices, corresponding to the Miller 
+indices for one of the plane waves in the basis functions.  The 
+conventions for choosing which plane wave to use to identify
+the basis function is discussed in the comments provided in the
+source code of crystal_mod (See the developers manual for
+browseable version of this. The set of Miller indices output
+to file corresponds to the value of the variable wave_of_star.) 
+The set of Miller indices for each basis function is listed in the 
+dim columns after the coefficients.  For our one-dimensional 
+example, the single Miller index for each basis function is 
+listed in the third column, and the values are consecutive 
+integers.
+</p>
+
+<p>
+The last column in each field component line is the number of
+distinct symmetry-related wavevectors used to construct that 
+basis function. In the above example, the first basis function
+contains only the k=0 wavevector, and so this value is 1, while
+all the others are cosine-like functions constructed from two
+plane waves, so this value is 2. In a cubic crystal, this number
+could be as high as 48 for a set of plane waves with three 
+distinct Miller indices.
+</p>
+
+<p>
+Our conventions for the coefficients of plane waves within the
+definition of a basis function are simple to describe for the most 
+common case of centrosymmetric crystals (which includes all of 
+the known equilibrium phases of diblock copolymers). In this case, 
+each basis function is a superposition superposition of a set of 
+plane waves that are related by elements of the space group 
+(rotations, reflections through a plane, etc.), also known as a 
+"star". In a cubic crystal, each star contains plane waves for
+which the Miller indices are related by permutations and/or 
+sign changes.  In a centrosymmetric crystal, the coefficient 
+of each plane wave is real, and is the same as that of the plane 
+wave to which it is related by inversion. In some centro-symmetric 
+space groups (including the Ia-3d group of the gyroid phase), the 
+signs of the coefficients are different for different such pairs 
+of plane waves within a star. The coefficients are chosen so that 
+the sum of the squares of the coefficients of all the plane waves 
+in the star is equal to 1. For our example of a centrosymmetric
+lamellar phase, the first basis function is thus unity (indepdent
+of position), and all the others are sqrt(2) times a cosine
+function. 
+<p>
+
+<p>
+The construction of basis functions for non-centrosymmetric 
+space groups is complicated by the fact that the basis functions 
+should be real to describe real fields. When the crystal has
+no inversion symmetry, a basis function that is constructed 
+by superposing plane waves that are related by symmetry 
+elements of the space group will generally not be proportional
+to a real function. The simplest example of this is a one 
+dimensional crystal with no inversion symmetry (group 1), 
+and thus no symmetry elements other than the identity. In
+this case, no plane wave is related to any other by symmetry. 
+The natural basis functions, from the point of view of symmetry
+alone, are single complex exponential plane waves, but these
+are complex functions of position.  In order to construct basis 
+functions that are real, in this example, one must construct
+two real superpositions of each pair of plane waves that are 
+related by inversion (which is not a symmetry of the crystal).
+The required basis functions in this case are both cosine
+and sine functions. More generally, to form real basis 
+functions in crystals with no inversion symmetry, we use 
+generalizations of the cosine and sign functions that are 
+construction by constructing two different superpositions 
+of "stars" that are related to one another by inversion. Our
+conventions used for doing this are described best in the 
+comments in the source code. 
+</p>
+
+<p> 
+The fact that this file format makes use of an expansion
+in symmetry-adapted basis functions does not imply that 
+this is how fields are represented throughout the program. 
+The representation in terms of symmetry-adapted basis
+functions is used only for file IO, and for iteration of
+the solutions, in order to construct field updates that 
+preserve the imposed symmetry by construction.  Within 
+the inner loop of the pseudospectral algorithm that is
+used to solve the modified diffusion equation, however, 
+fields are stored on an regular FFT grid, in terms of 
+either values at grid points or coefficients of plane 
+waves, with no explicitly imposed symmetry. 
+</p>
+
+<p> 
+In order to visualize the fields, it is generally necessary
+to run the program using an input script with a section header 
+FIELD_TO_GRID. This read in a field that is stored in the 
+above file format and outputs a file in which the field is 
+represented in terms of the values of the field at evenly 
+spaced grid points. 
+</p> 

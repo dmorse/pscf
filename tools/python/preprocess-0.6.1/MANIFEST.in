@@ -1,0 +1,3 @@
+include *.py *.cpp *.in preprocess.exe Makefile* preprocess *.txt content.types
+exclude *~
+recursive-include test *.txt *.py

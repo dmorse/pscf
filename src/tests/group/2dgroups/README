@@ -1,0 +1,17 @@
+This directory contains:
+
+1) Files containing the generators for all of the 2D plane groups.
+   The file name of each of these is the name of the corresponding
+   group. Each such file contains only the 'generators' of the group,
+   i.e., a minimum list of the symmetry elements from which the rest
+   of the group can be constructed by multipication of symmetry 
+   elements. The complete group is constructed by the make_group
+   routine in new_2groups.f. 
+
+2) A program new_2dgroups, which was used to generate the case select
+    statement for these groups in the space_groups routine in module
+    space_groups_mod
+
+3) A file driver that is the driver file for new_2dgroups
+
+

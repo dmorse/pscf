@@ -1,0 +1,302 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<link rel="stylesheet" href="../GDoc.css" type="text/css">
+<title>scf/scf_mod_f</title>
+</head>
+<body bgcolor="#FFFFFF">
+<br />
+<p>
+[<a href="../toc.html#top">table of contents</a>]
+[<a href="../master_index.html#top">master index</a>]
+[<a href="../comment_index.html#top">comments</a>]
+[<a href="../module_index.html#top">modules</a>]
+[<a href="../program_index.html#top">programs</a>]
+[<a href="../variable_index.html#top">variables</a>]
+[<a href="../type_index.html#top">types</a>]
+[<a href="../procedure_index.html#top">procedures</a>]
+</p>
+<h3 align="center">TABLE OF CONTENTS</h3>
+<ul><li>module <a href="#scf_mod">scf_mod</a></li>
+<ul>
+<li>variable <a href="#plan">plan</a></li>
+<li>procedure <a href="#density_startup">density_startup</a></li>
+<li>procedure <a href="#density">density</a></li>
+<li>procedure <a href="#solvent_density">solvent_density</a></li>
+<li>procedure <a href="#chain_density">chain_density</a></li>
+<li>procedure <a href="#scf_stress">scf_stress</a></li>
+<li>procedure <a href="#set_omega_uniform">set_omega_uniform</a></li>
+<li>procedure <a href="#mu_phi">mu_phi</a></li>
+<li>procedure <a href="#free_energy">free_energy</a></li>
+<li>procedure <a href="#free_energy_FH">free_energy_FH</a></li>
+</ul>
+<h2 id="scf_mod" ><a href="scf_mod_f_.html#scf_mod" target="source">scf_mod</a></h2>
+<p><strong>PURPOSE</strong></p>  <pre>
+    Calculate monomer concentrations, free energies, and stresses.
+    Solve the modified diffusion equation for chains by a pseudo-spectral 
+    algorithm. Use a simple Boltzmann weight on a grid for solvent.
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+module <strong>scf_mod</strong> 
+   use <a href="../const_mod_f.html#const_mod">const_mod</a>
+   use <a href="chemistry_mod_f.html#chemistry_mod">chemistry_mod</a>
+   use <a href="../grid/fft3_mod_f.html#fft_mod">fft_mod</a>
+   use <a href="../grid/grid_mod_f.html#grid_mod">grid_mod</a>
+   use <a href="../crystal/grid_basis_mod_f.html#grid_basis_mod">grid_basis_mod</a> 
+   use <a href="chain_mod_f.html#chain_mod">chain_mod</a>
+   use <a href="step_mod_f.html#step_mod">step_mod</a>
+   implicit none
+
+   private
+
+   ! public procedures
+   public:: <a href="#density_startup">density_startup</a>   ! allocates arrays needed by <a href="#density">density</a>
+   public:: <a href="#density">density</a>           ! scf calculation of rho & q
+   public:: <a href="#scf_stress">scf_stress</a>        ! calculates d(free energy)/d(<a href="../crystal/unit_cell_mod_f.html#cell_param">cell_param</a>)
+   public:: <a href="#mu_phi">mu_phi</a>            ! calculates mu from phi (canonical)
+                              !  or phi from mu (grand canonical)
+   public:: <a href="#free_energy">free_energy</a>       ! calculates helmholtz free energy 
+                              ! (optionally calculates pressure)
+   public:: <a href="#free_energy_FH">free_energy_FH</a>    ! Flory-Huggins helmholtz free energy
+   public:: <a href="#set_omega_uniform">set_omega_uniform</a> ! sets k=0 component of omega (canonical)
+
+   ! public module variable 
+   public:: <a href="#plan">plan</a>              ! module variable, used in <a href="../iterate/iterate_mod_f.html#iterate_mod">iterate_mod</a>
+</pre>
+<h2 id="plan" ><a href="scf_mod_f_.html#plan" target="source">plan</a></h2>
+<p><strong>VARIABLE</strong></p>  <pre>
+      type(<a href="../grid/fft3_mod_f.html#fft_plan">fft_plan</a>) <strong>plan</strong> - Plan of grid sizes etc. used for FFTs
+                            (Public because its used in <a href="../iterate/iterate_mod_f.html#iterate_mod">iterate_mod</a>)
+</pre>
+<h2 id="density_startup" ><a href="scf_mod_f_.html#density_startup" target="source">density_startup</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     subroutine <strong>density_startup</strong>(N_grids,extr_order,chain_step,update_chain)
+ 
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Initialize FFT_plan, grid_data.
+     Allocate or update/re-allocate memory for chains
+ 
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+     N_grids      = grid dimensions
+     extr_order   = Richardson extrapolation order
+     chain_step   = the discretized chain segment length
+     update_chain = true if simply the chain memory need to be re-allocated
+ 
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>density_startup</strong>(N_grids, extr_order, chain_step, update_chain)
+   implicit none
+
+   integer, intent(IN)    :: N_grids(3) ! # of grid points in each direction
+   integer, intent(IN)    :: extr_order
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN) :: chain_step
+   logical, intent(IN)    :: update_chain
+</pre>
+<h2 id="density" ><a href="scf_mod_f_.html#density" target="source">density</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>density</strong>(N,omega,rho,qout,q_solvent)
+ 
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Main SCFT calculation. Solve the modified diffusion equation
+     for all polymer species, and calculate monomer <strong>density</strong> field
+     for all monomer types. 
+ 
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+     N                    = # of basis functions
+     omega(<a href="chemistry_mod_f.html#N_monomer">N_monomer</a>,N)   = chemical potential
+     rho(<a href="chemistry_mod_f.html#N_monomer">N_monomer</a>,N)     = monomer <strong>density</strong> fields
+     qout(<a href="chemistry_mod_f.html#N_chain">N_chain</a>)        = partition functions
+     q_solvent(<a href="chemistry_mod_f.html#N_solvent">N_solvent</a>) = partition functions of solvent molecules
+ 
+</pre>
+<p><strong>COMMENT</strong></p>  <pre>
+       <a href="#density_startup">density_startup</a> should be called prior to <strong>density</strong> to
+       allocate arrays used by <strong>density</strong> and scf_stress.
+ 
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>density</strong>( &
+       N,              & ! # of basis functions
+       omega,          & ! (<a href="chemistry_mod_f.html#N_monomer">N_monomer</a>,N)chemical potential field
+       rho,            & ! (<a href="chemistry_mod_f.html#N_monomer">N_monomer</a>,N) monomer <strong>density</strong> field
+       qout,           & ! (<a href="chemistry_mod_f.html#N_chain">N_chain</a>) 1-chain partition functions
+       q_solvent       & ! (<a href="chemistry_mod_f.html#N_solvent">N_solvent</a>) solvent partition functions
+        )
+   implicit none
+
+   integer,    intent(IN)            :: N
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN)            :: omega(:,:)
+   real(<a href="../const_mod_f.html#long">long</a>), intent(OUT)           :: rho(:,:)
+   real(<a href="../const_mod_f.html#long">long</a>), intent(OUT), optional :: qout(<a href="chemistry_mod_f.html#N_chain">N_chain</a>)
+   real(<a href="../const_mod_f.html#long">long</a>), intent(OUT), optional :: q_solvent(<a href="chemistry_mod_f.html#N_solvent">N_solvent</a>)
+</pre>
+<h2 id="solvent_density" ><a href="scf_mod_f_.html#solvent_density" target="source">solvent_density</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>solvent_density</strong>(monomer,s_size,omega,<a href="../grid/grid_mod_f.html#rho_grid">rho_grid</a>,bigQ_solvent)
+ 
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     to calculate the <a href="#density">density</a> profile of a  solvent specie
+ 
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+     monomer      - monomer type of the solvent species
+     s_size       - volume occupied by solvent molecule / reference volume
+                    (volume in units where reference volume = 1)
+     omega        - omega fields on grid, per reference volume
+     <a href="../grid/grid_mod_f.html#rho_grid">rho_grid</a>     - <a href="#density">density</a> fields on grid    
+     bigQ_solvent - spatial average of Boltzmann factor exp(-s_size*omega)
+ 
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>solvent_density</strong>(monomer,s_size,omega,<a href="../grid/grid_mod_f.html#rho_grid">rho_grid</a>,bigQ_solvent)
+   implicit none
+   
+   real(<a href="../const_mod_f.html#long">long</a>),intent(IN)              :: s_size
+   real(<a href="../const_mod_f.html#long">long</a>),intent(IN)              :: omega(0:,0:,0:,:)
+   integer,intent(IN)                 :: monomer
+   real(<a href="../const_mod_f.html#long">long</a>),intent(INOUT)           :: <a href="../grid/grid_mod_f.html#rho_grid">rho_grid</a>(0:,0:,0:,:)
+   real(<a href="../const_mod_f.html#long">long</a>),intent(OUT)             :: bigQ_solvent          
+</pre>
+<h2 id="chain_density" ><a href="scf_mod_f_.html#chain_density" target="source">chain_density</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>chain_density</strong>(i_chain, chain, ksq, omega)
+ 
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     solve the PDE for a single chain
+     evaluate the <a href="#density">density</a> for each block
+ 
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+     i_chain - index to the chain 
+     chain   - <a href="chain_mod_f.html#chain_grid_type">chain_grid_type</a>, see <a href="chain_mod_f.html#chain_mod">chain_mod</a>
+     ksq     - k^2 on grid, initialized in <a href="../grid/grid_mod_f.html#grid_mod">grid_mod</a>
+     omega   - omega fields on grid
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>chain_density</strong>(i_chain, chain, ksq, omega)
+   implicit none
+
+   integer,intent(IN)                   :: i_chain
+   type(<a href="chain_mod_f.html#chain_grid_type">chain_grid_type</a>),intent(INOUT)  :: chain
+   real(<a href="../const_mod_f.html#long">long</a>),intent(IN)                :: ksq(0:,0:,0:)
+   real(<a href="../const_mod_f.html#long">long</a>),intent(IN)                :: omega(0:,0:,0:,:)
+</pre>
+<h2 id="scf_stress" ><a href="scf_mod_f_.html#scf_stress" target="source">scf_stress</a></h2>
+<p><strong>FUNCTION</strong></p>  <pre>
+     <strong>scf_stress</strong>(N, size_dGsq, dGsq )
+ 
+</pre>
+<p><strong>RETURN</strong></p>  <pre>
+     real(<a href="../const_mod_f.html#long">long</a>) array of dimension(size_dGsq) containing
+     derivatives of free energy with respect to size_dGsq 
+     cell parameters or deformations
+ 
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+     N         = number of basis functions
+     size_dGsq = number of cell parameters or deformations
+     dGsq      = derivatives of |G|^2 w.r.t. cell parameters
+                 dGsq(i,j) = d |G(i)|**2 / d <a href="../crystal/unit_cell_mod_f.html#cell_param">cell_param</a>(j)
+</pre>
+<p><strong>COMMENT</strong></p>  <pre>
+     Requires previous call to <a href="#density">density</a>, because <strong>scf_stress</strong>
+     uses module variables computed in density.
+ 
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   function <strong>scf_stress</strong>(N, size_dGsq, dGsq )
+   implicit none
+
+   integer,    intent(IN) :: N
+   integer,    intent(IN) :: size_dGsq
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN) :: dGsq(:,:)
+</pre>
+<h2 id="set_omega_uniform" ><a href="scf_mod_f_.html#set_omega_uniform" target="source">set_omega_uniform</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>set_omega_uniform</strong>(omega)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+    Sets uniform (k=0) component of field omega to convention
+       omega(:,1) = <a href="chemistry_mod_f.html#chi">chi</a>(:,:) .dot. phi_mon(:)
+    corresponding to vanishing Lagrange multiplier field
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>set_omega_uniform</strong>(omega)
+   real(<a href="../const_mod_f.html#long">long</a>), intent(INOUT) :: omega(:,:)
+</pre>
+<h2 id="mu_phi" ><a href="scf_mod_f_.html#mu_phi" target="source">mu_phi</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>mu_phi</strong>(<a href="chemistry_mod_f.html#mu_chain">mu_chain</a>,<a href="chemistry_mod_f.html#phi_chain">phi_chain</a>,q,<a href="chemistry_mod_f.html#mu_solvent">mu_solvent</a>,<a href="chemistry_mod_f.html#phi_solvent">phi_solvent</a>,q_solvent)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     If <a href="chemistry_mod_f.html#ensemble">ensemble</a> = 0 (canonical), calculate mu from phi
+     If <a href="chemistry_mod_f.html#ensemble">ensemble</a> = 1 (grand can), calculate phi from mu
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+     <a href="chemistry_mod_f.html#mu_chain">mu_chain</a>(<a href="chemistry_mod_f.html#N_chain">N_chain</a>)     = chemical potentials of chain(units kT=1)
+     <a href="chemistry_mod_f.html#phi_chain">phi_chain</a>(<a href="chemistry_mod_f.html#N_chain">N_chain</a>)    = molecular volume fractions of chain
+     q(<a href="chemistry_mod_f.html#N_chain">N_chain</a>)             = single chain partition functions
+     <a href="chemistry_mod_f.html#mu_solvent">mu_solvent</a>(<a href="chemistry_mod_f.html#N_solvent">N_solvent</a>)  = chemical potentials of solvent species
+     <a href="chemistry_mod_f.html#phi_solvent">phi_solvent</a>(<a href="chemistry_mod_f.html#N_solvent">N_solvent</a>) = molecular volume fractions of solvent species
+     q_solvent(<a href="chemistry_mod_f.html#N_solvent">N_solvent</a>)   = partition functions of solvent species
+ 
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>mu_phi</strong>(<a href="chemistry_mod_f.html#mu_chain">mu_chain</a>,<a href="chemistry_mod_f.html#phi_chain">phi_chain</a>,q,<a href="chemistry_mod_f.html#mu_solvent">mu_solvent</a>,<a href="chemistry_mod_f.html#phi_solvent">phi_solvent</a>,q_solvent)
+   real(<a href="../const_mod_f.html#long">long</a>), intent(INOUT) :: <a href="chemistry_mod_f.html#mu_chain">mu_chain</a>(<a href="chemistry_mod_f.html#N_chain">N_chain</a>)
+   real(<a href="../const_mod_f.html#long">long</a>), intent(INOUT) :: <a href="chemistry_mod_f.html#phi_chain">phi_chain</a>(<a href="chemistry_mod_f.html#N_chain">N_chain</a>) 
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN)    :: q(<a href="chemistry_mod_f.html#N_chain">N_chain</a>)
+   real(<a href="../const_mod_f.html#long">long</a>), intent(INOUT) :: <a href="chemistry_mod_f.html#mu_solvent">mu_solvent</a>(<a href="chemistry_mod_f.html#N_solvent">N_solvent</a>)
+   real(<a href="../const_mod_f.html#long">long</a>), intent(INOUT) :: <a href="chemistry_mod_f.html#phi_solvent">phi_solvent</a>(<a href="chemistry_mod_f.html#N_solvent">N_solvent</a>)
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN)    :: q_solvent(<a href="chemistry_mod_f.html#N_solvent">N_solvent</a>) 
+</pre>
+<h2 id="free_energy" ><a href="scf_mod_f_.html#free_energy" target="source">free_energy</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>free_energy</strong>( N, rho, omega, <a href="chemistry_mod_f.html#phi_chain">phi_chain</a>, <a href="chemistry_mod_f.html#mu_chain">mu_chain</a>, <a href="chemistry_mod_f.html#phi_solvent">phi_solvent</a>,
+                  <a href="chemistry_mod_f.html#mu_solvent">mu_solvent</a>, f_Helmholtz, [pressure] )
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Calculates Helmholtz free energy / monomer and (optionally)
+     the pressure, given phi, mu, and omega and rho fields
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>free_energy</strong>(N, rho, omega, <a href="chemistry_mod_f.html#phi_chain">phi_chain</a>, <a href="chemistry_mod_f.html#mu_chain">mu_chain</a>, &
+                          <a href="chemistry_mod_f.html#phi_solvent">phi_solvent</a>, <a href="chemistry_mod_f.html#mu_solvent">mu_solvent</a>, f_Helmholtz, pressure )
+   integer, intent(IN)    :: N              ! # of basis functions
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN) :: rho(:,:)       ! monomer vol. frac fields
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN) :: omega(:,:)     ! chemical potential field
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN) :: <a href="chemistry_mod_f.html#phi_chain">phi_chain</a>(:)   ! molecule vol. frac of chain species
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN) :: <a href="chemistry_mod_f.html#mu_chain">mu_chain</a>(:)    ! chemical potential of chain species
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN) :: <a href="chemistry_mod_f.html#phi_solvent">phi_solvent</a>(:) ! molecule vol. fraction of solvent species 
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN) :: <a href="chemistry_mod_f.html#mu_solvent">mu_solvent</a>(:)  ! chemical potential of solvent species
+   real(<a href="../const_mod_f.html#long">long</a>), intent(OUT):: f_Helmholtz    ! free energy/monomer
+   real(<a href="../const_mod_f.html#long">long</a>), intent(OUT), optional :: pressure 
+</pre>
+<h2 id="free_energy_FH" ><a href="scf_mod_f_.html#free_energy_FH" target="source">free_energy_FH</a></h2>
+<p><strong>FUNCTION</strong></p>  <pre>
+     real(<a href="../const_mod_f.html#long">long</a>) function <strong>free_energy_FH</strong>(<a href="chemistry_mod_f.html#phi_chain">phi_chain</a>,<a href="chemistry_mod_f.html#phi_solvent">phi_solvent</a>)
+</pre>
+<p><strong>RETURN</strong></p>  <pre>
+     Flory-Huggins Helmholtz free energy per monomer, in units
+     such that kT =1, for a homogeneous mixture of the specified 
+     composition.
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+     <a href="chemistry_mod_f.html#phi_chain">phi_chain</a>(<a href="chemistry_mod_f.html#N_chain">N_chain</a>)     = molecular volume fractions of chains
+     <a href="chemistry_mod_f.html#phi_solvent">phi_solvent</a>(<a href="chemistry_mod_f.html#N_solvent">N_solvent</a>) = molecular volume fractions of solvents
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   real(<a href="../const_mod_f.html#long">long</a>) function <strong>free_energy_FH</strong>(<a href="chemistry_mod_f.html#phi_chain">phi_chain</a>,<a href="chemistry_mod_f.html#phi_solvent">phi_solvent</a>)
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN)           :: <a href="chemistry_mod_f.html#phi_chain">phi_chain</a>(<a href="chemistry_mod_f.html#N_chain">N_chain</a>)
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN), optional :: <a href="chemistry_mod_f.html#phi_solvent">phi_solvent</a>(<a href="chemistry_mod_f.html#N_solvent">N_solvent</a>)
+
+   real(<a href="../const_mod_f.html#long">long</a>)             :: rho(<a href="chemistry_mod_f.html#N_monomer">N_monomer</a>)
+</pre>
+</body>
+</html>

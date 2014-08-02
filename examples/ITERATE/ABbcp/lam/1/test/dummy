@@ -1,0 +1,9 @@
+This is a dummy file.
+
+It is added to the CVS repository only to keep CVS from pruning an 
+otherwise empty test directory when the package is exported. An empty 
+'test' directory is included with each example as a default destination 
+for the files produced by running the example. 
+
+This file can be safely removed from the distributed package when it is 
+no longer under CVS revision control.

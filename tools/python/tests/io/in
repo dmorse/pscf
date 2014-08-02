@@ -1,0 +1,21 @@
+int_var           
+              2
+real_var
+  3.7000000E+01
+char_var
+            'B'
+int_vec_R
+              1              2
+real_vec_R                
+  1.0000000E+00  1.0000000E+00
+int_vec_C
+             13
+	      8
+real_vec_C
+  4.0000000E-01
+  6.0000000E-01
+real_mat_L
+  9.00000
+real_mat_L
+  1.00000
+  2.00000    3.00000

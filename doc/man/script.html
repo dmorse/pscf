@@ -1,0 +1,823 @@
+
+<p>
+The main program reads an input script containing the parameters and 
+instructions for a calculation. The script is divided into sections, 
+each of which contains a different type of information.  Each section
+is preceded by a blank line and starts with a line containing a
+section title in all capital letters (i.e., 'CHEMISTRY', 'UNIT_CELL', 
+etc.) Each block may contain values of a sequence of variables. The 
+name of each variable appears on a line by itself, followed by the 
+value or (for arrays) values on one more subsequent lines.  The
+order in which variables must appear within a section is fixed. The
+program stops when it encounters the block title 'FINISH'. 
+</p>
+
+<hr>
+<h3>EXAMPLE</h3>
+<p> 
+This example shows a complete input script for a system containing a 
+triblock copolymer containing three chemically distinct blocks in a 
+solvent that is chemically identical one of the blocks. The first 
+line identifies the version of the file format (version 1.0, for
+the format documented here).  The remainder of the script is divided 
+into sections, each of which may contain input variables, as 
+discussed above. 
+
+<pre class="file">
+ format  1  0
+
+MONOMERS
+N_monomer           
+              2
+kuhn                
+  0.4000000E+00  0.6000000E+00 
+
+CHAINS
+N_chain              
+              1
+N_block             
+              3
+block_monomer  
+              1              2              3
+block_length   
+  1.2000000E+02  0.7000000E+02  0.6000000E+02
+
+SOLVENTS
+N_solvent              
+              1
+solvent_monomer
+              2
+solvent_size
+            1.0
+
+COMPOSITION
+ensemble            
+              0
+phi_chain      
+  0.8000000E+00
+phi_solvent      
+  0.2000000E+00
+
+INTERACTIONS
+interaction_type
+            'chi'
+chi                 
+  1.2000000E-02
+
+UNIT_CELL
+dim                 
+              1
+crystal_system      
+     'lamellar'
+N_cell_param        
+              1
+cell_param          
+  1.3200000E+01
+
+DISCRETIZATION
+ngrid
+             32
+ds
+           1.00
+
+FILE_PREFIXES
+input_prefix        
+          'in.'
+output_prefix       
+             ''
+
+BASIS
+group_name          
+           '-1'
+
+ITERATE
+max_itr             
+             20
+error_max           
+  1.0000000E-08
+domain              
+              T
+itr_algo
+           'NR'
+N_cut
+            100
+
+SWEEP
+s_max               
+   10.00000E+00
+d_chi
+  1.0000000E+00
+end_increments
+
+FINISH
+</pre>
+</p>
+
+<hr><h3>SCRIPT SECTIONS</h3>
+
+<p> 
+<b>Primary Sections:</b>
+The following list shows the titles of the blocks required to calculate 
+a 'sweep' of solutions for a sequence of incrementally different different 
+parameters, in the order in which they appear in the above example script. 
+Subsequent sections describe each of the corresponding blocks of the input 
+file in detail. To solve the SCF problem for a single set of parameters,
+leave out the penultimate SWEEP section.
+</p>
+<table>
+<tr>
+  <td><a href="#monomers">MONOMERS</a></td>
+  <td># of monomers and kuhn lengths</td>
+</tr>
+<tr>
+  <td><a href="#chains">CHAINS</a></td>
+  <td>Chain species, block sequences and lengths, etc.</td>
+</tr>
+<tr>
+  <td><a href="#solvents">SOLVENTS</a></td>
+  <td>Solvent species, chemical identities, volumes</td>
+</tr>
+<tr>
+  <td><a href="#solvents">COMPOSITION</a></td>
+  <td>Statistical ensemble and mixture composition</td>
+</tr>
+<tr>
+  <td><a href="#unit_cell">UNIT_CELL</a></td>
+  <td>Dimensionality (1,2 or 3), crystal system, and unit cell parameters</td>
+</tr>
+<tr>
+  <td> <a href="#discretization">DISCRETIZATION</a></td>
+  <td>Numbers of spatial grid points and 'time' step ds.</td>
+</tr>
+<tr>
+  <td> <a href="#file_prefixes">FILE_PREFIXES</a></td>
+  <td>Prefixes for paths to input and output files</td>
+</tr>
+<tr>
+  <td> <a href="#basis">BASIS</a></td>
+  <td>Read space group and construct symmetrized basis functions</td>
+</tr>
+<tr>
+  <td><a href="#iterate">ITERATE</a> </td>
+  <td>Solve SCFT for one set of parameters</td>
+</tr>
+<tr>
+  <td><a href="#sweep">SWEEP</a></td>
+  <td>Solve SCFT for a sweep of consecutive parameters</td>
+</tr>
+<tr>
+  <td> <a href="#finish">FINISH</a> </td>
+  <td>Stop program</td>
+</tr>
+</table>
+</p>
+
+<p> 
+<b>Linear Response:</b> 
+To calculate the self-consistent-field linear susceptibility of a
+periodic microstructure, introduce a RESPONSE section after ITERATE 
+and before FINISH, and leave out the SWEEP section.
+<table>
+<tr>
+<tr>
+  <td><a href="#response">RESPONSE</a></td>
+  <td>Calculate linear response matrix at one or more k vectors</td>
+</tr>
+</table>
+</p>
+<p>
+<b>Utilities:</b>
+The following sections invoke actions that are not essential to the 
+operation of the program:
+<table>
+<tr>
+  <td><a href="#rescale_omega">OUTPUT_GROUP</a></td>
+  <td>Output symmetry elements of space group to file</td>
+</tr>
+<tr>
+  <td><a href="#rescale_omega">OUTPUT_WAVES</a></td>
+  <td>Output plane waves and coefficients used in basis functions</td>
+</tr>
+<tr>
+  <td><a href="#field_to_grid">FIELD_TO_GRID</a></td>
+  <td>Convert field from basis function coefficients to values on a grid</td>
+</tr>
+<tr>
+  <td><a href="#rescale_omega">RESCALE</a></td>
+  <td>Redefine monomer reference volume, rescale parameters and omega</td>
+</tr>
+</table>
+</p>
+
+<p>
+Details about the contents and purpose of each section are given below.
+</p>
+
+<hr><h3 id="format">FORMAT AND VARIABLE CONVENTIONS</h3>
+
+<p>
+The following sections contains a table listing the parameters that 
+must be input in a corresponding section of the input file. A few 
+comments about how to read these tables:
+</p> 
+
+<p>
+<b>Array Parameters and Indices:</b>
+Some required input parameters are one or two dimensional arrays. 
+Array parameters are indicated by writing the name of the parameter 
+with an index: For kuhn(im) denotes a one dimensional array of statistical 
+segment lengths for different monomer types.  The symbol 'im' indicates 
+an index for monomer type. Two dimensional arrays are shown with two
+indices. The meaning and range of each type of index is summarized 
+in the following table:
+<p>
+<!--<b>Meaning of Array Indices:</b>-->
+<table class="subtable">
+<tr> <th> Indices </th> <th> Meaning </th> <th> Range </th> </tr>
+<tr>
+<td>im, in</td><td>monomer types</td><td>1,...N_monomer</td>
+</tr>
+<tr>
+<td>ic</td><td>chain/polymer species</td><td>1,...N_chain</td>
+</tr>
+<tr>
+<td>ib</td><td>blocks within a chain</td><td>1,...N_block(ic)</td>
+</tr>
+<tr>
+<td>is</td><td>solvent species</td><td>1,...N_solvent</td>
+</tr>
+</table>
+</p>
+
+<p> 
+<b>Array Parameter Formats:</b>
+For array parameters, the input script expects the elements of the array 
+to appear in the input script in a specific format. Generally, arrays that 
+contain a polymer or solvent molecular species index are input with the 
+required information about each molecule on a separate line, while values 
+associated with different monomer types or with different blocks within a 
+molecule are listed sequentially on a single line.  The expected format for 
+each array parameter in specified by a code in the 'Format' column of the 
+table. The meaning of each code is described below:
+<table class="subtable">
+<tr> <th> Format </th> <th> Meaning </th> 
+<tr> <td> R    </td> <td> 1D array, row format (all values in a single line)</td> 
+<tr> <td> C    </td> <td> 1D array, column format (one value per line)</td> 
+<tr> <td> MR   </td> <td> 2D array, multiple rows of different length</td> 
+<tr> <td> LT   </td> <td> 2D array, lower triangular</td> 
+</table>
+Within each line, values may be separated by any amount of whitespace.
+In the row (R) format for 1D arrays, all values appear on a single line 
+separated by whitespace. In the column format (C), each value appears on 
+a separate line. In the multiple row (MR) format, which is used for the
+arrays block_monomer(ib,ic) and block_length(ib,ic), each line of data 
+contains the values for all of the blocks of one chain molecule, with 
+N_block(ic) values in the line for molecule number ic.
+The lower triangular (LT) format for square 2D arrays is used for the
+array chi(im,in) of Flory-Huggin interaction parameters. In this format,
+a symmetric array with zero diagonal elements is input in the form
+<pre>
+   chi(2,1)
+   chi(3,1) chi(3,2)
+   .....
+</pre>
+in which line i contains elements chi(i+1,j) for j &le; i. For a 
+system with only two monomer types (e.g., a diblock copolymer melt
+or a binary homopolymer blend) only a single value on a single line 
+is required. 
+</p>
+
+<p>
+<b>Conditionally Required Parameters:</b>
+Some variables may be present or absent depending on the value
+of a previous variable.  These conditions, if any, are given in 
+the 'Absent if' column.
+</p>
+
+<p>
+<b>Reference Volume:</b>
+Values of the parameters block_length, solvent_size, kuhn, and
+chi all depend on the choice of a value for a reference volume
+used to define an effective repeat unit.  Each element of the 
+variable block_length represents the number of "monomers" in a 
+block of a block copolymer, defined to be the ratio of the block 
+volume to the chosen reference volume.  Similarly, the variable 
+solvent_size is given by ratio of the solvent volume to the 
+reference volume. The values of the chi parameters are proportional
+to the reference volume, while kuhn lengths are proportional to
+the square root of the reference volume. The program does not
+require a value for the reference volume as an input - the
+choice only effects the values required for other quantities.
+</p>
+
+<p>
+<b>Length Units</b>
+Any units of length can be used for the kuhn lengths and the
+unit cell dimensions, as long as the same units are used for 
+all quantities with units of length. One can use either a
+physical unit, such as nanometers or Angstroms, or 
+dimensionless units in which one or more of the statistical 
+segment lengths is set to unity. 
+</p>
+
+<!--
+<p>
+<b>Discussion of Example:</b>
+</p>
+<p>
+First, let us discuss the 'CHEMISTRY' block of the above example.
+This block into sets of variables that contain information about 
+monomer properties, polymer properties, solvent properties, and 
+mixture composition.
+</p>
+<p>
+The first set of variables (N_monomer, names, and kuhn) contain 
+information about the monomers: N_monomer=3 is the total number 
+of monomer types. We associate labels name(1)='A', name(2)='B', 
+and name(3)='C' with these monomer types.  The monomers have 
+statistical segment lengths of kuhn(1)=0.6 nm, kuhn(2)=0.5 nm, 
+and kuhn(3)=0.7 nm.  
+</p>
+<p>
+The next set of variables specifies the chi parameters. These can
+be specified either by giving "bare" values for each interaction
+parameter, in which case chi_flag = 'B', as in this example, or
+as values of the form chi(i,j) = chiA(i,j)/T + chiB(i,j), in which
+case we would set chi_flag = 'T'. Because the matrix chi(i,j) is 
+symmetric with zeros on the diagonal, chi parameters are input as 
+a lower triangular matrix of the form
+<pre>
+  chi(2,1)
+  chi(3,1)  chi(3,2) 
+  ....
+</pre>
+Only a single value on a single line would be required for 
+N_monomer=2.  For systems with chi_flag = 'T', the matrices chi_A 
+and chi_B would be input in the same form. For this system, 
+chi(1,2) = 0.15, chi(2,3)=0.20, chi(1,3)=0.10. 
+</p>
+<p>
+The next set of variables describes the structure of the polymers.
+The system contains two types of polymer (N_chain=2). Properties
+of individual molecules are then given with one molecular per line. 
+The two molecule types are a triblock, with with N_block(1)=3, and 
+a homopolymer with N_block(2)=1.  The array block_monomer 
+specifies the chemical identity of each block in each molecule,
+with one molecule per line in the input format.  In the example, 
+the copolymer is an ACB copolymer and the homopolymer contains C 
+monomers. Array block_length specifies the number of monomers in
+each block, in the same format.
+</p>
+-->
+
+<hr><h3 id="monomers">MONOMERS</h3>
+<p>
+<table class="parameters">
+<title>Chemistry Parameters</title>
+<tr>
+<th align="left" width ="150">Variable </th>
+<th align="left" width ="70">Type     </th>
+<th align="left" width ="350">Description</th>
+<th align="left" width ="60">Format</th>
+</tr>
+<tr>
+  <td>N_monomer</td>
+  <td>integer</td>
+  <td>Number of monomer types</td>
+  <td></td>
+</tr>
+<tr>
+  <td>kuhn(im)</td>
+  <td>real </td>
+  <td>statistical segment length of monomer im</td>
+  <td>R</td>
+</tr>
+</table>
+
+<hr><h3 id="interaction">INTERACTION</h3>
+<p>
+<table class="parameters">
+<title>Interaction Parameters</title>
+<tr>
+<th align="left" width ="150">Variable </th>
+<th align="left" width ="70">Type     </th>
+<th align="left" width ="350">Description</th>
+<th align="left" width ="60">Format</th>
+<th align="left">Required if:</th>
+</tr>
+<tr>
+  <td>chi_flag</td>
+  <td>char(1)</td>
+  <td>'B' for 'bare' chi values <br/> 
+      'T' for chi=chi_A/T + chi_B</td>
+  <td></td>
+  <td></td>
+</tr>
+<tr>
+  <td>chi(im,in)</td>
+  <td>real </td>
+  <td>Flory-Huggins interaction parameter ('bare')</td>
+  <td>LT</td>
+  <td>chi_flag='B'</td>
+</tr>
+<tr>
+  <td>chi_A(im,in)</td>
+  <td>real </td>
+  <td>Enthalpic coefficient for chi(T)</td>
+  <td>LT</td>
+  <td>chi_flag='T'</td>
+</tr>
+<tr>
+  <td>chi_B(im,in)</td>
+  <td>real </td>
+  <td>Entropic contribution to chi(T)</td>
+  <td>LT</td>
+  <td>chi_flag='T'</td>
+</tr>
+<tr>
+  <td>Temperature</td>
+  <td>real</td>
+  <td>Absolute temperature</td>
+  <td></td>
+  <td>chi_flag='T'</td>
+</tr>
+</table>
+</p>
+
+<hr><h3 id="chains">CHAINS</h3>
+<p>
+<table class="parameters">
+<title>Chain Parameters</title>
+<tr>
+<th align="left" width ="150">Variable </th>
+<th align="left" width ="70">Type     </th>
+<th align="left" width ="350">Description</th>
+<th align="left" width ="60">Format</th>
+</tr>
+<tr>
+  <td>N_chain</td>
+  <td>integer</td>
+  <td>Number of chain species</td>
+</tr>
+<tr>
+  <td>N_block(ic)</td>
+  <td>integer </td>
+  <td>Number of blocks in species ic</td>
+  <td>C</td>
+</tr>
+<tr>
+  <td>block_monomer(ib,ic)</td>
+  <td>integer </td>
+  <td>Monomer type for block ib of species ic</td>
+  <td>MR</td>
+</tr>
+<tr>
+  <td>block_length(ib,ic)</td>
+  <td>real </td>
+  <td>Number of monomers in block ib of species ic</td>
+  <td>MR</td>
+</tr>
+</table>
+</p>
+
+<hr><h3 id="solvents">SOLVENTS</h3>
+<p>
+<table class="parameters">
+<title>Solvent Parameters</title>
+<tr>
+<th align="left" width ="150">Variable </th>
+<th align="left" width ="70">Type     </th>
+<th align="left" width ="350">Description</th>
+<th align="left" width ="60">Format</th>
+</tr>
+<tr>
+  <td>N_solvent</td>
+  <td>integer</td>
+  <td>Number of solvent species</td>
+  <td></td>
+</tr>
+<tr>
+  <td>solvent_monomer(is)</td>
+  <td>integer </td>
+  <td>Monomer type for solvent is</td>
+  <td>C</td>
+</tr>
+<tr>
+  <td>solvent_size(is)</td>
+  <td>real</td>
+  <td>Volume of solvent is</td>
+  <td>C</td>
+</tr>
+</table>
+</p>
+
+<hr><h3 id="composition">COMPOSITION</h3>
+<p>
+<table class="parameters">
+<title>Composition Parameters</title>
+<tr>
+<th align="left" width ="150">Variable </th>
+<th align="left" width ="70">Type     </th>
+<th align="left" width ="320">Description</th>
+<th align="left" width ="60">Format</th>
+<th align="left">Required if:</th>
+</tr>
+<tr>
+  <td>ensemble</td>
+  <td>integer</td>
+  <td></td>
+  <td></td>
+</tr>
+<tr>
+  <td>phi_chain(ic)</td>
+  <td>real </td>
+  <td>Volume fraction of chain species ic</td>
+  <td>C</td>
+  <td>ensemble=0 and <bf/>
+      N_chain > 0</td>
+</tr>
+<tr>
+  <td>phi_solvent(is)</td>
+  <td>real </td>
+  <td>Volume fraction of solvent species is</td>
+  <td>C</td>
+  <td>ensemble=0 and<br/> 
+      N_solvent > 0</td>
+</tr>
+<tr>
+  <td>mu_chain(ic)</td>
+  <td>real </td>
+  <td>Chemical potential of chain species is</td>
+  <td>C</td>
+  <td>ensemble=1 and<br/>
+      N_chain > 0</td>
+</tr>
+<tr>
+  <td>mu_solvent(ic)</td>
+  <td>real </td>
+  <td>Chemical potential of solvent species ic</td>
+  <td>C</td>
+  <td>ensemble=1 and<br/>
+      N_solvent > 0</td>
+</tr>
+</table>
+</p>
+
+<hr><h3 id="unit_cell">UNIT_CELL</h3>
+The variables in the UNIT_CELL section contain the information
+necessary to define the unit cell type, size, and shape.
+
+<table class="parameters">
+<tr>
+<th>Variable </th>
+<th>Type     </th>
+<th>Description</th>
+</tr>
+<tr>
+  <td>dim</td>
+  <td>integer</td>
+  <td>dimensionality =1, 2, or 3</td>
+</tr>
+<tr>
+  <td>crystal_system</td>
+  <td>character(60)</td>
+  <td>unit cell type (cubic, tetragonal, orthorhombic, triclinic, etc.)</td>
+</tr>
+<tr>
+  <td>N_cell_param</td>
+  <td>integer</td>
+  <td># parameters required to describe unit cell</td>
+</tr>
+<tr>
+  <td>cell_param(i)</td>
+  <td>real</td>
+  <td>N_cell_param unit cell parameters</td>
+</tr>
+</table>
+
+The array cell_param contains N_cell_param elements, which are input in
+row format, with all elements in a single line.
+
+<hr><h3 id="discretization">DISCRETIZATION</h3>
+The discretization section defines the grid used to spatially discretize
+the modified diffusion equaiton and the size ds of the "step" ds in the 
+time-like contour length variable used to integral this equation.
+
+<table class="parameters">
+<title>DISCRETIZATION Parameters</title>
+<tr>
+<th>Variable</th><th>Type</th> <th>Description</th><th>Form</th>
+</tr>
+<tr>
+  <td>ngrid(id)</td>
+  <td>integer</td>
+  <td># grid points in direction id=1,..,dim</td>
+  <td>R</td>
+</tr>
+<tr>
+  <td>ds</td>
+  <td>real</td>
+  <td>contour length step size</td>
+</tr>
+</table>
+The integer array ngrid(id) is input in row format, with dim (i.e., 1,2 or
+3) values on a line.
+
+<hr><h3 id="file_prefixes">FILE_PREFIXES</h3>
+The FILE_PREFIXES section inputs the prefixes that are used to construct
+the names of the input and output files. The input prefix is concatenated
+with 'omega' to construct the name of the input file. The output prefix
+is concatenated with the suffixes 'out', 'rho', and 'omega' to create 
+the name of the output summary, output monomer concentration field, and 
+output omega field files. This, to specify file name 'in.omega', 'out', 
+'rho', and 'omega' in the current directory, you would set in_prefix to
+'in.', and the output prefix to the blank string ''. To specify an input 
+file from another directory, you would set in_prefix to the path to that 
+directory, followed by a trailing '/' directory separator.  Both string 
+variables are required, and must appear in the order listed below.
+<table class="parameters">
+<tr>
+<th>Variable</th><th>Type</th> <th>Description</th>
+</tr>
+<tr>
+  <td>in_prefix</td>
+  <td>character(60)</td>
+  <td>prefix to *omega input file</td>
+</tr>
+<tr>
+  <td>out_prefix</td>
+  <td>character(60)</td>
+  <td>prefix to *rho, *omega, *out output files</td>
+</tr>
+</table>
+
+<hr><h3 id="basis">BASIS</h3>
+<p>
+The BASIS block instructs the code to construct symmetrized
+basis functions that are invariant under the operations of
+a specified space group.  It contains only one variable, 
+named "group", which is a string containing either the name
+of one of the standard space groups (which are hard coded 
+into the program) or the path to a file that contains the
+elements of the group. After reading this string from file, 
+basis functions are constructed by the make_basis routine 
+of module basis_mod.
+</p>
+<p>
+<table class="parameters">
+<tr>
+<th>Variable</th><th>Type</th> <th>Description</th>
+</tr>
+<tr>
+  <td>group</td>
+  <td>character(60)</td>
+  <td>name of group, or file that contains group</td>
+</tr>
+</table>
+</p>
+
+<p>
+The file format for a group file is determined by the 
+input_group routine in module group_mod. Some simple 2D
+examples of the format are provided in src/tests/group.
+</p>
+
+<hr><h3 id="iterate">ITERATE</h3>
+<p>
+The ITERATE block reads in variables required by our iteration
+algorithm, and attempts to iteratively solve the SCFT equations
+for one set of input parameters.
+</p>
+<p>
+<table class="parameters">
+<tr>
+<th>Variable</th><th>Type</th><th>Description</th>
+</tr>
+<tr>
+  <td>max_itr</td>
+  <td>integer</td>
+  <td>maximum allowed number of iterations</td>
+</tr>
+<tr>
+  <td>max_error</td>
+  <td>real</td>
+  <td>Tolerance - maximum error after convergence</td>
+</tr>
+<tr>
+  <td>domain</td>
+  <td>logical</td>
+  <td>Variable unit cell if true, fixed unit cell if false</td>
+</tr>
+<tr>
+  <td>itr_algo</td>
+  <td>character(10)</td>
+  <td>Character code for iteration algorithm</td>
+</tr>
+<tr>
+  <td>N_cut</td>
+  <td>integer</td>
+  <td>Dimension of cutoff Jacobian</td>
+</tr>
+</table>
+</p>
+For now, the value of the 'itr_algo' variable must be 'NR', for
+Newton-Raphson. The variable is included in order to allow us to 
+add other iteration algorithms in the future.
+
+<hr><h3 id="sweep">SWEEP</h3>
+<p>
+The presence of a SWEEP section instructs the program to solve
+the SCFT for a sequence of nearby values of parameters along a
+path through parameter space (a 'sweep'). We define a sweep
+contour variable s that varies from 0 up to a maximum value 
+s_max, in increments of 1. For each integer step in the sweep
+parameter, each of the relevant parameters in CHEMISTRY section
+(i.e., any parameter for which a floating point value or values
+are specified in the input script) may be incremented by a 
+user specified amount. For simulations with a fixed unit cell 
+(domain=1), the elements of the unit_cell_param array may also 
+be incremented. The desired increment for any variable &lt;name&gt; 
+is specified by the value or (for an array) values of a corresponding 
+increment variable named d_&lt;name&gt. Any number of increments 
+may be specified. Variables that are not incremented need not 
+be assigned zero increment values (i.e., the increments are 
+zero by default). When an array variable is incremented, however,
+increment values must be specified for all of the elements of 
+the array.  The reading of increment variables ends when the 
+program encounters the line 'end_increments'.
+</p>
+
+<p>
+<table class="parameters">
+<tr>
+<th>Variable</th><th>Type</th><th>Description</th>
+</tr>
+<tr>
+  <td>s_max</td>
+  <td>real</td>
+  <td>maximum value of sweep contour variable</td>
+</tr>
+<tr>
+  <td>s_&lt;name&gt;</td>
+  <td>type of &lt;name&gt;</td>
+  <td>increment in variable &lt;name&gt;</td>
+</tr>
+<tr>
+  <td>end_increment</td>
+  <td> none        </td>
+  <td>indicates end of the list of increments</td>
+</tr>
+</table>
+</p>
+
+<hr><h3 id="response">RESPONSE</h3>
+<p>
+The presence of a RESPONSE section instructs the program to 
+calculate the linear response matrix for a converged ordered
+structure at one or more k-vectors in the first Brillouin
+zone. If the linear response is calculated for more than one
+k-vector, they must lie along a line in k-space, separated by 
+a user defined vector increment. 
+</p>
+<p>
+<table class="parameters">
+<tr>
+<th>Variable</th><th>Type</th><th>Description</th>
+</tr>
+<tr>
+  <td>pertbasis</td>
+  <td>char</td>
+  <td>'PW' => plane wave basis, 'SYM' => symmetrized basis functions</td>
+</tr>
+<tr>
+  <td>k_group</td>
+  <td>character</td>
+  <td>Group used to construct symmetrized basis functions</td>
+</tr>
+<tr>
+  <td>kdim</td>
+  <td>int</td>
+  <td># dimensions in k-vector (kdim &ge; dim) </td>
+</tr>
+<tr>
+  <td>kvec0(i)</td>
+  <td>real</td>
+  <td>initial k-vector, i=1,...,kdim</td>
+</tr>
+<tr>
+  <td>dkvec(i)</td>
+  <td>real    </td>
+  <td>increment in k-vector</td>
+</tr>
+<tr>
+  <td>nkstep</td>
+  <td>integer</td>
+  <td># of k-vectors</td>
+</tr>
+</table>
+</p>
+
+<hr><h3 id="finish">FINISH</h3>
+<p>
+The FINISH string causes the program to terminate.
+</p>

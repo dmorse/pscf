@@ -1,0 +1,234 @@
+
+File Name Conventions:
+
+  Files named <base>_mod.f  are Fortran 90 modules
+  Files named <name>.fp.f   are preprocessor input files. 
+
+  The main program is src/build/scf_pf.f. This compilable fortran
+  program is generated from the file src/build/scf_pd.fp.f by a 
+  preprocessor. See the end of this file for a discussion of the
+  use of a preprocessor.
+
+---------------------------------------------------------------------
+! Directories and Files                                             !
+---------------------------------------------------------------------
+
+src/
+----
+
+scf_pd.fp.f :
+	Main program (preprocessor input file). Used to generate the 
+	compilable fortran file build/scf_pd.f
+
+const_mod : 
+	Defines global variable dim (= # dimensions of space) and 
+	parameter long (=real kind for double precision). Used by
+	all other modules.
+
+src/io/
+-------
+
+io/io_mod :
+        Defines generic interfaces for parameter input and output.
+
+io/field_io_mod :
+        Routines to input and output fields, as lists of coefficients 
+	of symmetry-adapted basis functions.
+
+io/string_mod:
+	Utilities to convert integers to strings. Used in io formats.
+
+io/version_mod:
+        Defines a version_type derived type, with major and minor 
+	integer version numbers, and routines to read and write this.
+	Version numbers are used to specify file format versions.
+
+src/grid/
+---------
+
+grid/fft3_mod.f:
+        Fortran 90 wrappers for FFTW Fourier transform functions, 
+	for FFTW version 3 (Either this or fft2_mod.f is linked)
+
+grid/fft2_mod.f:
+        Fortran 90 wrappers for FFTW Fourier transform functions,
+	for FFTW version 2 (Either this or fft3_mod.f is linked)
+
+grid/grid_mod.f: 
+        Defines scf data structures on an FFT grid, and routines
+	to allocate, deallocate, and manipulate these structures.
+	Defines ngrid, rho_grid, omega_grid, and ksq_grid. Also 
+	contains several functions for manipulating single FFT 
+	wavevectors, including norm, G_to_fft and G_to_bz.
+
+src/crystal/
+------------
+
+crystal/unit_cell_mod: 
+	Creates Bravais and reciprocal basis vectors, using user 
+	supplied name of crystal system and cell parameters.  Defines 
+	data structures specifying cell parameters, Bravais and 
+	reciprocal lattice basis vectors, and some related quantities. 
+
+crystal/group_mod : 
+        Defines derived types and operations for space group 
+	symmetries and space groups
+
+crystal/space_groups_mod :
+	Routine space_groups creates space group specified by user 
+	by name or number, using look-up table of all 230 3D space 
+	groups, 17 2D plane groups, and 2 1D groups. 
+
+crystal/basis_mod : 
+        Module to construct basis functions for periodic crystal.
+        Defines data structures describing reciprocal wavevectors and 
+	stars. Contains routines to generate reciprocal wavevectors, 
+	to group them into stars of wavevectors related by symmetry,
+	and to calculate coefficients of plane waves in symmetry
+	adapted basis functions.  A discussion of the data structures 
+	and conventions used in basis_mod is given within a long
+	comment within basis_mod, and in api documentation for the
+	module. 
+
+crystal/grid_basis_mod.f:
+	Contains routines to convert between representations of a
+	field as a 1D array of coefficients of symmetry-adpated
+	basis functions and as a set of values defined at points
+	on a regular grid. 
+
+src/scf/
+--------
+
+scf/chemistry_mod :
+	Defines data structures required to specify chemistry of an 
+	incompressible polymer blend (chi, Kuhn lengths, block lengths,
+	molecular volume fractions etc.), and routines to input and 
+	output this data. 
+
+scf/scf_mod.fp.f:
+	Contains routines to solve diffusion equation by the
+	pseudo-spectral method, and to calculate monomer 
+        concentration fields, the free and energy, and stress.
+	Note: scf/scf_mod.fp.f is a preprocessor input file, 
+	which is used to generate build/scf_mod.f.
+
+scf/step_mod.f:
+        Routines to integrate one time step of modified diffusion
+	equation, using the Rasmussen-Kaloskas pseudo-spectral
+	algorithm and extrapolation with respect to contour 
+	length step size.
+
+scf/chain_mod.f:
+	Defines a derived type chain_type that contains the
+	q(r,s) =qf and q^{+}(r,s) =qr functions for a chain, and 
+	information about discretization in r and s. Also defines 
+	arrays of chain_types and subroutines to allocate and 
+	destroy these arrays. 
+
+src/iterate:
+------------
+
+iterate/iterate_mod.fp.f :
+	Iterates scf equations to convergence. Currently contains
+	Newton-Raphson (NR) algorithm for both fixed and variable 
+	unit cells. The file iterate_mod.fp.f is a preprocessor
+	input file, which is used to generate build/iterate_mod.f
+
+iterate/sweep_mod :
+       Used to conduct a "sweep" along a path through the space 
+       of SCF input parameters (i.e., chi, block_lengths, etc).
+       Implements 1st and 2nd order continuation of solutions 
+       along such a path.
+
+iterate/respond_pd_mod.f:
+       Calculate response of periodic structures in form needed to
+       construct approximate Jacobian for iterate_mod.f
+
+src/response/
+-------------
+
+response/response_mod.f:
+	Module for calculating SCF linear response of period structure
+
+response/response_step_mod.f:
+	Routines to integrate inhomogeneous PDE required in the ideal 
+	gas perturbation theory
+
+response/extrapolate_mod.f:
+	Implements extrapolation with respect to contour length step 
+	size ds. 
+
+src/build/
+----------
+
+build/Makefile:
+	Makefile for recompiling the program. 
+
+build/INSTALL:
+	Instructions for recompiling the program.
+
+src/tests/
+----------
+
+    Programs to test specific fortran 90 modules
+
+src/utilities/
+--------------
+
+    Fortran 90 utility programs that are not used by main program
+
+
+---------------------------------------------------------------------
+! Preprocessor Usage                                                !
+---------------------------------------------------------------------
+
+  Several fortran files in the src/build directory are generated 
+  by an open-source python preprocessor script named FORPEDO. The
+  preprocessor is included as part of the pscf package in 
+  tools/python directory. 
+  
+  The relevant preprocesor input files are:
+
+     src/pscf_pd.fp.f 
+     src/iterate/iterate_mod.fp.f 
+     src/scf/scf_mod.fp.f 
+
+  These contain preprocessor directives for conditional compilation, 
+  which are used to generate corresponding Fortran 90 files:
+     
+     src/build/scf_pd.f 
+     src/build/iterate_mod.f 
+     src/build/scf_mod.f 
+
+  as part of the compilation process. The use of a preprocessor
+  script makes it easy for developers to maintain code that contains 
+  experimental features that are not yet ready to be released as part
+  of a stable version, without maintaining separate stable and 
+  development copies. Sections of code containing features that are 
+  not ready for prime time are surrounded by conditional compilation 
+  directives and are excluded from stable versions of the 
+  corresponding src/build/*.f files. 
+  
+  Copies of the compilable src/build/*.f files are included in the 
+  public distribution. It is thus possible to compile the program with
+  using the preprocessor. Because these are automatically generated
+  files, however, they are not stored in the CVS repository used by
+  developers. To modify these files, a user can either: i) Modify 
+  the corresponding *.fp.f files and use the Makefile to invoke the
+  preprocessor, or ii) Modify the *.f files directly, if the user 
+  wishes to avoid the use of the preprocessor. 
+
+  If these *.f files are removed, or if the corresponding *.fp.f 
+  preprocessor files are modified, and the program is then recompiled
+  with the Makefile in the src/build directory, the src/build/*.f
+  files will be regenerated by the preprocessor as part of the 
+  compilation process. This behavior is dictated by the actions of 
+  the *.f and *.o targets of src/build/Makefile, in which the *.fp.f 
+  preprocessor input files are listed as dependencies of corresponding
+  *.f targets, and these *.f files are listed as dependencies of 
+  *.o targets.  The generated src/build/*.f fortran files can be 
+  removed by the 'make very_clean' command, but are not removed
+  by the 'make clean' command. (If you do not intend to use the
+  preprocessor to regenerate the src/build/*.f files, DON'T issue
+  the 'make very_clean' command). 
+

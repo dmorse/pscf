@@ -1,0 +1,81 @@
+
+<p>
+The src directory contains the source files for scf code for
+periodic structures of incompressible blend of linear block 
+copolymers, homopolymers, and small molecule solvent. The code 
+is compiled from the src/build directory, using the Makefile 
+in the directory.  
+</p>
+
+<p>
+To compile the code, you will have to cd to src/build, edit the 
+Makefile, and issue the command 'make pscf' from within src/build.
+These steps are described in more detail below
+</p>
+
+<p>
+<b>Customize the Makefile:</b>
+</p>
+<p>
+In Makefile in the src/build directory, you will need to set 
+values for a set of macro variables to values appropriate to your 
+system. The variables you may need to reset are:
+<table>
+  <tr>
+    <td>SCF </td>
+    <td>root of scf directory tree.</td></tr>
+  <tr>
+    <td>SRC </td>
+    <td>F90 source file directory. Default: $(SCF)/src</td></tr>
+  <tr>
+    <td>BIN      </td>
+    <td>directory to which executable should be written</td></tr>
+  <tr>
+    <td>EXE      </td>
+    <td>name of executable file</td>
+  </tr>
+  <tr>
+    <td>F90      </td>
+    <td>path to executable for Fortran 90 compiler</td>
+  </tr>
+  <tr>
+    <td>FAST</td>
+    <td>compiler options for high optimization</td>
+  </tr>
+  <tr>
+    <td>NOPT</td>
+    <td>compiler options for no optimization</td>
+  </tr>
+  <tr>
+    <td>LAPACKLIB</td>
+    <td>directory with Lapack libraries</td>
+  </tr>
+  <tr>
+    <td>FFTWLIB</td>
+    <td>directory with FFTW library</td>
+  </tr>
+</table>
+</p>
+
+<p>
+<b>Compile and Link:</b>
+</p>
+To compile and link, from the src/build directory, issue the 
+command
+<pre>
+   > make pscf
+</pre>
+This should fill the src/build directory with *.o and *.mod files,
+and create an executable $(BIN)/$(EXE)
+</p>
+	
+<p>
+<b>Cleaning Up</b>
+</p>	      
+To remove all of the *.o amd *.mod files from the src/build
+directory, as well as all *~ files from src and its subdirectory,
+if desired, enter the command
+<pre>
+   > make clean
+</pre>
+

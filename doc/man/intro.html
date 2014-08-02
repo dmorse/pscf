@@ -1,0 +1,71 @@
+<p>
+PSCF is a numerical implementation of the Edwards-Helfand 
+self-consistent field theory (SCFT) for periodic phases formed by 
+liquids containing block copolymers. It is designed to describe 
+any periodic structures with 1, 2, or 3 dimensional periodicity of 
+incompessible liquids that may contain a mixture of block copolymers, 
+homopolymers, and small molecule solvents. It can describe periodic
+structure structures with any unit cell (e.g., cubic, orthorhombic, 
+triclinic, etc.) with any specified space group symmetry. The 
+modified diffusion equation (MDE) is solved with an efficient 
+pseudo-spectral method. The code was designed for calculating
+phase diagrams by comparing free energies of competing ordered 
+phases, and contains features that facilitate such calculations. 
+</p>
+
+<p>
+In addition to its primary purpose of solving the SCF equations, 
+PSCF can also calculate the linear susceptibility of ordered 
+phases. This is an efficient pseudo-spectral implementation of 
+the linear response theory of An-Chang Shi and coworkers. 
+</p>
+
+
+<p>
+<b>Features:</b>
+<ul>
+<li> Arbitrary mixtures of block copolymers, homopolymers, and solvents </li>
+<li> Ordered phases with 1, 2, or 3 dimensional periodicity</li>
+<li> Canonical and grand-canonical ensembles</li>
+<li> Arbitrary 2 or 3D unit cell, with non-orthogonal axes</li>
+<li> Imposition of any specified space-group symmetry</li>
+<li> Hard-coded "database" of all 230 3D space groups </li>
+<li> Variable unit cell algorithm, in which the unit cell parameters 
+     are adjusted to minimize free energy.</li> 
+<li> Efficient treatment of sequences of solutions in which input 
+parameters are changed by small amounts ("sweeps"), using continuation
+of solutions</li>
+<li> RPA response and spinodal calculations for homogeneous phase </li>
+<li> Linear response calculations for periodic structures </li>
+</ul>
+</p>
+
+<p>
+<b>Documentation:</b>
+<ul>
+<li> This manual </li>
+<li> API documentation. The package includes HTML documentation of all 
+     public module variables and procedures, which is extracted from 
+     comment blocks in the source code.</li>
+<li> Examples of converged solutions and input scripts are included.</li>
+</ul>
+</p>
+
+<p>
+<b>Dependencies:</b>
+</p> <p>
+The program is written in Fortran 90. It depends the open source FFTW Fast 
+Fourier Transform library and the LAPACK linear algebra library. To compile 
+the code from source, you will thus need a Fortran 90 compiler and these 
+two libraries.</p>
+
+<p>
+<b>Contributors:</b>
+</p> 
+<ul>
+<li>David Morse</li>
+<li>Chris Tyler</li>
+<li>Amit Ranjan</li>
+<li>Jian Qin</li>
+<li>Raghuram Thiagarajan</li>
+</ul>

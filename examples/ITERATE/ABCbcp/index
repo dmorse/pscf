@@ -1,0 +1,22 @@
+
+                      ABC triblock
+===================================
+b(A) = b(B) = b(C)
+chi(AC)N = 35
+chi(AB)N = chi(BC)N = 13
+
+                       AC-isopleth
+===================================
+lam --  lamellae
+hex --  hexagonal cylinders
+bcc --  BCC packed spheres
+ca  --  alternating cyliners
+ga  --  alternating Gyroid
+sa  --  alternating sphere (CsCl)
+fa  --  alternating FCC (NaCl)
+
+                         f(B)=0.55
+===================================
+gyr --  Gyroid
+o70 --  Fddd
+

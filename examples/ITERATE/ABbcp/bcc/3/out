@@ -1,0 +1,64 @@
+N_monomer           
+              2
+names               
+            'A'            'B'
+kuhn                
+  1.0000000E+00  1.0000000E+00
+chi_flag            
+            'B'
+chi                 
+  2.0000000E+01
+N_spec              
+              1
+N_block             
+              2
+block_monomer  
+              1              2
+block_length   
+  2.5000000E-01  7.5000000E-01
+ensemble            
+              0
+phi                 
+  1.0000000E+00
+dim                 
+              3
+crystal_system      
+        'cubic'
+N_cell_param        
+              1
+cell_param          
+  1.9232020E+00
+group_name          
+     'I m -3 m'
+Gabs_max            
+  3.6095679E+01
+reorder_omega       
+              F
+input_prefix        
+          'in.'
+output_prefix       
+             ''
+max_itr             
+             20
+error_max           
+  1.0000000E-08
+domain              
+              T
+sweep               
+              F
+
+mu                  
+  6.1744597E+00
+
+************************************
+
+N_star      =                    95
+f_Helmholtz =         2.6145893E+00
+f_homo      =         2.7500000E+00
+pressure    =         3.5598704E+00
+cell_param  =         1.9232020E+00
+stress      =        -3.1171649E-08
+Final Error =         9.3499438E-09
+Iterations  =                     0
+Basis time  =         6.5979209E+00
+SCF time    =         7.0331097E-02

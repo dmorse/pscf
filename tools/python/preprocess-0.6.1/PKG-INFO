@@ -1,0 +1,12 @@
+Metadata-Version: 1.0
+Name: preprocess
+Version: 0.6.1
+Summary: a multi-language preprocessor
+Home-page: http://starship.python.net/~tmick/
+Author: Trent Mick
+Author-email: TrentM@ActiveState.com
+License: MIT License
+Description: UNKNOWN
+Keywords: preprocess,preprocessor,#if,#else,#endif
+Platform: Windows
+Platform: Linux

@@ -1,0 +1,189 @@
+
+group
+                'p1'
+dim
+                   2
+crystal_system
+           'oblique'
+N_cell_param
+                   3
+cell_param
+      1.0        2.0       0.7
+
+group
+                'p2'
+dim
+                   2
+crystal_system
+           'oblique'
+N_cell_param
+                   3
+cell_param
+      1.0        2.0       0.7
+p2        oblique
+
+group
+                'pm'
+dim
+                   2
+crystal_system
+       'rectangular'
+N_cell_param
+                   2
+cell_param
+      1.0        2.0   
+
+group
+                'pg'
+dim
+                   2
+crystal_system
+       'rectangular'
+N_cell_param
+                   2
+cell_param
+      1.0        2.0   
+
+group
+                'cm'
+dim
+                   2
+crystal_system
+       'rectangular'
+N_cell_param
+                   2
+cell_param
+      1.0        2.0   
+
+group
+              'p2mm'
+dim
+                   2
+crystal_system
+       'rectangular'
+N_cell_param
+                   2
+cell_param
+      1.0        2.0   
+
+group
+              'p2mg'
+dim
+                   2
+crystal_system
+       'rectangular'
+N_cell_param
+                   2
+cell_param
+      1.0        2.0   
+
+group
+              'p2gg'
+dim
+                   2
+crystal_system
+       'rectangular'
+N_cell_param
+                   2
+cell_param
+      1.0        2.0   
+
+group
+              'c2mm'
+dim
+                   2
+crystal_system
+       'rectangular'
+N_cell_param
+                   2
+cell_param
+      1.0        2.0   
+
+group
+                'p4'
+dim
+                   2
+crystal_system
+            'square'
+N_cell_param
+                   1
+cell_param
+      1.0        2.0   
+
+group
+              'p4mm'
+dim
+                   2
+crystal_system
+            'square'
+N_cell_param
+                   1
+cell_param
+      1.0        2.0   
+
+group
+              'p4gm'
+dim
+                   2
+crystal_system
+            'square'
+N_cell_param
+                   1
+cell_param
+      1.0        2.0   
+
+group
+                'p3'
+dim
+                   2
+crystal_system
+         'hexagonal'
+N_cell_param
+                   1
+cell_param
+                1.0 
+
+group
+              'p3m1'
+dim
+                   2
+crystal_system
+         'hexagonal'
+N_cell_param
+                   1
+cell_param
+                 1.0
+
+group
+              'p31m'
+dim
+                   2
+crystal_system
+         'hexagonal'
+N_cell_param
+                   1
+cell_param
+                 1.0
+
+group
+                'p6'
+dim
+                   2
+crystal_system
+         'hexagonal'
+N_cell_param
+                   1
+cell_param
+                 1.0
+
+group
+              'p6mm'
+dim
+                   2
+crystal_system
+         'hexagonal'
+N_cell_param
+                   1
+cell_param
+                 1.0
+

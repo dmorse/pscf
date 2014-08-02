@@ -1,0 +1,80 @@
+format 1 0
+
+MONOMERS
+N_monomer           
+              3
+kuhn                
+  6.0700000E+00   6.0700000E+00          6.070000E+00
+
+CHAINS
+N_chain              
+              1
+N_block             
+              2
+block_monomer  
+              1              2         
+block_length   
+  0.550000000E+00  0.45000000E+00  
+
+SOLVENTS
+N_solvent
+	      1 
+solvent_monomer
+              3
+solvent_size
+	   000.003000E+00
+
+COMPOSITION
+ensemble            
+              0
+phi_chain                 
+  0.90000E+00
+phi_solvent
+  0.100000E+00
+
+INTERACTION
+interaction_type
+           'chi'
+chi
+40
+100  040
+
+UNIT_CELL
+dim                 
+              3
+crystal_system      
+     'cubic'
+N_cell_param        
+              1
+cell_param          
+    02.9473393166E+01
+
+DISCRETIZATION
+ngrid
+  40 40 40
+chain_step
+        0.01
+        
+FILE_PREFIXES
+input_prefix        
+          'ins/0.'
+output_prefix       
+             'outs4/'
+
+BASIS
+group_name          
+           'I a -3 d'
+
+ITERATE
+max_itr             
+           100
+error_max           
+  1.0000000E-6
+domain
+	     T
+itr_algo
+      'broyden'
+N_cut
+   817
+
+FINISH

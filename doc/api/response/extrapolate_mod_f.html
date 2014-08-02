@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<link rel="stylesheet" href="../GDoc.css" type="text/css">
+<title>response/extrapolate_mod_f</title>
+</head>
+<body bgcolor="#FFFFFF">
+<br />
+<p>
+[<a href="../toc.html#top">table of contents</a>]
+[<a href="../master_index.html#top">master index</a>]
+[<a href="../comment_index.html#top">comments</a>]
+[<a href="../module_index.html#top">modules</a>]
+[<a href="../program_index.html#top">programs</a>]
+[<a href="../variable_index.html#top">variables</a>]
+[<a href="../type_index.html#top">types</a>]
+[<a href="../procedure_index.html#top">procedures</a>]
+</p>
+<h3 align="center">TABLE OF CONTENTS</h3>
+<ul><li>module <a href="#extrapolate_mod">extrapolate_mod</a></li>
+<ul>
+<li>procedure <a href="#extrapolate_real">extrapolate_real</a></li>
+<li>procedure <a href="#extrapolate_complex">extrapolate_complex</a></li>
+</ul>
+<h2 id="extrapolate_mod" ><a href="extrapolate_mod_f_.html#extrapolate_mod" target="source">extrapolate_mod</a></h2>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Richardson extrapolation - extrapolate to ds = 0
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+module <strong>extrapolate_mod</strong>
+   use <a href="../const_mod_f.html#const_mod">const_mod</a>
+   implicit none
+ 
+   private
+   public :: <a href="#extrapolate_real">extrapolate_real</a>
+   public :: <a href="#extrapolate_complex">extrapolate_complex</a>
+</pre>
+<h2 id="extrapolate_real" ><a href="extrapolate_mod_f_.html#extrapolate_real" target="source">extrapolate_real</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>extrapolate_real</strong>(order,xarray,yarray,extrap_yvalue)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Calculate the extrapolated value of a real array
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+     integer order         -  order of extrapolation
+     real    xarray        -  the array of x 
+     real    yarray        -  the array of y that depends on x
+     real    extrap_value  -  the y value extrapolated to x = 0 case
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>extrapolate_real</strong>(order,xarray,yarray,extrap_yvalue)
+   integer,intent(IN)     :: order
+   real(<a href="../const_mod_f.html#long">long</a>),intent(IN)  :: xarray(order+1)
+   real(<a href="../const_mod_f.html#long">long</a>),intent(IN)  :: yarray(order+1)
+   real(<a href="../const_mod_f.html#long">long</a>),intent(out) :: extrap_yvalue
+</pre>
+<h2 id="extrapolate_complex" ><a href="extrapolate_mod_f_.html#extrapolate_complex" target="source">extrapolate_complex</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>extrapolate_complex</strong>(order,xarray,yarray,extrap_yvalue)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Calculate the extrapolated value of a complex array
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+     integer    order         -  order of extrapolation
+     complex    xarray        -  the array of x 
+     complex    yarray        -  the array of y that depends on x
+     complex    extrap_value  -  the y value extrapolated to x = 0 case
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>extrapolate_complex</strong>(order,xarray,yarray,extrap_yvalue)
+   integer,intent(IN)     :: order
+   real(<a href="../const_mod_f.html#long">long</a>),intent(IN)  :: xarray(order+1)
+   complex(<a href="../const_mod_f.html#long">long</a>),intent(IN)  :: yarray(order+1)
+   complex(<a href="../const_mod_f.html#long">long</a>),intent(out) :: extrap_yvalue
+</pre>
+</body>
+</html>

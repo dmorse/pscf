@@ -1,0 +1,8 @@
+format 1 0
+Bravais = basis (group p1)
+2       = dim
+1       = # symmetries
+
+1 (I)
+  1.0   0.0     0.0
+  0.0   1.0     0.0

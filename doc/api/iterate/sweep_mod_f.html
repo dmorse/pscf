@@ -1,0 +1,192 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<link rel="stylesheet" href="../GDoc.css" type="text/css">
+<title>iterate/sweep_mod_f</title>
+</head>
+<body bgcolor="#FFFFFF">
+<br />
+<p>
+[<a href="../toc.html#top">table of contents</a>]
+[<a href="../master_index.html#top">master index</a>]
+[<a href="../comment_index.html#top">comments</a>]
+[<a href="../module_index.html#top">modules</a>]
+[<a href="../program_index.html#top">programs</a>]
+[<a href="../variable_index.html#top">variables</a>]
+[<a href="../type_index.html#top">types</a>]
+[<a href="../procedure_index.html#top">procedures</a>]
+</p>
+<h3 align="center">TABLE OF CONTENTS</h3>
+<ul><li>module <a href="#sweep_mod">sweep_mod</a></li>
+<ul>
+<li>procedure <a href="#input_increments">input_increments</a></li>
+<li>procedure <a href="#output_increments">output_increments</a></li>
+<li>procedure <a href="#increment_parameters">increment_parameters</a></li>
+<li>procedure <a href="#history_setup">history_setup</a></li>
+<li>procedure <a href="#update_history">update_history</a></li>
+<li>procedure <a href="#continuation">continuation</a></li>
+</ul>
+<h2 id="sweep_mod" ><a href="sweep_mod_f_.html#sweep_mod" target="source">sweep_mod</a></h2>
+<p><strong>MODULE</strong></p>  <pre>
+     <strong>sweep_mod</strong>
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Solve SCF repeatedly for a range of parameters, using
+     zeroth, first, or second order <a href="#continuation">continuation</a> of solutions
+</pre>
+<p><strong>COMMENT</strong></p>  <pre>
+     Module uses 1st or 2nd order contination of scf equations
+     at equally spaced values of a <a href="#continuation">continuation</a> parameter s along 
+     a line in parameter space along which each of the chemistry
+     <a href="../io/io_mod_f.html#input">input</a> parameters <a href="../scf/chemistry_mod_f.html#kuhn">kuhn</a>, <a href="../scf/chemistry_mod_f.html#block_length">block_length</a>, <a href="../scf/chemistry_mod_f.html#chi">chi</a> or Temperature 
+     (depending upon the value of chi_fmt), and phi or mu 
+     (depending upon the <a href="../scf/chemistry_mod_f.html#ensemble">ensemble</a>) has a constant increment per 
+     unit change in s. For solutions of a specified sequence of 
+     unit cell parameters, with <a href="iterate_mod_f.html#domain">domain</a> = F, (rather than iteration 
+     of each set of chemical parameters to stress free solution, 
+     with <a href="iterate_mod_f.html#domain">domain</a> = T), the elements of <a href="../crystal/unit_cell_mod_f.html#cell_param">cell_param</a> also have a 
+     constant increment per unit change in s.  A single parameter 
+     may be varied by setting all but one of the increments to zero. 
+      
+     The required increments are read from file by subroutine
+     <a href="#input_increments">input_increments</a> and are stored in private module variables
+     d_kuhn, d_block_length, d_chi or d_Temperature, etc.
+    
+     The order of <a href="#continuation">continuation</a> is set at compile time by the value
+     of the private module parameter N_hist, which gives the maximum
+     number of solutions stored in a history stack. Compile with
+     N_hist = 3 (current solution and two previous solutions) for
+     second order <a href="#continuation">continuation</a>, and N_hist = 2 (current and one
+     previous solution) for first order continuation.
+ 
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+module <strong>sweep_mod</strong>
+   use <a href="../const_mod_f.html#const_mod">const_mod</a>
+   use <a href="../crystal/unit_cell_mod_f.html#unit_cell_mod">unit_cell_mod</a>, only : <a href="../crystal/unit_cell_mod_f.html#N_cell_param">N_cell_param</a>
+   use <a href="../scf/chemistry_mod_f.html#chemistry_mod">chemistry_mod</a>
+   implicit none
+
+   private
+
+   ! Public procedures
+   public :: <a href="#input_increments">input_increments</a>     ! Read nonzero increments from file
+   public :: <a href="#output_increments">output_increments</a>    ! Write increments to file
+   public :: <a href="#increment_parameters">increment_parameters</a> ! Increment parameters
+   public :: <a href="#history_setup">history_setup</a>        ! Allocate history stack arrays
+   public :: <a href="#update_history">update_history</a>       ! Push new solution onto history stack
+   public :: <a href="#continuation">continuation</a>         ! Predict next solution
+</pre>
+<h2 id="input_increments" ><a href="sweep_mod_f_.html#input_increments" target="source">input_increments</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>input_increments</strong>(i_unit,fmt_flag,<a href="iterate_mod_f.html#domain">domain</a>)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Allocate arrays for chemistry increment variables
+     Read values of increment module variables from unit i_unit
+</pre>
+<p><strong>NOTE</strong></p>  <pre>
+     Default imput unit in module <a href="../io/io_mod_f.html#io_mod">io_mod</a> is set to i_unit
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>input_increments</strong>(i_unit,fmt_flag,<a href="iterate_mod_f.html#domain">domain</a>)
+   use <a href="../io/io_mod_f.html#io_mod">io_mod</a>
+   integer,      intent(IN) :: i_unit        ! <a href="../io/io_mod_f.html#input">input</a> unit #
+   character(1), intent(IN) :: fmt_flag      ! F = formatted, U = unformatted
+   logical,      intent(IN) :: <a href="iterate_mod_f.html#domain">domain</a>        ! true if <a href="iterate_mod_f.html#domain">domain</a> iteration
+</pre>
+<h2 id="output_increments" ><a href="sweep_mod_f_.html#output_increments" target="source">output_increments</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>output_increments</strong>(o_unit,fmt_flag,<a href="iterate_mod_f.html#domain">domain</a>)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Write values of increments to unit o_unit 
+     in format required by <a href="#input_increments">input_increments</a>
+</pre>
+<p><strong>NOTE</strong></p>  <pre>
+     Default <a href="../io/io_mod_f.html#output">output</a> unit in module <a href="../io/io_mod_f.html#io_mod">io_mod</a> set to o_unit
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>output_increments</strong>(o_unit,fmt_flag,<a href="iterate_mod_f.html#domain">domain</a>)
+   use <a href="../io/io_mod_f.html#io_mod">io_mod</a>
+   integer,      intent(IN) :: o_unit        ! <a href="../io/io_mod_f.html#input">input</a> unit #
+   character(1), intent(IN) :: fmt_flag      ! F = formatted, U = unformatted
+   logical,      intent(IN) :: <a href="iterate_mod_f.html#domain">domain</a>        ! true if <a href="iterate_mod_f.html#domain">domain</a> iteration
+</pre>
+<h2 id="increment_parameters" ><a href="sweep_mod_f_.html#increment_parameters" target="source">increment_parameters</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+    <strong>increment_parameters</strong>(step,<a href="iterate_mod_f.html#domain">domain</a>,<a href="../crystal/unit_cell_mod_f.html#cell_param">cell_param</a>)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+    Increment chemisty parameters 
+    if (.not.domain), also increment <a href="../crystal/unit_cell_mod_f.html#cell_param">cell_param</a>
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+    step       - change in <a href="#continuation">continuation</a> parameter s
+    <a href="iterate_mod_f.html#domain">domain</a>     - F -> specified unit cell, T -> variable unit cell
+    <a href="../crystal/unit_cell_mod_f.html#cell_param">cell_param</a> - cell parameters
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>increment_parameters</strong>(step,<a href="iterate_mod_f.html#domain">domain</a>,<a href="../crystal/unit_cell_mod_f.html#cell_param">cell_param</a>)
+   real(<a href="../const_mod_f.html#long">long</a>) :: step
+   logical    :: <a href="iterate_mod_f.html#domain">domain</a>
+   real(<a href="../const_mod_f.html#long">long</a>) :: <a href="../crystal/unit_cell_mod_f.html#cell_param">cell_param</a>(:)
+</pre>
+<h2 id="history_setup" ><a href="sweep_mod_f_.html#history_setup" target="source">history_setup</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>history_setup</strong>
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Allocates private history stack module variables:
+        s_hist(N_hist)                      = prior values of s
+        omega_hist(<a href="../scf/chemistry_mod_f.html#N_monomer">N_monomer</a>,<a href="../crystal/basis_mod_f.html#N_star">N_star</a>,N_hist) = prior omega fields
+        cell_param_hist(6,N_hist)           = prior cell parameters
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>history_setup</strong>
+   use <a href="../crystal/basis_mod_f.html#basis_mod">basis_mod</a>, only : <a href="../crystal/basis_mod_f.html#N_star">N_star</a>
+</pre>
+<h2 id="update_history" ><a href="sweep_mod_f_.html#update_history" target="source">update_history</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>update_history</strong>(s,omega,<a href="../crystal/unit_cell_mod_f.html#cell_param">cell_param</a>,<a href="iterate_mod_f.html#domain">domain</a>)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Push new values of s, omega, & <a href="../crystal/unit_cell_mod_f.html#cell_param">cell_param</a> onto history stacks.
+     On <a href="../io/io_mod_f.html#output">output</a>:
+        s_hist(1)            = s
+        omega_hist(:,:,1)    = omega
+        cell_param_hist(:,1) = <a href="../crystal/unit_cell_mod_f.html#cell_param">cell_param</a>
+     The <a href="../crystal/unit_cell_mod_f.html#cell_param">cell_param</a> stack is updated only if <a href="iterate_mod_f.html#domain">domain</a> = T
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>update_history</strong>(s,omega,<a href="../crystal/unit_cell_mod_f.html#cell_param">cell_param</a>,<a href="iterate_mod_f.html#domain">domain</a>)
+   use <a href="../crystal/basis_mod_f.html#basis_mod">basis_mod</a>, only : <a href="../crystal/basis_mod_f.html#N_star">N_star</a>
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN) :: s
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN) :: omega(:,:)
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN) :: <a href="../crystal/unit_cell_mod_f.html#cell_param">cell_param</a>(:)
+   logical,    intent(IN) :: <a href="iterate_mod_f.html#domain">domain</a>
+</pre>
+<h2 id="continuation" ><a href="sweep_mod_f_.html#continuation" target="source">continuation</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>continuation</strong>(step,<a href="iterate_mod_f.html#domain">domain</a>,omega,<a href="../crystal/unit_cell_mod_f.html#cell_param">cell_param</a>)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Predict new values of omega and (if <a href="iterate_mod_f.html#domain">domain</a> = T) <a href="../crystal/unit_cell_mod_f.html#cell_param">cell_param</a>
+     for a change in s of size step. Uses the history stack of
+     previous values of omega, cell parameters, and s.
+ 
+     Order of <strong>continuation</strong> depends on the value of the private
+     variable depth_hist = current depth of stack:
+        If depth_hist = 1 -> zeroth order <strong>continuation</strong>
+        If depth_hist = 2 -> first order <strong>continuation</strong>
+        If depth_hist > 2 -> second order <strong>continuation</strong>
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>continuation</strong>(step,<a href="iterate_mod_f.html#domain">domain</a>,omega,<a href="../crystal/unit_cell_mod_f.html#cell_param">cell_param</a>)
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN)    :: step         ! change in s
+   logical,    intent(IN)    :: <a href="iterate_mod_f.html#domain">domain</a>       ! adjust <a href="../crystal/unit_cell_mod_f.html#cell_param">cell_param</a>
+   real(<a href="../const_mod_f.html#long">long</a>), intent(INOUT) :: omega(:,:)   ! chemical potential field
+   real(<a href="../const_mod_f.html#long">long</a>), intent(INOUT) :: <a href="../crystal/unit_cell_mod_f.html#cell_param">cell_param</a>(:)! unit cell parameters
+</pre>
+</body>
+</html>

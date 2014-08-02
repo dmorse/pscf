@@ -1,0 +1,154 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<link rel="stylesheet" href="../GDoc.css" type="text/css">
+<title>response/response_step_mod_f</title>
+</head>
+<body bgcolor="#FFFFFF">
+<br />
+<p>
+[<a href="../toc.html#top">table of contents</a>]
+[<a href="../master_index.html#top">master index</a>]
+[<a href="../comment_index.html#top">comments</a>]
+[<a href="../module_index.html#top">modules</a>]
+[<a href="../program_index.html#top">programs</a>]
+[<a href="../variable_index.html#top">variables</a>]
+[<a href="../type_index.html#top">types</a>]
+[<a href="../procedure_index.html#top">procedures</a>]
+</p>
+<h3 align="center">TABLE OF CONTENTS</h3>
+<ul><li>module <a href="#response_step_mod">response_step_mod</a></li>
+<ul>
+<li>procedure <a href="#response_step_startup">response_step_startup</a></li>
+<li>procedure <a href="#ps_propagate">ps_propagate</a></li>
+<li>procedure <a href="#fftc_step">fftc_step</a></li>
+<li>procedure <a href="#calc_exp_grid">calc_exp_grid</a></li>
+</ul>
+<h2 id="response_step_mod" ><a href="response_step_mod_f_.html#response_step_mod" target="source">response_step_mod</a></h2>
+<p><strong>PURPOSE</strong></p>  <pre>
+    Integrator for the first-order perturbation theory for q(r,s).
+    Propagates both q(r,s) and delq(r,s)
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+module <strong>response_step_mod</strong>
+   use <a href="../const_mod_f.html#const_mod">const_mod</a>
+   use <a href="../scf/chemistry_mod_f.html#chemistry_mod">chemistry_mod</a>
+   use <a href="../grid/fft3_mod_f.html#fft_mod">fft_mod</a>
+ 
+   private
+   public :: <a href="#response_step_startup">response_step_startup</a>
+   public :: fft_step
+   public :: pspropagate
+   public :: alloc_exparrays
+   public :: calc_exparrays
+   public :: <a href="#calc_exp_grid">calc_exp_grid</a>
+   public :: <a href="#ps_propagate">ps_propagate</a>
+</pre>
+<h2 id="response_step_startup" ><a href="response_step_mod_f_.html#response_step_startup" target="source">response_step_startup</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+    <strong>response_step_startup</strong>(<a href="../grid/grid_mod_f.html#ngrid">ngrid</a>,order)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+    Allocate the module variable exponential arrays
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+    integer <a href="../grid/grid_mod_f.html#ngrid">ngrid</a>  - number of grid points
+    integer order  - order of Richardson extrapolation
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>response_step_startup</strong>(Ngrid, order)
+   integer,intent(IN)  :: <a href="../grid/grid_mod_f.html#ngrid">ngrid</a>(3)
+   integer,intent(IN)  :: order
+</pre>
+<h2 id="ps_propagate" ><a href="response_step_mod_f_.html#ps_propagate" target="source">ps_propagate</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+    <strong>ps_propagate</strong>(<a href="../scf/scf_mod_f.html#plan">plan</a>,planc,ds,delqin,q0,exp_gpdotr,order,delta_omega, &
+        monomer,p_mon,delqout,dsloc,qout)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+    Propagate q and delq by solving the inhomog pde. 
+    call  fft_step and <a href="#fftc_step">fftc_step</a> for unperturbed and perturbation
+    partition functions.
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+    <a href="../grid/fft3_mod_f.html#fft_plan">fft_plan</a> planc      -  see <a href="../grid/fft3_mod_f.html#fft_mod">fft_mod</a> for details
+    complex  delqin     -  delta q at beginning of the block
+    complex  delqout    -  Output delta q array
+    complex  exp_gpdotr -  exponential array of G.r for perturbation at G+k
+     complex  f_inhomo  -  = d_w * q_0(1:2**order)
+     integer  p_mon     -  index of the perturbed monomer
+     integer  monomer   -  index of the monomer of the concerned chain site
+                           over which the propagation is being implemented
+     integer  order     -  order of extrapolation
+     real     dsloc     -  contour step size for this block
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>ps_propagate</strong>(delqin, delqout, p_mon, exp_gpdotr, &
+                          f_inhomo, monomer, planc, order, dsloc) 
+     
+   complex(<a href="../const_mod_f.html#long">long</a>), intent(IN)  :: delqin(:,:,:)
+   complex(<a href="../const_mod_f.html#long">long</a>), intent(OUT) :: delqout(:,:,:)
+   complex(<a href="../const_mod_f.html#long">long</a>), intent(IN)  :: exp_gpdotr(:,:,:)
+   real(<a href="../const_mod_f.html#long">long</a>),    intent(IN)  :: f_inhomo(:,:,:,:)
+   integer,       intent(IN)  :: p_mon
+   integer,       intent(IN)  :: monomer
+   type(<a href="../grid/fft3_mod_f.html#fft_plan">fft_plan</a>)             :: planc
+   real(<a href="../const_mod_f.html#long">long</a>),    intent(IN)  :: dsloc
+   integer,       intent(IN)  :: order
+</pre>
+<h2 id="fftc_step" ><a href="response_step_mod_f_.html#fftc_step" target="source">fftc_step</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+    <strong>fftc_step</strong>(<a href="../scf/scf_mod_f.html#plan">plan</a>,order,q_in,q_out)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+    solve for perturbed partition function of one step
+    call FFT and <a href="../crystal/group_mod_f.html#inverse">inverse</a> FFT
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+    <a href="../grid/fft3_mod_f.html#fft_plan">fft_plan</a> <a href="../scf/scf_mod_f.html#plan">plan</a>  -  see <a href="../grid/fft3_mod_f.html#fft_mod">fft_mod</a> for details
+    integer order  -  extrapolation order
+    real q_in      -  <a href="../io/io_mod_f.html#input">input</a> partition
+    real q_out     -  <a href="../io/io_mod_f.html#output">output</a> partition
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>fftc_step</strong>(<a href="../scf/scf_mod_f.html#plan">plan</a>,order,q_in,q_out)
+   implicit none
+   type(<a href="../grid/fft3_mod_f.html#fft_plan">fft_plan</a>), intent(IN)   :: <a href="../scf/scf_mod_f.html#plan">plan</a>
+   integer,        intent(IN)   :: order
+   complex(<a href="../const_mod_f.html#long">long</a>),  intent(IN)   :: q_in(0:,0:,0:)
+   complex(<a href="../const_mod_f.html#long">long</a>), intent(OUT)   :: q_out(0:,0:,0:)
+</pre>
+<h2 id="calc_exp_grid" ><a href="response_step_mod_f_.html#calc_exp_grid" target="source">calc_exp_grid</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+    <strong>calc_exp_grid</strong>(<a href="../grid/grid_mod_f.html#ksq_grid">ksq_grid</a>, ksq_grid_pert, <a href="../grid/grid_mod_f.html#omega_grid">omega_grid</a>, 
+                  monomer, ds, order, dsarray, pertb)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+    Calculate the module variable exponential arrays
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+    real      <a href="../grid/grid_mod_f.html#ksq_grid">ksq_grid</a>  -  |G|^2 for reciprocal lattice vectors
+    real    <a href="../grid/grid_mod_f.html#omega_grid">omega_grid</a>  -  omega fields at grid points
+    real ksq_grid_pert  -  |k+G|^2 on grids 
+    integer    monomer  -  monomer type for block
+    real            ds  -  chain step
+    integer      order  -  order of extrapolation
+    real       dsarray  -  <a href="../io/io_mod_f.html#output">output</a> array that has stepsizes as elements
+    logical      pertb  -  calculate the perturbed exponential if true
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>calc_exp_grid</strong>(<a href="../grid/grid_mod_f.html#ksq_grid">ksq_grid</a>, ksq_grid_pert, <a href="../grid/grid_mod_f.html#omega_grid">omega_grid</a>, &
+                            monomer, ds, order, dsarray, pertb)
+   implicit none
+ 
+   real(<a href="../const_mod_f.html#long">long</a>),  intent(IN) :: <a href="../grid/grid_mod_f.html#ksq_grid">ksq_grid</a>(:,:,:)
+   real(<a href="../const_mod_f.html#long">long</a>),  intent(IN) :: ksq_grid_pert(:,:,:)
+   real(<a href="../const_mod_f.html#long">long</a>),  intent(IN) :: <a href="../grid/grid_mod_f.html#omega_grid">omega_grid</a>(:,:,:,:)
+   integer,     intent(IN) :: monomer
+   real(<a href="../const_mod_f.html#long">long</a>),  intent(IN) :: ds
+   integer,     intent(IN) :: order
+   real(<a href="../const_mod_f.html#long">long</a>), intent(out) :: dsarray(:)
+   logical,     intent(IN) :: pertb
+</pre>
+</body>
+</html>

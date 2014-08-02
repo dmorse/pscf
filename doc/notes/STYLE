@@ -1,0 +1,102 @@
+Coding Style Conventions:
+-------------------------
+
+   1. Identation: Consistently indent by three space. No tabs in fortran files.
+      Begin module statement, contains, and end statement in first column. Begin
+      module procedure (subroutine and function) declarations in the third column.
+      Also begin the body of procedures in the third column, with no further indent.
+      (See example)
+     
+   2. Comment indentation: The ! that begins a comment line should be aligned above
+      the beginning of the line or block to which it refers. Documentation blocks
+      for procedures should begin in the same column as the procedure. Document
+      the code liberally with comments.
+
+   3. Docblocks: Write a docblock, in the style required by the GDoc python script, 
+      for every public entity (procedure or variable) of a module. Also document
+      most private module variables with a docblock, but mark as private with the
+      '!****ip' code. No documentation blocks are required for procedures that are
+      internal to other procedures. Include the public interface of each documented
+      subroutine and function, including declarations of dummy variables, in the 
+      SOURCE item of the docblock for each such procedure, which ends with a line
+      containing only the code '!***'   .
+
+   4. Line length: Try to wrap lines at or before column 72. Avoid lines longer than
+      80 columns like the plague. 
+
+   5. Implicit none: Include and 'implicit none' command in all modules and programs.
+
+   6. Module privacy: Declare modules private by default, to force the use of explicit 
+      declarations of all public variables and procedures.
+
+   7. Use association: Use the 'only' clause of the 'use' command whenever possible,
+      to help the reader figure out where variables and procedures are defined.
+
+   8. Parameter IO: Use the input and output interfaces declared in io_mod for 
+      inputting and outputting parameters and variables whenever possible.
+
+   9. Use lower case for almost all Fortran key words, including use and implicit none.
+
+  10. If one or more module variables must be read from or written to file, provide
+      input_... and output_... variables within the module to do this. 
+
+
+Example:
+--------
+
+module modulename
+   use thing_mod, only: thing1, thing2
+   implicit none
+
+   PRIVATE
+   PUBLIC :: variable1
+   PUBLIC :: variable2
+   PUBLIC :: my_routine
+
+   !****v module_name/variable1 ------------------------------------------
+   ! VARIABLE
+   !    variable1
+   ! PURPOSE
+   !    To be an example of a variable
+   ! SOURCE
+   integer  :: variable1
+   !*** ------------------------------------------------------------------
+
+   ....
+
+contains
+ 
+   !--------------------------------------------------------------------
+   !****p module_name/my_routine 
+   ! SUBROUTINE
+   !    my_routine
+   ! PURPOSE
+   !     ....
+   ! SOURCE
+   !--------------------------------------------------------------------
+   subroutine my_routine(arg1, arg2)
+   use another_mod, only :
+   implicit none
+   real(long) :: arg1 ! Variables can also be documented here
+   integer    :: arg2
+   !***
+ 
+   real(long) :: local1
+   ....
+
+   ! The next line requires explanation, if what, do what
+   if (condition) then
+
+       ! Loop over thingy index i
+       do i=1, i_max
+           (Body of loop)
+       end do
+
+   endif
+
+   end subroutine my_routine
+   !====================================================================
+
+end module modulename
+
+

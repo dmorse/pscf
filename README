@@ -1,0 +1,78 @@
+
+-----------------------------------------------------------------------
+ PSCF - Polymer Self-Consistent Field Theory
+ Copyright (2007) David C. Morse
+ email: morse@cems.umn.edu
+
+ PSCF is a Fortran 90 program for numerically solving the polymer 
+ self-consistent field theory for periodic microstructures formed 
+ by incompressible melts or mixtures of linear block copolymers, 
+ linear homopolymers, and small molecule solvents. 
+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation. A copy of this license is included in
+ the LICENSE file in the top-level PSCF directory. 
+
+ Contributors:
+
+    David Morse
+    Chris Tyler
+    Jian Qin
+    Raghuram Thiagarajan
+
+-----------------------------------------------------------------------
+I. Directory Structure
+
+src/                          - Fortran 90 source files
+src/build                     - - directory containing Makefile
+examples/                     - usage examples, with input files
+doc/                          - documentation files
+doc/api                       - - auto-generated api documentation
+tools/                        - Tools for processing output and source
+tools/matlab                  - - matlab m-files for visualization
+tools/python                  - - python scripts for data analysis
+tools/python/preprocess-0.6.1   - Forpedo preprocessor script
+
+-----------------------------------------------------------------------
+II. Dependencies
+
+The program depends upon the FFTW fast Fourier transform library
+and the LAPACK linear algebra library.  The program can use either 
+version 2 or version 3 of the FFTW library.  You will need to 
+install both LAPACK and FFTW before attempting to compile the 
+program.
+
+----------------------------------------------------------------------
+III. Compiling and Linking
+
+The program must be compiled from source. The source is standard
+Fortran 90, and has been tested with the Intel and Portland Group 
+Fortran 90 compilers in a linux environment.
+
+A Makefile for compiling on a linux machine is located in 
+subdirectory src/build. To compile the code, after installing the
+required FFTW and LAPACK libraries, you will generally have to cd 
+to src/build, change the values of various macro variables in this 
+Makefile to values appropriate to your system, and issue the 
+command 'make pscf' from within src/build.  
+
+More detailed instructions for editing the Makefile and compiling 
+are provided in the file src/build/INSTALL, and in comments in the 
+file src/build/Makefile.
+
+An annotated list of source files is provided in the file src/SRC_FILES. 
+
+----------------------------------------------------------------------
+IV. Preprocessor
+
+Several of the fortran *.f source files have been created using a 
+python preprocessor from corresponding files that end with the suffix
+*.fp.f. This preprocessor script, named "Forpedo", is included with the 
+distribution.  The only *.f files that are now built in this way are:
+src/build/pscf_pd.f src/build/scf_mod.f and src/build/iterate_mod.f
+Because coies of these three files are included with this distribution, 
+it is not necessary for you to run the preprocessor in order to compile 
+the program. Before modifying any of the fortran source files, however, 
+please read the discussion of the preprocessor near the end of the file 
+src/SRC_FILES.

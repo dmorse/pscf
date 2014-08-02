@@ -1,0 +1,93 @@
+ format  1  0
+
+MONOMERS            
+N_monomer           
+                   2
+kuhn                
+    1.0000000000E+00    1.0000000000E+00
+
+CHAINS              
+N_chain             
+                   1
+N_block             
+                   2
+block_monomer       
+                   1                   2
+block_length        
+    3.0000000000E-01    7.0000000000E-01
+
+COMPOSITION         
+ensemble            
+                   0
+phi_chain           
+    1.0000000000E+00
+
+INTERACTION         
+interaction_type    
+               'chi'
+chi                 
+    2.0000000000E+01
+
+UNIT_CELL           
+dim                 
+                   3
+crystal_system      
+             'cubic'
+N_cell_param        
+                   1
+cell_param          
+    3.6743159133E+00
+
+DISCRETIZATION      
+ngrid               
+                  24                  24                  24
+chain_step          
+    1.0000000000E-02
+
+FILE_PREFIXES       
+input_prefix        
+               'in.'
+output_prefix       
+              'ref/'
+
+BASIS               
+group_name          
+          'I a -3 d'
+
+ITERATE             
+max_itr             
+                  30
+error_max           
+    1.0000000000E-08
+domain              
+                   T
+itr_algo            
+                'NR'
+N_cut               
+                  40
+
+FINISH              
+
+THERMO              
+f_Helmholtz         
+    2.8127736660E+00
+f_homo              
+    3.2000000000E+00
+pressure            
+    3.1879908737E+00
+mu_chain            
+    6.0007645397E+00
+stress              
+   -1.6530055892E-11
+
+STATISTICS          
+N_star              
+                 156
+Final Error         
+    2.5836705388E-09
+Iterations          
+                  22
+Basis Time          
+    1.2088948894E+02
+SCF Time            
+    2.4963554096E+02

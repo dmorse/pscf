@@ -1,0 +1,125 @@
+I. Directory structure:
+
+   The subdirectories of the examples directory each contain examples
+   of the use of one of the basic operations of pscf. The name of each
+   directory corresponds to the name of a corresponding section in the
+   input file. These contain:
+
+      examples/ITERATE  - Solution of SCFT for one set of parameters
+      examples/SWEEP    - 'Sweep' of solution for multiple parameters
+      examples/RESPONSE - Calculation of linear susceptibility
+
+   The ITERATE and SWEEP directories each contain one or more
+   subdirectories containing examples for different types of system: 
+   ABbcp contains examples of AB diblock copolymer melts, and ABbcp
+   cotains examples of triblock copolymer melts. Within each of 
+   these directories are subdirectories labelled by abbreviations
+   for different space groups or morphologies: 'lam' for lamellar,
+   'gyr' for gyroid, etc. Each of these space group directories, 
+   contains one or more directories with integer names, each of
+   which contains the input and output files for one example. For
+   instance,
+
+      examples/SWEEP/ABbcp/lam/1
+
+   is the first (and only) example for a parameter sweep for the 
+   lamellar phase of an AB block copolymer melt. For the moment, 
+   there is generally only one example for each space group, in a
+   directory labelled '1', but the use of integers as directory 
+   names is intended to make it easy to add more. Some directories 
+   within SWEEP, ITERATE, etc. contain a file named 'index' that 
+   explain the contents of that subdirectory in more detail.
+
+I. Example directories and files:
+
+   In each example directory, with a path of the form,
+
+   $EXAMPLE=example/OPERATION/system/phase/integer
+
+   there are two input files, named:
+   
+      $(EXAMPLE)/in       = input script file
+      $(EXAMPLE)/in.omega = input omega (chemical potential) field
+
+   The input script file is read from standard input. In general,
+   the path to the input omega file (i.e., the file containing the
+   initial guess for the monomer chemical potential fields) is
+   constructed by concatenating a suffix "omega" to the end of the
+   value of a string input parameter named input_prefix that is 
+   given the input script. In all of the examples, the value of 
+   the input_prefix is set to "in.", which yields a input filename
+   'in.omega'. This convention requires that the program be run
+   from within the directory containing this input file.
+
+   Each example directory contains a subdirectory named 'test', and 
+   often one named 'ref'. These are intended to hold output files. 
+   The 'test' subdirectory is initially empty, but is provided as 
+   a location for the output files produced by running the test again, 
+   which can be compared to those in ref.  The 'ref' subdirectory, if 
+   present, contains the output files produced by a previous run of 
+   the test, for reference.  
+ 
+   A. ITERATE Examples
+   -------------------
+
+   An ITERATE command causes the program to solve the SCFT equations
+   for a single set of input parameters.  The output files distributed 
+   by running an ITERATE example will have names
+
+      test/out   = output summary 
+      test/rho   = output monomer volume fraction fields
+      test/omega = output omega fields
+  
+   If a ref directory is provided, it contains a corresponding
+   set of files from a previous run.  The names of output files 
+   produced by a single ITERATE command in the input script, if
+   it is not followed by a SWEEP command, are constructed by 
+   concatenating standard suffixes 'out', 'rho', and 'omega' to
+   the value of the string variable 'output_prefix' provided in
+   the input script. The distributed versions of the input scripts
+   have output_prefix set to 'test/' to obtain ouput files named
+   test/out, test/rho, and test/omega. The format of the *.out
+   output summary file is similar to that of the input script, 
+   so that an output summary from one run can (with a little 
+   editing) be used as the input script for another.
+
+   B. SWEEP Examples
+   -----------------
+
+   A SWEEP command causes the program to solve the SCF equations
+   for a set of input parameters along a line in parameter space,
+   along which one or more of the parameters are incremented in
+   uniform increments, with increment values that are specified in
+   the input script.  The output files produced by running a SWEEP 
+   example are also placed in the test subdirectory, and have names 
+   of the form
+
+      test/$(N)out     = output summary fields
+      test/$(N)rho     = output density fields
+      test/$(N)omega   = output omega fields
+
+   where $(N) takes on integer values 0, 1, 2, etc. That is, 
+   the directory will contain files test/0.out, test/1.out, etc. 
+   and similarly for *.rho and *.omega output files. If a 'ref'
+   subdirectory is provided, it contains a similar set of files.
+
+II. Running an an example:
+
+    1) Change directory (cd) into the directory containing the input
+    script and 'in.omega' file for the example. 
+
+    2) If the executable for pscf_pd.f has a path $(BIN)/$(EXE), 
+    where the directory $(BIN) and executable file name $(EXE) are 
+    the values chosen in the Makefile, then issue the command:
+
+    $(BIN)/$(EXE) < in 
+
+    This will output information reporting the progress of the calculation 
+    to be printed to the screen. If you want the calculation to proceed
+    silently, or want this information to be saved in a log file, redirect 
+    the standard output. For example, the command
+
+    $(BIN)/$(EXE) < in > test/ref
+
+    will run the example in the background and create a log file in the
+    test sub-directory.

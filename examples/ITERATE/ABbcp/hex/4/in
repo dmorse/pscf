@@ -1,0 +1,77 @@
+ format  1  0
+
+MONOMERS      
+N_monomer           
+              2
+kuhn                
+  1.0000000E+00  1.0000000E+00
+
+CHAINS
+N_chain             
+              1
+N_block             
+              2
+block_monomer  
+              1              2
+block_length   
+  3.4000000E-01  6.6000000E-01
+
+COMPOSITION
+ensemble            
+              0
+phi_chain           
+  1.0000000E+00
+
+INTERACTION
+interaction_type
+        'chi'
+chi                 
+  2.0000000E+01
+
+UNIT_CELL      
+dim                 
+              2
+crystal_system      
+    'hexagonal'
+N_cell_param        
+              1
+cell_param          
+  1.7770321E+00
+
+DISCRETIZATION 
+ngrid             
+             24             24
+chain_step          
+  1.0000000E-02
+
+FILE_PREFIXES  
+input_prefix        
+          'in.'
+output_prefix       
+             './outs'
+
+BASIS          
+group_name          
+      'P 6 m m'
+
+ITERATE        
+max_itr             
+             12
+error_max           
+  1.0000000E-08
+domain              
+              T
+itr_algo
+      'broyden'
+N_cut
+	61
+
+SWEEP               
+s_max               
+  4.0000000E+01
+d_chi
+  1.0000000E-00
+end_increments 
+
+FINISH
+

@@ -1,0 +1,81 @@
+
+CHEMISTRY      
+N_monomer           
+              2
+names               
+            'A'            'B'
+kuhn                
+  1.0000000E+00  1.0000000E+00
+chi_flag            
+            'B'
+chi                 
+  7.8000000E+01
+N_spec              
+              1
+N_block             
+              2
+block_monomer  
+              1              2
+block_length   
+  3.4000000E-01  6.6000000E-01
+ensemble            
+              0
+phi                 
+  1.0000000E+00
+
+UNIT_CELL      
+dim                 
+              2
+crystal_system      
+    'hexagonal'
+N_cell_param        
+              1
+cell_param          
+  2.3449568E+00
+
+SPECTRAL_BASIS 
+group_name          
+      'P 6 m m'
+Gabs_max            
+  4.4952333E+01
+output_prefix       
+             ''
+
+READ_OMEGA     
+input_prefix        
+          'in.'
+reorder_omega       
+              F
+
+ITERATE        
+max_itr             
+             20
+error_max           
+  1.0000000E-08
+domain              
+              T
+
+SWEEP          
+s_max               
+  8.0000000E+01
+d_chi               
+  1.0000000E+00
+end_increments 
+
+FINISH         
+
+mu                  
+  9.0471420E+00
+
+************************************
+
+N_star      =                    76
+f_Helmholtz =         5.7355194E+00
+f_homo      =         1.6503200E+01
+pressure    =         3.3116226E+00
+cell_param  =         2.3449568E+00
+stress      =         1.2538323E-08
+Final Error =         9.5479476E-09
+Iterations  =                     2
+Basis time  =         3.1422305E-01
+SCF time    =         9.8749876E-02

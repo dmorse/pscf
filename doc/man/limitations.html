@@ -1,0 +1,36 @@
+
+<p>
+The program has some limitations as the result of choices made in its 
+design. Some are easily fixable and others would require more work, as
+discussed below:
+<ul>
+<li><em>PSCF is not parallelized:</em> The fact that it runs on only 
+one processor limits the size of the problems it can handle. On a modern
+Linux workstation with 1-2 GB RAM, it can handle most three dimensional 
+structures on grids with up to 64 x 64 x 64 elements.  We will consider 
+parallelizing the solution of the modified diffusion equation if the 
+program gains users, and there appears to be interest in using it for 
+larger problems. (So please let us know if you find it useful!)
+</li>
+
+<li><em>Robustness of Iteration Scheme:</em> 
+The quasi-Newton iteration scheme that we have used thus far converges 
+extremely rapidly when given a good initial guess. This is what we need 
+for efficient exploration of phase diagrams. The algorithm is not 
+particularly robust, however, and will fail to converge if given a poor 
+initial guess for the chemical potential fields. We plan to add a more 
+robust (but slower) relaxation scheme as an alternative. 
+</li>
+
+<li><em>Memory Constraints:</em> 
+Our current implementation of the quasi-Newton iteration scheme is a 
+memory hog: The memory usage scales like the square of the number of
+symmetrized basis functions needed to represent the solution. This has 
+not yet dominated the total memory usage in problems of interest to us, 
+for problems in which the solution of the modified diffusion equation 
+fits in the 1-2GB RAM available on a single processor. Nonetheless, we 
+plan to fix this in an upcoming release. 
+</li>
+</ul>
+
+</p>
