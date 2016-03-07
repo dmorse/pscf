@@ -1,5 +1,9 @@
 To build on OSX: 
 
+    brew install cmake
 	brew install gcc --with-fortran
 	brew install fftw 
-	brew install makensis
+
+    git clone git@github.com/bollig/pscf.git
+    mkdir pscf-build
+    cd pscf-build && cmake -DCMAKE_INSTALL_PREFIX=/path/to/install ../pscf
