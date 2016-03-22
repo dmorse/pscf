@@ -2,17 +2,24 @@
 #
 # Author: Evan Bollig <boll0107@umn.edu>
 
-PSCF_BUNDLE="`echo "$0" | sed -e 's/\/Contents\/MacOS\/pscf//'`"
+PSCF_BUNDLE="`echo "$0" | sed -e 's/\/Contents\/MacOS\/pscf_terminal//'`"
+echo $0
 PSCF_RESOURCES="$PSCF_BUNDLE/Contents/Resources"
 PSCF_TEMP="/tmp/pscf/$UID"
 PSCF_ETC="$PSCF_TEMP/etc"
 PSCF_PANGO_RC_FILE="$PSCF_ETC/pango/pangorc"
 
+# TODO: write loop to iterate through each .app and append their paths
+# TODO: make sure that we consider Resources dir for each fo the apps
+MAIN_EXEC=$PSCF_RESOURCES/pscf.app/Contents/MacOS/
+TEST_EXEC=$PSCF_RESOURCES/rpa_test.app/Contents/MacOS/
+GROUP_EXEC=$PSCF_RESOURCES/new_2dgroups.app/Contents/MacOS/
+
 echo "running $0"
 echo "PSCF_BUNDLE: $PSCF_BUNDLE"
 
-export "DYLD_LIBRARY_PATH=$PSCF_RESOURCES/lib:$DYLD_LIBRARY_PATH"
-export "PATH=$PSCF_RESOURCES/bin:$PATH"
+export "DYLD_LIBRARY_PATH=$PSCF_RESOURCES/lib:$MAIN_EXEC:$TEST_EXEC:$GROUP_EXEC:$DYLD_LIBRARY_PATH"
+export "PATH=$PSCF_RESOURCES/bin:$MAIN_EXEC:$TEST_EXEC:$GROUP_EXEC:$PATH"
 
 cat > $PSCF_TEMP/terminal <<EOM
 export DYLD_LIBRARY_PATH=$PSCF_RESOURCES/lib

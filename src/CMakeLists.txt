@@ -57,14 +57,33 @@ add_custom_command(OUTPUT pscf_pd.f
 	DEPENDS pscf_pd.fp.f
 )
 
+set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR})
 add_executable(pscf 
+        MACOSX_BUNDLE WIN32
         pscf_pd.f
 )
+
 # TODO: clean up these links
 target_link_libraries(pscf LINK_PUBLIC common io io_field scf scf_aux response rpa iterate)
 
+set(APPS ${CMAKE_CURRENT_BINARY_DIR}/pscf.app)
+set(DIRS "")
+
 install(TARGETS pscf
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib/static
+        BUNDLE DESTINATION . COMPONENT Runtime
+        RUNTIME DESTINATION bin COMPONENT Runtime
+        LIBRARY DESTINATION lib COMPONENT Runtime
+        ARCHIVE DESTINATION lib/static COMPONENT Runtime
 )
+# Copy libraries into the DMG
+INSTALL(CODE "
+   include(BundleUtilities)
+   set (BU_CHMOD_BUNDLE_ITEMS ON)
+   fixup_bundle(\"${APPS}\"   \"\"   \"${DIRS}\")
+" COMPONENT Runtime)
+
+#install(TARGETS pscf
+#        RUNTIME DESTINATION bin
+#        LIBRARY DESTINATION lib
+#        ARCHIVE DESTINATION lib/static
+#)

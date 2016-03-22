@@ -1,10 +1,21 @@
 add_executable(new_2dgroups
+    MACOSX_BUNDLE WIN32
 	new_2dgroups.f
 )
 target_link_libraries(new_2dgroups LINK_PUBLIC common io scf rpa)
 
 install(TARGETS new_2dgroups
-		RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib/static
+        BUNDLE DESTINATION . COMPONENT Runtime
+        RUNTIME DESTINATION bin COMPONENT Runtime
+        LIBRARY DESTINATION lib COMPONENT Runtime
+        ARCHIVE DESTINATION lib/static COMPONENT Runtime
 )
+
+set(APPS ${CMAKE_CURRENT_BINARY_DIR}/new_2dgroups.app)
+set(DIRS "")
+# Copy libraries into the DMG
+INSTALL(CODE "
+   include(BundleUtilities)
+   set (BU_CHMOD_BUNDLE_ITEMS ON)
+   fixup_bundle(\"${APPS}\"   \"\"   \"${DIRS}\")
+" COMPONENT Runtime)

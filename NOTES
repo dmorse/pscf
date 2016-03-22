@@ -1,3 +1,8 @@
+For installation I probably want to leverage https://cmake.org/cmake/help/v3.0/module/BundleUtilities.html
+
+
+
+
 To build on OSX: 
 
     brew install cmake

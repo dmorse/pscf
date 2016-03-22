@@ -13,8 +13,8 @@
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleExecutable</key>
-    <string>pscf</string>
+    <string>pscf_terminal</string>
     <key>CFBundleIdentifier</key>
-    <string>pscf</string>
+    <string></string>
 </dict>
 </plist>
