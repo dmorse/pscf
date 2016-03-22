@@ -1,3 +1,9 @@
+IF (USE_INTEL)
+    set (CMAKE_C_COMPILER "icc")
+    set (CMAKE_CXX_COMPILER "icpc")
+ENDIF (USE_INTEL) 
+
+
 # CMakeLists files in this project can
 # refer to the root source directory of the project as ${PSCF_SOURCE_DIR} and
 # to the root binary directory of the project as ${PSCF_BINARY_DIR}.
@@ -32,8 +38,8 @@ if (Fortran_COMPILER_NAME MATCHES "gfortran.*")
   set (CMAKE_Fortran_FLAGS_DEBUG   "-fno-f2c -O0 -ffree-form -g")
 elseif (Fortran_COMPILER_NAME MATCHES "ifort.*")
   # ifort (untested)
-  set (CMAKE_Fortran_FLAGS_RELEASE "-f77rtl -O3")
-  set (CMAKE_Fortran_FLAGS_DEBUG   "-f77rtl -O0 -g")
+  set (CMAKE_Fortran_FLAGS_RELEASE "-O3 -free")
+  set (CMAKE_Fortran_FLAGS_DEBUG   "-free -O0 -g")
 elseif (Fortran_COMPILER_NAME MATCHES "g77")
   # g77
   set (CMAKE_Fortran_FLAGS_RELEASE "-funroll-all-loops -fno-f2c -O3 -m32")

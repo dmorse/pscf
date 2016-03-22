@@ -7,3 +7,18 @@ To build on OSX:
     git clone git@github.com/bollig/pscf.git
     mkdir pscf-build
     cd pscf-build && cmake -DCMAKE_INSTALL_PREFIX=/path/to/install ../pscf
+	make -j 4
+	make install 
+
+To build on MSI with Intel Compilers: 
+
+	module load cmake
+	module load intel mkl
+	module load fftw
+	
+    git clone git@github.com/bollig/pscf.git
+    mkdir pscf-build
+    cd pscf-build && cmake -DUSE_INTEL=1 -DCMAKE_INSTALL_PREFIX=/path/to/install ../pscf
+	make -j 4
+	make install 
+

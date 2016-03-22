@@ -7,4 +7,4 @@ add_library(response
 target_include_directories (response PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories (response PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
-target_link_libraries(response LINK_PUBLIC common io scf)
+target_link_libraries(response LINK_PUBLIC common io scf io_field)
