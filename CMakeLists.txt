@@ -94,7 +94,7 @@ endif (APPLE)
 set(CPACK_BUNDLE_NAME "pscf")
 # TODO: make valid Info.plist and valid Icon
 set(CPACK_BUNDLE_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/tools/bundle/Info.plist)
-set(CPACK_BUNDLE_ICON ${CMAKE_CURRENT_SOURCE_DIR}/tools/bundle/Icon)
+set(CPACK_BUNDLE_ICON ${CMAKE_CURRENT_SOURCE_DIR}/tools/bundle/Icon.png)
 
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Evan Bollig") #required for DEB
  
