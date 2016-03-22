@@ -17,7 +17,8 @@ export "PATH=$PSCF_RESOURCES/bin:$PATH"
 cat > $PSCF_TEMP/terminal <<EOM
 export DYLD_LIBRARY_PATH=$PSCF_RESOURCES/lib
 export PATH=$PSCF_RESOURCES/bin:$PATH
-echo "Hello $USER! The Polymer Self-Consistent Field theory (PSCF) code is on your PATH and ready to run. Start with command \"pscf < [your input file]\""
+clear
+echo -e "\n\nHello $USER! The Polymer Self-Consistent Field theory (PSCF) code is on your PATH and ready to run. Start with command \"pscf < [your input file]\"\n\n"
 EOM
 
 # Start a new terminal window (shell) with the environment properly configured
@@ -25,7 +26,8 @@ EOM
 chmod +x $PSCF_TEMP/terminal
 osascript <<EOD
 tell application "Terminal"
-activate
-set shell to do script ". $PSCF_TEMP/terminal"
+    activate
+    set newTab to do script ". $PSCF_TEMP/terminal"
+    set current settings of newTab to settings set "Red Sands"
 end tell
 EOD
