@@ -1,7 +1,5 @@
-For installation I probably want to leverage https://cmake.org/cmake/help/v3.0/module/BundleUtilities.html
-
-
-
+For installation we leverage fixup_bundle: https://cmake.org/cmake/help/v3.0/module/BundleUtilities.html
+	- This requires unique APP vars for each OS (see src/CMakeLists.txt for details)
 
 To build on OSX: 
 
@@ -27,3 +25,10 @@ To build on MSI with Intel Compilers:
 	make -j 4
 	make install 
 
+To build installers (run this on each target platform: OSX, Linux and Windows): 
+
+	make package
+
+To check the RPM for detailed information (Metadata, Dependencies, and File Contents): 
+
+	rpm --info -qpR -qlvp pscf-1.0.0-Linux.rpm 
