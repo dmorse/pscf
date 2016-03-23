@@ -32,3 +32,10 @@ To build installers (run this on each target platform: OSX, Linux and Windows):
 To check the RPM for detailed information (Metadata, Dependencies, and File Contents): 
 
 	rpm --info -qpR -qlvp pscf-1.0.0-Linux.rpm 
+
+To check the DEB for semi-detailed information: 
+
+	# This extracts multiple files
+	ar -vx pscf-1.0.0-Linux.deb
+	# See the files that would be installed
+	tar tvfz data.tar.gz 
