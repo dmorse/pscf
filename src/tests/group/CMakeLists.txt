@@ -1,3 +1,4 @@
+
 add_executable(new_group
     MACOSX_BUNDLE WIN32
 	new_group.f
@@ -12,8 +13,12 @@ install(TARGETS new_group
         ARCHIVE DESTINATION lib/static COMPONENT Runtime
 )
 
-set(APPS ${CMAKE_CURRENT_BINARY_DIR}/new_group.app)
-set(DIRS "")
+if (APPLE)
+  set(APPS ${CMAKE_CURRENT_BINARY_DIR}/new_group.app)
+else (APPLE)
+  set(APPS ${CMAKE_CURRENT_BINARY_DIR}/new_group)
+endif(APPLE)
+
 # Copy libraries into the DMG
 INSTALL(CODE "
    include(BundleUtilities)

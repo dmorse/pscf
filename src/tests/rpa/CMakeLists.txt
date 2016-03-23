@@ -11,7 +11,12 @@ install(TARGETS rpa_test
         ARCHIVE DESTINATION lib/static COMPONENT Runtime
 )
 
-set(APPS ${CMAKE_CURRENT_BINARY_DIR}/rpa_test.app)
+if (APPLE)
+  set(APPS ${CMAKE_CURRENT_BINARY_DIR}/rpa_test.app)
+else (APPLE)
+  set(APPS ${CMAKE_CURRENT_BINARY_DIR}/rpa_test)
+endif(APPLE)
+
 set(DIRS "")
 # Copy libraries into the DMG
 INSTALL(CODE "

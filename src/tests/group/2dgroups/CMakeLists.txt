@@ -11,8 +11,13 @@ install(TARGETS new_2dgroups
         ARCHIVE DESTINATION lib/static COMPONENT Runtime
 )
 
-set(APPS ${CMAKE_CURRENT_BINARY_DIR}/new_2dgroups.app)
+if (APPLE)
+  set(APPS ${CMAKE_CURRENT_BINARY_DIR}/new_2dgroups.app)
+else (APPLE)
+  set(APPS ${CMAKE_CURRENT_BINARY_DIR}/new_2dgroups)
+endif(APPLE)
 set(DIRS "")
+
 # Copy libraries into the DMG
 INSTALL(CODE "
    include(BundleUtilities)

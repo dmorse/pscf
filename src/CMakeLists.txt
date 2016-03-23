@@ -57,17 +57,21 @@ add_custom_command(OUTPUT pscf_pd.f
 	DEPENDS pscf_pd.fp.f
 )
 
-set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR})
 add_executable(pscf 
         MACOSX_BUNDLE WIN32
         pscf_pd.f
 )
 
+if (APPLE)
+  set(APPS ${CMAKE_CURRENT_BINARY_DIR}/pscf.app)
+else (APPLE)
+  set(APPS ${CMAKE_CURRENT_BINARY_DIR}/pscf)
+endif (APPLE) 
+set(DIRS "")
+
 # TODO: clean up these links
 target_link_libraries(pscf LINK_PUBLIC common io io_field scf scf_aux response rpa iterate)
 
-set(APPS ${CMAKE_CURRENT_BINARY_DIR}/pscf.app)
-set(DIRS "")
 
 install(TARGETS pscf
         BUNDLE DESTINATION . COMPONENT Runtime
