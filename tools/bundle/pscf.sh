@@ -37,6 +37,6 @@ osascript <<EOD
 tell application "Terminal"
     activate
     set newTab to do script ". $PSCF_TEMP/terminal"
-    set current settings of newTab to settings set "Red Sands"
+    set current settings of newTab to settings set "Man Page"
 end tell
 EOD
