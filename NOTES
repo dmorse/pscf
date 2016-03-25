@@ -1,0 +1,41 @@
+For installation we leverage fixup_bundle: https://cmake.org/cmake/help/v3.0/module/BundleUtilities.html
+	- This requires unique APP vars for each OS (see src/CMakeLists.txt for details)
+
+To build on OSX: 
+
+    brew install cmake
+	brew install gcc --with-fortran
+	brew install fftw 
+
+    git clone git@github.com/bollig/pscf.git
+    mkdir pscf-build
+    cd pscf-build && cmake -DCMAKE_INSTALL_PREFIX=/path/to/install ../pscf
+	make -j 4
+	make install 
+
+To build on MSI with Intel Compilers: 
+
+	module load cmake
+	module load intel mkl
+	module load fftw
+	
+    git clone git@github.com/bollig/pscf.git
+    mkdir pscf-build
+    cd pscf-build && cmake -DUSE_INTEL=1 -DCMAKE_INSTALL_PREFIX=/path/to/install ../pscf
+	make -j 4
+	make install 
+
+To build installers (run this on each target platform: OSX, Linux and Windows): 
+
+	make package
+
+To check the RPM for detailed information (Metadata, Dependencies, and File Contents): 
+
+	rpm --info -qpR -qlvp pscf-1.0.0-Linux.rpm 
+
+To check the DEB for semi-detailed information: 
+
+	# This extracts multiple files
+	ar -vx pscf-1.0.0-Linux.deb
+	# See the files that would be installed
+	tar tvfz data.tar.gz 
