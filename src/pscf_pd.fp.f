@@ -68,7 +68,7 @@ program pscf_pd
                              input_composition, input_interaction, &
                              output_monomers, output_chains, output_solvents,&
                              output_composition, output_interaction, &
-                             N_monomer, N_chain, N_block, N_solvent
+                             N_monomer, N_chain, N_block, N_solvent, chi
    use unit_cell_mod, only : input_unit_cell, output_unit_cell, &
                              N_cell_param, cell_param, &
                              make_unit_cell, R_basis, G_basis
@@ -76,18 +76,24 @@ program pscf_pd
    use grid_mod,      only : ngrid, input_grid, allocate_grid, make_ksq
    use basis_mod,     only : N_wave, N_star, group, &
                              make_basis, output_waves, release_basis
+   
+   use fft_mod,        only : fft_plan, create_fft_plan, fft, ifft
+
    use grid_basis_mod
    use chain_mod
    use scf_mod,       only : density_startup, density
-   use iterate_mod,   only : input_iterate_param, output_iterate_param, &
-                             iterate_NR_startup, iterate_NR, domain
-   use sweep_mod
+   use iterate_mod,   only : input_iterate_param, output_iterate_param, itr_algo, &
+                             iterate_NR_startup, iterate_AM_startup, iterate_NR, iterate_AM, domain
+   use sweep_mod 
    use response_mod,  only : response_startup, response_sweep
    !# ifdef COMMENTS
    use spinodal_mod
    !use group_rep_mod
    !# endif
    implicit none
+
+   ! FFT variable
+   type(fft_plan)  :: plan
 
    ! SCFT variables
    real(long)      :: omega(:,:)      ! chemical potential field 
@@ -122,11 +128,21 @@ program pscf_pd
    character(60)   :: input_file      ! input file for FIELD_TO_GRID
    character(60)   :: output_file     ! output file for FIELD_TO_GRID
 
+   !  Variable for Kgrid to Rgrid transformation
+   integer                     :: i1, i2, i3, alpha
+   complex(long), allocatable  :: k_grid(:,:,:,:)
+   real(long), allocatable     :: r_grid(:,:,:,:)
+   real(long), allocatable     :: omega_basis(:,:)
+   real                        :: ff, qR
+   real(long)                  :: rnodes       ! number of grid points
+   character(25)               :: fmt
+
    ! Variables for iteration (fixed chemistry)
    integer         :: extr_order      ! extrapolation order
    integer         :: itr             ! iteration index
    real(long)      :: error           ! error = max(residual)
    logical         :: converge        ! true if converged
+   character(10)   :: algo
 
    ! Variables for sweep (sequence of parameters)
    integer         :: i, j            ! step indices
@@ -140,19 +156,20 @@ program pscf_pd
 
    ! Logical operation flags - set true as each operation requested
    ! Note: These are listed in normal sequence within input file
-   logical :: monomer_flag     = .FALSE. ! monomer data read
-   logical :: chain_flag       = .FALSE. ! chain data read
-   logical :: solvent_flag     = .FALSE. ! solvent data read
-   logical :: composition_flag = .FALSE. ! composition data read
-   logical :: interaction_flag = .FALSE. ! interaction data read
-   logical :: unit_cell_flag   = .FALSE. ! unit_cell made
-   logical :: discretize_flag  = .FALSE. ! grid and ds made
-   logical :: prefix_flag      = .FALSE. ! io file prefixes read
-   logical :: basis_flag       = .FALSE. ! symmetrized basis made
-   logical :: omega_flag       = .FALSE. ! initial omega exists
-   logical :: iterate_flag     = .FALSE. ! 1st iteration requested
-   logical :: output_flag      = .FALSE. ! deferred iterate output
-   logical :: sweep_flag       = .FALSE. ! sweep requested
+   logical :: monomer_flag           = .FALSE. ! monomer data read
+   logical :: chain_flag             = .FALSE. ! chain data read
+   logical :: solvent_flag           = .FALSE. ! solvent data read
+   logical :: composition_flag       = .FALSE. ! composition data read
+   logical :: interaction_flag       = .FALSE. ! interaction data read
+   logical :: unit_cell_flag         = .FALSE. ! unit_cell made
+   logical :: discretize_flag        = .FALSE. ! grid and ds made
+   logical :: prefix_flag            = .FALSE. ! io file prefixes read
+   logical :: basis_flag             = .FALSE. ! symmetrized basis made
+   logical :: omega_flag             = .FALSE. ! initial omega exists
+   logical :: iterate_flag           = .FALSE. ! 1st iteration requested
+   logical :: output_flag            = .FALSE. ! deferred iterate output
+   logical :: sweep_flag             = .FALSE. ! sweep requested
+   logical :: rho_flag               = .FALSE. ! initial_rho_exist
 
    ! Timing variables
    real(long) :: start_time, basis_time, scf_time
@@ -445,7 +462,7 @@ program pscf_pd
             close(field_unit)
             omega_flag = .TRUE.
          end if
- 
+        
          iterate_flag = .TRUE.
  
          call cpu_time(basis_time)
@@ -459,27 +476,52 @@ program pscf_pd
          ! Create fft_plan, which is saved in scf_mod as public variable
          call density_startup(ngrid,extr_order,chain_step,&
                                   update_chain=.false.)
- 
-         ! Allocate private arrays for Newton-Raphson iteration
-         call iterate_NR_startup(N_star)
-      
-         write(6,FMT = "( / '************************************' / )" )
-         ! Main Newton-Raphson iteration loop
-         call iterate_NR(      &
-                  N_star,      &! # of basis functions
-                  omega,       &! chemical potential field (IN/OUT)
-                  itr,         &! actual number of interations
-                  converge,    &! = .TRUE. if converged
-                  error,       &! final error = max(residuals)
-                  rho,         &! monomer density field
-                  f_Helmholtz, &! Helmholtz free energy per monomer/kT
-                  !# ifdef DEVEL
-                  f_component, &! free energy components
-                  overlap,     &! overlap integrals
-                  !# endif
-                  pressure,    &! pressure * monomer volume / kT
-                  stress       &! d(free energy)/d(cell parameters)
-                       )
+
+         if(itr_algo=='NR')then
+
+             ! Allocate private arrays for Newton-Raphson iteration
+             call iterate_NR_startup(N_star)
+    
+             write(6,FMT = "( / '************************************' / )" )
+             ! Main Newton-Raphson iteration loop
+             call iterate_NR(      &
+                      N_star,      &! # of basis functions
+                      omega,       &! chemical potential field (IN/OUT)
+                      itr,         &! actual number of interations
+                      converge,    &! = .TRUE. if converged
+                      error,       &! final error = max(residuals)
+                      rho,         &! monomer density field
+                      f_Helmholtz, &! Helmholtz free energy per monomer/kT
+                      !# ifdef DEVEL
+                      f_component, &! free energy components
+                      overlap,     &! overlap integrals
+                      !# endif
+                      pressure,    &! pressure * monomer volume / kT
+                      stress       &! d(free energy)/d(cell parameters)
+                           )
+
+         elseif(itr_algo=='AM')then
+
+             ! Allocate private arrays for Anderson-Mixing iteration
+             call iterate_AM_startup(N_star)
+    
+             call iterate_AM(      &
+                      N_star,      &! # of basis functions
+                      omega,       &! chemical potential field (IN/OUT)
+                      itr,         &! actual number of interations
+                      converge,    &! = .TRUE. if converged
+                      error,       &! final error = max(residuals)
+                      rho,         &! monomer density field
+                      f_Helmholtz, &! Helmholtz free energy per monomer/kT
+                      !# ifdef DEVEL
+                      f_component, &! free energy components
+                      overlap,     &! overlap integrals
+                      !# endif
+                      pressure,    &! pressure * monomer volume / kT
+                      stress       &! d(free energy)/d(cell parameters)
+                           )
+
+         endif        
 
          ! Defer output to SWEEP, RESPONSE, or FINISH operation
          ! If output by SWEEP, '0.' will be added to output_prefix
@@ -560,22 +602,43 @@ program pscf_pd
                                  update_chain=.TRUE.)
  
             ! Main iteration routine
-            call iterate_NR( &
-                N_star,      &! # of basis functions
-                omega,       &! chemical potential field (IN/OUT)
-                itr,         &! actual number of interations
-                converge,    &! = .TRUE. if converged
-                error,       &! final error = max(residuals)
-                rho,         &! monomer density field
-                f_Helmholtz, &! Helmholtz free energy per monomer/kT
-                !# ifdef DEVEL
-                f_component, &! free energy components
-                overlap,     &! overlap integrals
-                !# endif
-                pressure,    &! pressure * monomer volume/kT
-                stress       &! d(free energy)/d(cell parameters)
-                )
-         
+            if(itr_algo=='NR')then
+
+               call iterate_NR( &
+                   N_star,      &! # of basis functions
+                   omega,       &! chemical potential field (IN/OUT)
+                   itr,         &! actual number of interations
+                   converge,    &! = .TRUE. if converged
+                   error,       &! final error = max(residuals)
+                   rho,         &! monomer density field
+                   f_Helmholtz, &! Helmholtz free energy per monomer/kT
+                   !# ifdef DEVEL
+                   f_component, &! free energy components
+                   overlap,     &! overlap integrals
+                   !# endif
+                   pressure,    &! pressure * monomer volume/kT
+                   stress       &! d(free energy)/d(cell parameters)
+                   )
+               
+           elseif(itr_algo=='AM')then
+    
+             call iterate_AM(      &
+                      N_star,      &! # of basis functions
+                      omega,       &! chemical potential field (IN/OUT)
+                      itr,         &! actual number of interations
+                      converge,    &! = .TRUE. if converged
+                      error,       &! final error = max(residuals)
+                      rho,         &! monomer density field
+                      f_Helmholtz, &! Helmholtz free energy per monomer/kT
+                      !# ifdef DEVEL
+                      f_component, &! free energy components
+                      overlap,     &! overlap integrals
+                      !# endif
+                      pressure,    &! pressure * monomer volume / kT
+                      stress       &! d(free energy)/d(cell parameters)
+                           )
+           endif
+
             if (converge) then
    
                i = i + 1
@@ -624,7 +687,7 @@ program pscf_pd
       !case ('REPRESENTATION')
       !   call group_rep('rep.input')
       !# endif
- 
+
       case ('RESPONSE')
 
          ! Calculate and diagonalize linear SCF response functions for
@@ -674,13 +737,13 @@ program pscf_pd
          call output_waves(field_unit, group_name)
          close(field_unit)
 
-      case ('FIELD_TO_GRID')
+      case ('FIELD_TO_RGRID')
 
          ! Read representation of field as list of coefficients of
          ! symmetrized basis functions, output file containing field
-         ! values at grid points.
+         ! values at grid points (rgrid).
 
-         ! Check preconditions for FIELD_TO_GRID
+         ! Check preconditions for FIELD_TO_RGRID
          if ( .not. unit_cell_flag ) then
             write(6,*) "Error: Must make UNIT_CELL before FIELD_TO_GRID"
             exit op_loop
@@ -710,10 +773,149 @@ program pscf_pd
          close(field_unit)
  
          ! Write values of field on a grid to output_file 
-         open(unit=field_unit,file=trim(output_prefix)//trim(output_file),status='replace')
+         open(unit=field_unit,file=trim(output_prefix)//trim(output_file)//'_grid',status='replace')
          call output_field_grid(rho,field_unit,ngrid)
          close(field_unit)
+
+
+      case ('KGRID_TO_RGRID')
+
+         ! Read representation of field as list of coefficients of
+         ! on FFT grid (kgrid) and output file containing field
+         ! values at grid points (rgrid).
+
+         ! Check preconditions for KGRID_TO_RGRID
+         if ( .not. unit_cell_flag ) then
+            write(6,*) "Error: Must make UNIT_CELL before FIELD_TO_GRID"
+            exit op_loop
+         else if (.not.discretize_flag) then
+            write(6,*) &
+                  "Error: Must make DISCRETIZATION before FIELD_TO_GRID"
+            exit op_loop
+         else if (.not.basis_flag) then
+            write(6,*) "Error: Must make BASIS before FIELD_TO_GRID"
+            exit op_loop
+         end if
  
+
+         ! Read input and output file names from input script
+         call input(input_file,'input_filename')
+         call input(output_file,'output_filename')
+       
+         allocate( k_grid(0:ngrid(1)/2, 0:ngrid(2)-1, 0:ngrid(3)-1, N_monomer) )
+         allocate( omega_basis(N_monomer,N_star) )
+
+         ! Read field (coefficients of basis functions) from input_file
+         open(unit=field_unit,file=trim(input_prefix)//trim(input_file),status='old')
+
+         ! Skip first 13 lines 
+         do i=1,13
+            read(field_unit,*)
+         end do
+
+         k_grid=0.0         
+         do i1=0,ngrid(1)/2
+            do i2=0,ngrid(2)-1
+               do i3=0,ngrid(3)-1
+                     read(field_unit,*)k_grid(i1,i2,i3,:)
+               end do 
+            end do
+         end do
+         close(field_unit)
+
+
+         call create_fft_plan(ngrid,plan)
+         do alpha=1,N_monomer
+               call kgrid_to_basis(k_grid(:,:,:,alpha),rho(alpha,:))
+         end do
+
+         do alpha=1,N_monomer
+            do i=1,N_star
+               omega_basis(alpha,i) = sum(chi(:,alpha)*rho(:,i))
+            end do
+         end do
+
+
+         open(unit=field_unit,file=trim(output_prefix)//trim(output_file),status='replace')
+         call output_field(rho,field_unit,group_name)
+         close(field_unit)
+
+         open(unit=field_unit,file=trim(output_prefix)//trim(output_file)//'_grid',status='replace')
+         call output_field_grid(rho,field_unit,ngrid)
+         close(field_unit)
+
+         open(unit=field_unit,file=trim(output_prefix)//'omega',status='replace')
+         call output_field(omega_basis,field_unit,group_name)
+         close(field_unit)
+
+
+      case ('RGRID_TO_FIELD')
+
+         ! Read representation of field as the values on the grid points
+         ! (rgrid) , and outputs file containing field
+         ! values in terms of symmetry adapted basis functions (basis).
+
+         ! Check preconditions for RGRID_TO_FIELD
+         if ( .not. unit_cell_flag ) then
+            write(6,*) "Error: Must make UNIT_CELL before FIELD_TO_GRID"
+            exit op_loop
+         else if (.not.discretize_flag) then
+            write(6,*) &
+                  "Error: Must make DISCRETIZATION before FIELD_TO_GRID"
+            exit op_loop
+         else if (.not.basis_flag) then
+            write(6,*) "Error: Must make BASIS before FIELD_TO_GRID"
+            exit op_loop
+         end if
+ 
+         ! Read input and output file names from input script
+         call input(input_file,'input_filename')
+         call input(output_file,'output_filename')
+       
+         allocate( r_grid(0:ngrid(1)-1, 0:ngrid(2)-1, 0:ngrid(3)-1, N_monomer) )
+         allocate( k_grid(0:ngrid(1)/2, 0:ngrid(2)-1, 0:ngrid(3)-1, N_monomer) )
+         allocate( omega_basis(N_monomer,N_star) )
+
+         ! Read field values at grid points from input_file
+         open(unit=field_unit,file=trim(input_prefix)//trim(input_file),status='old')
+         ! Skip first 13 lines 
+         do i=1,13
+            read(field_unit,*)
+         end do
+         r_grid=0.0
+         do i3=0,ngrid(3)-1
+            do i2=0,ngrid(2)-1
+               do i1=0,ngrid(1)-1
+                   read(field_unit,*)r_grid(i1,i2,i3,:)
+               end do 
+            end do
+         end do
+         close(field_unit)
+
+         call create_fft_plan(ngrid,plan)
+         rnodes=dble( plan%n(1) * plan%n(2) * plan%n(3) )
+       
+         do alpha=1,N_monomer
+               call fft(plan,r_grid(:,:,:,alpha),k_grid(:,:,:,alpha))
+               k_grid(:,:,:,alpha)=k_grid(:,:,:,alpha)/rnodes
+               call kgrid_to_basis(k_grid(:,:,:,alpha),rho(alpha,:))
+         end do
+        
+         do alpha=1,N_monomer
+            do i=1,N_star
+               omega_basis(alpha,i) = sum(chi(:,alpha)*rho(:,i))
+            end do
+         end do
+
+         open(unit=field_unit,file=trim(output_prefix)//trim(output_file),status='replace')
+         call output_field(rho,field_unit,group_name)
+         close(field_unit)
+        
+         open(unit=field_unit,file=trim(output_prefix)//'omega',status='replace')
+         call output_field(omega_basis,field_unit,group_name)
+         close(field_unit)
+
+
       case ('FINISH')
 
          ! Deferred output of ITERATE, if necessary

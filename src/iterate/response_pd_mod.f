@@ -34,6 +34,7 @@ module response_pd_mod
    PUBLIC :: response_pd_cell  ! calculate d_rho/d_cell_param
    PUBLIC :: make_correlation  ! block-block correlation of ideal chains
    PUBLIC :: corrlt            ! used by spinodal_mod
+   PUBLIC :: response_dstress_dcell  ! calculate dstress/dcell only
 
    real(long), allocatable :: corrlt(:,:,:)   ! correlation function
    !***
@@ -333,6 +334,75 @@ contains
    !===================================================================
 
 
+   !--------------------------------------------------------------
+   !****p response_pd_mod/response_dstress_dcell
+   ! SUBROUTINE
+   !    response_dstress_dcell(N,omega,drho_dcell,dstress_dcell)
+   ! PURPOSE
+   !    dstress_dcell(i,j)    = d stress(i) / d cell_param(j)
+   ! SOURCE
+   !--------------------------------------------------------------
+   subroutine response_dstress_dcell(N,omega,dstress_dcell)
+   use chemistry_mod, only : ensemble, N_monomer
+   use scf_mod,       only : density, scf_stress
+   use grid_mod,      only : make_ksq
+   use basis_mod,      only : make_dGsq
+   use unit_cell_mod, only : N_cell_param, cell_param, &!
+                             G_basis, dGG_basis, make_unit_cell
+
+   integer, intent(IN)       :: N
+   real(long), intent(IN)    :: omega(:,:)
+   real(long), intent(OUT)   :: dstress_dcell(:,:)
+   !***
+
+   ! Local variables
+   real(long), parameter :: increment = 1.0d-8
+   real(long), parameter :: x = 1.0_long / increment
+   real(long), dimension(N_monomer,N)     :: p, rho
+   real(long), dimension(N_cell_param)    :: old_param
+   real(long), dimension(N_cell_param)    :: stress,new_stress
+   real(long), dimension(N, N_cell_param) :: dGsq
+   integer :: i, j, alpha, beta
+
+   call make_unit_cell
+   call make_ksq(G_basis)
+
+   call density(N, omega, rho)
+   do i = 1, N_cell_param
+      call make_dGsq(dGsq(:,i), dGG_basis(:,:,i))
+   end do
+   stress = scf_stress(N, N_cell_param, dGsq )
+
+   old_param = cell_param
+   do i = 1, N_cell_param
+      cell_param    = old_param
+      cell_param(i) = old_param(i) + increment
+
+      call make_unit_cell
+      call make_ksq(G_basis)
+
+      ! density response
+      call density(N, omega, p)
+!!      j = 2 - ensemble
+!!      drho_dcell(:,j:,i) = x * ( p(:,j:) - rho(:,j:) )
+
+      ! stress response
+      do j = 1, N_cell_param
+         call make_dGsq( dGsq(:,j), dGG_basis(:,:,j) )
+      end do
+      new_stress = scf_stress(N, N_cell_param, dGsq )
+      dstress_dcell(:,i) = x * ( new_stress - stress )
+   end do
+
+   cell_param = old_param
+   call make_unit_cell
+   call make_ksq(G_basis)
+
+   end subroutine response_dstress_dcell
+   !===================================================================
+
+
+
    !-----------------------------------------------------------------
    !****p response_pd_mod/make_correlation
    ! SUBROUTINE
@@ -389,6 +459,8 @@ contains
             corrlt(alpha,alpha,i_star)=corrlt(alpha,alpha,i_star) &!
                    + g1(xi) * fi**2 * phi_chain(i_chain)
          end do
+
+!!         print*,'correlation half done'
 
          do i = 1, N_block(i_chain)
          do j = i+1, N_block(i_chain)
