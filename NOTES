@@ -31,13 +31,13 @@ To build from source on Mac OSX:
     depends.
 
     The other dependencies (cmake, gfortran and fftw) can 
-    be most easily installed using either the MacPorts or 
-    the (newer) Homebrew package manager systems. These 
-    package manager systems are more generally useful for 
-    managing open-source software that was designed for a
-    unix on a mac. MacPorts and Homebrew and Macports perform 
-    similar tasks and both work well, so the choice is up 
-    to you.
+    be most easily installed using either the MacPorts or
+    Homebrew package manager systems.  Both of these systems 
+    are more generally useful tools for managing open-source 
+    software for unix on Mac OSX.  MacPorts and Homebrew and 
+    Macports perform similar tasks and both work well, so 
+    the choice is up to you, but you should avoid using both
+    on the same machine.
 
     To install from a command line terminal using homebrew:
 
@@ -50,10 +50,10 @@ To build from source on Mac OSX:
 
     > git clone git@github.com/dmorse/pscf.git
 
-    Before compiling, you must make a directory in which the 
-    program will be built. The following assumes that the 
-    build directory is called pscf-build, and that it and 
-    pscf/ are subdirectories of the same parent directory.
+    Before compiling, you should make a directory in which 
+    the program will be built. The following assumes that 
+    the build directory is called pscf-build, and that it 
+    and pscf/ are subdirectories of the same parent directory.
 
     > mkdir pscf-build
     > cd pscf-build
@@ -61,12 +61,12 @@ To build from source on Mac OSX:
     > make -j 4
     > make install 
 
-    The string "/path/to/install" is the root of path used
-    for installation. The executable will be installed in
-    the bin directory of "/path/to/install". If you use 
-    "-DCMAKE_INSTALL_PREFIX=.", the executable will be
-    installed in the bin/ subdirectory of the build 
-    directory.
+    In the cmake command, the string "/path/to/install" is 
+    the root of path used for installation. The executable 
+    will be installed in the bin directory of 
+    "/path/to/install". The last argument "../pscf" If you 
+    use "-DCMAKE_INSTALL_PREFIX=.", the executable will be
+    installed in the bin/ subdirectory of the build directory.
 
     For developers: To build a Mac OSX *.dmg binary installer,
     (when working on a Mac), type:
@@ -124,7 +124,19 @@ To build on a Fedora linux distribution:
     except that one must use the native Fedora package manager 
     or the yum command line tool to install dependencies.
 
-    Needed: An accurate list of the names of required packages on Fedora.
+    Requiired packages:
+
+    cmake
+    gcc-gfortran
+    lapack
+    fftw-devel
+
+    To install from the command line:
+
+    sudo yum install cmake
+    sudo yum install gcc-gfortran
+    sudo yum install lapack
+    sudo yum install fftw-devel
 
     To check the RPM for detailed information (Metadata, Dependencies, 
     and File Contents): 
