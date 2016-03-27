@@ -1,41 +1,157 @@
-For installation we leverage fixup_bundle: https://cmake.org/cmake/help/v3.0/module/BundleUtilities.html
-	- This requires unique APP vars for each OS (see src/CMakeLists.txt for details)
+----------------------------------------------------------------
+These notes describe how to compile PSCF from sources using cmake
+on several different unix-like operating systems The following
+software packages must be installed and accessible before 
+attempting to compile PSCF:
 
-To build on OSX: 
+1) git (in order to clone the source code)
+1) cmake (to build a makefile)
+2) a fortran 90 compiler 
+   (e.g., gfortran in the gnu compiler collection)
+3) LAPACK linear algebra library
+4) FFTW version 3.x fast fourier transform library
 
-    brew install cmake
-	brew install gcc --with-fortran
-	brew install fftw 
+Comments about how to find and install these dependencies are
+given below separately for each operating system:
+----------------------------------------------------------------
+To build from source on Mac OSX: 
 
-    git clone git@github.com/bollig/pscf.git
-    mkdir pscf-build
-    cd pscf-build && cmake -DCMAKE_INSTALL_PREFIX=/path/to/install ../pscf
-	make -j 4
-	make install 
+    To create an environment in which you can compile from 
+    source on OSX, you will generally first need to install 
+    either the (relatively small) Apple command line tools 
+    or the (much larger) Apple XCode integrated development
+    environment, which includes the command line tools. 
+    Apple XCode is available free from the app store.
 
-To build on MSI with Intel Compilers: 
+    The command line tools the full XCode package both install
+    git, so it is not necessary to install this separately
 
-	module load cmake
-	module load intel mkl
-	module load fftw
-	
-    git clone git@github.com/bollig/pscf.git
-    mkdir pscf-build
-    cd pscf-build && cmake -DUSE_INTEL=1 -DCMAKE_INSTALL_PREFIX=/path/to/install ../pscf
-	make -j 4
-	make install 
+    The OXS operating system also appears to come with a 
+    version of LAPACK, and the BLAS library upon which it 
+    depends.
 
-To build installers (run this on each target platform: OSX, Linux and Windows): 
+    The other dependencies (cmake, gfortran and fftw) can 
+    be most easily installed using either the MacPorts or 
+    the (newer) Homebrew package manager systems. These 
+    package manager systems are more generally useful for 
+    managing open-source software that was designed for a
+    unix on a mac. MacPorts and Homebrew and Macports perform 
+    similar tasks and both work well, so the choice is up 
+    to you.
 
-	make package
+    To install from a command line terminal using homebrew:
 
-To check the RPM for detailed information (Metadata, Dependencies, and File Contents): 
+    > brew install cmake
+    > brew install gcc --with-fortran
+    > brew install fftw 
 
-	rpm --info -qpR -qlvp pscf-1.0.0-Linux.rpm 
+    To obtain the PSCF source code from github (after git is
+    installed):
 
-To check the DEB for semi-detailed information: 
+    > git clone git@github.com/dmorse/pscf.git
+
+    Before compiling, you must make a directory in which the 
+    program will be built. The following assumes that the 
+    build directory is called pscf-build, and that it and 
+    pscf/ are subdirectories of the same parent directory.
+
+    > mkdir pscf-build
+    > cd pscf-build
+    > cmake -DCMAKE_INSTALL_PREFIX=/path/to/install ../pscf
+    > make -j 4
+    > make install 
+
+    The string "/path/to/install" is the root of path used
+    for installation. The executable will be installed in
+    the bin directory of "/path/to/install". If you use 
+    "-DCMAKE_INSTALL_PREFIX=.", the executable will be
+    installed in the bin/ subdirectory of the build 
+    directory.
+
+    For developers: To build a Mac OSX *.dmg binary installer,
+    (when working on a Mac), type:
+
+    > make package
+
+----------------------------------------------------------------
+To build on an Ubuntu linux machine.
+
+    Use the Ubuntu softare manager or the command line apt-get 
+    utility to install the following packages:
+
+    git
+    cmake
+    gfortran
+    fftw3-dev
+    liblapack3
+
+    To obtain the PSCF source code from github, as for OS X,
+    type:
+
+    > git clone git@github.com/dmorse/pscf.git
+
+    The steps to compile and install are the same as for Mac OSX:
+
+    > mkdir pscf-build
+    > cd pscf-build 
+    > cmake -DCMAKE_INSTALL_PREFIX=/path/to/install ../pscf
+    > make -j 4
+    > make install 
+
+    Developers can build *.deb, *.rpm *.tar and *.zip packages on
+    a linux system. Ubuntu comes with the tools required to build 
+    the native *.deb package. To also build the gnu/fedora *.rpm
+    package from Ubuntu, you must first install the rpm package 
+    manager, via:
+
+    > sudo apt-get install rpm
+
+    Once the required packaging software is installed, simply enter:
+  
+    > make package
+
+    > To check the *.deb file for semi-detailed information: 
 
 	# This extracts multiple files
 	ar -vx pscf-1.0.0-Linux.deb
 	# See the files that would be installed
 	tar tvfz data.tar.gz 
+
+----------------------------------------------------------------
+To build on a Fedora linux distribution:
+
+    Instructions for Fedora are similar to those for Ubuntu,
+    except that one must use the native Fedora package manager 
+    or the yum command line tool to install dependencies.
+
+    Needed: An accurate list of the names of required packages on Fedora.
+
+    To check the RPM for detailed information (Metadata, Dependencies, 
+    and File Contents): 
+
+	rpm --info -qpR -qlvp pscf-1.0.0-Linux.rpm 
+----------------------------------------------------------------
+To build on MSI, using linux modules and the Intel compiler:
+
+    Use the following commands to load the required modules:
+
+    > module load cmake
+    > module load intel mkl
+    > module load fftw
+
+    The remaining instruction for how to obtain and compile the
+    source code are the same as OSX or linux, except that one
+    tell cmake to use the intel compiler by adding the option
+    "-DUSE_INTEL=1" to the cmake command. The required command
+    is thus:
+
+    > cmake -DUSE_INTEL=1 -DCMAKE_INSTALL_PREFIX=/path/to/install ../pscf
+
+----------------------------------------------------------------
+For installation we leverage fixup_bundle: 
+
+https://cmake.org/cmake/help/v3.0/module/BundleUtilities.html
+
+This requires unique APP vars for each OS (see src/CMakeLists.txt 
+for details)
+
