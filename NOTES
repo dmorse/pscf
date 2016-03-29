@@ -16,6 +16,8 @@ given below separately for each operating system:
 ----------------------------------------------------------------
 To build from source on Mac OSX: 
 
+    Command Line Tools and XCode:
+
     To create an environment in which you can compile from 
     source on OSX, you will generally first need to install 
     either the (relatively small) Apple command line tools 
@@ -30,14 +32,26 @@ To build from source on Mac OSX:
     version of LAPACK, and the BLAS library upon which it 
     depends.
 
-    The other dependencies (cmake, gfortran and fftw) can 
-    be most easily installed using either the MacPorts or
-    Homebrew package manager systems.  Both of these systems 
-    are more generally useful tools for managing open-source 
-    software for unix on Mac OSX.  MacPorts and Homebrew and 
-    Macports perform similar tasks and both work well, so 
-    the choice is up to you, but you should avoid using both
-    on the same machine.
+    Package Managers: HomeBrew vs. MacPorts.
+
+    The remaining dependencies (cmake, gfortran and fftw) can be most 
+    easily installed using either the MacPorts or Homebrew package 
+    manager systems.  These are both systems for managing open-source 
+    software, most of which was written for unix, on Darwin unix
+    subsystem of the the Mac OSX.  The choice of package managers is 
+    up to you, but you should avoid using both on the same machine. 
+    We also recommend against using the older Fink manager, which is
+    obsolete.  If either Homebrew or MacPorts is already installed
+    and in use on your machine, you should use the existing system
+    and not install the alternative, because they do not play well 
+    together.  If neither Homebrew or MacPorts is installed, our 
+    experience installing PSCF gives a slight preference for Homebrew, 
+    which was slightly easier to use, but we have succeeded in 
+    installing the dependencies of PSCF on machines with OSX 10.11 
+    using both software management systems. Instructions for both
+    systems are given separately below.
+
+    Installing dependencies via Homebrew:
 
     To install from a command line terminal using homebrew:
 
@@ -45,15 +59,49 @@ To build from source on Mac OSX:
     > brew install gcc --with-fortran
     > brew install fftw 
 
-    To obtain the PSCF source code from github (after git is
-    installed):
+    Installing dependencies via Macports:
+
+    After MacPorts is installed, to install the required dependencies 
+    using the most recent version of the gnu compiler collection (gcc), 
+   which is gcc 5.X at the time of writing, enter:
+    
+    > sudo port install cmake
+    > sudo port install gcc5
+    > sudo port install fftw-3 +gfortran
+
+    Note that MacPorts (unlike homebrew) requires you to use "sudo"
+    to execute installation as the superuser, and thus will ask for
+    a password after each of the above commands.
+
+    We found that the gcc-5 port installs the gfortran Fortran 90 
+    compiler at /usr/opt/local/bin/gfortran-mp-5 . Versions compiled 
+    with other versions of gcc (e.g., 4.9) seem to be placed in the 
+    same directory with a different numerical suffix, e.g., 
+    gfortran-mp-49.  CMake was unable to find this compiler 
+    executable without help.  To remedy this, you should set the 
+    FC environment variable (the path to a Fortran compiler) to 
+    point to the absolute path to the gfortran executable before
+    attempting to compile, by entering, for example:
+
+    > FC=/usr/opt/local/bin/gfortran-mp-5
+    > export FC
+
+    If expect to compile this and other fortran programs repeatedly, 
+    you may want to put this in your .bashrc or .profile bash 
+    configuration file.
+
+    Getting the source code:
+
+    To obtain the PSCF source code from github:
 
     > git clone git@github.com/dmorse/pscf.git
 
-    Before compiling, you should make a directory in which 
-    the program will be built. The following assumes that 
-    the build directory is called pscf-build, and that it 
-    and pscf/ are subdirectories of the same parent directory.
+    Before compiling, you should make a new directory in which 
+    the program will be built "out-of-source". This build directory
+    should not be subdirectory of the pscf/ directory. The following 
+    assumes that the build directory is called pscf-build, and that 
+    it and pscf/ are subdirectories of the same parent directory.
+    Starting from the common parent directory, enter:
 
     > mkdir pscf-build
     > cd pscf-build
@@ -61,22 +109,27 @@ To build from source on Mac OSX:
     > make -j 4
     > make install 
 
-    In the cmake command, the string "/path/to/install" is 
+    In the "cmake" command, the string "/path/to/install" is 
     the root of path used for installation. The executable 
     will be installed in the bin directory of 
     "/path/to/install". The last argument "../pscf" If you 
-    use "-DCMAKE_INSTALL_PREFIX=.", the executable will be
-    installed in the bin/ subdirectory of the build directory.
+    use "-DCMAKE_INSTALL_PREFIX=.", the executable and other
+    files that you generate will be installed in tree rooted
+    at the build directory (e.g., pscf-build). The final
+    pscf executable is self-contained and can be copied to 
+    wherever you want after it is created.
 
     For developers: To build a Mac OSX *.dmg binary installer,
-    (when working on a Mac), type:
+    as well as *.tar and *.zip source code archive files, when
+    working on a Mac, after completing compilation and 
+    installation, enter:
 
     > make package
 
 ----------------------------------------------------------------
 To build on an Ubuntu linux machine.
 
-    Use the Ubuntu softare manager or the command line apt-get 
+    Use the Ubuntu software manager or the command line apt-get 
     utility to install the following packages:
 
     git
@@ -98,19 +151,14 @@ To build on an Ubuntu linux machine.
     > make -j 4
     > make install 
 
-    Developers can build *.deb, *.rpm *.tar and *.zip packages on
-    a linux system. Ubuntu comes with the tools required to build 
-    the native *.deb package. To also build the gnu/fedora *.rpm
-    package from Ubuntu, you must first install the rpm package 
-    manager, via:
+    Developers: To build *.deb package for installation of binary
+    executables on other Ubuntu and debian systems, as well as
+    *.tar and *.zip source code archives, after installing on 
+    your machine, simply enter:
 
-    > sudo apt-get install rpm
-
-    Once the required packaging software is installed, simply enter:
-  
     > make package
 
-    > To check the *.deb file for semi-detailed information: 
+    To check the *.deb file for semi-detailed information: 
 
 	# This extracts multiple files
 	ar -vx pscf-1.0.0-Linux.deb
@@ -121,29 +169,41 @@ To build on an Ubuntu linux machine.
 To build on a Fedora linux distribution:
 
     Instructions for Fedora are similar to those for Ubuntu,
-    except that one must use the native Fedora package manager 
-    or the yum command line tool to install dependencies.
+    except that one should use the native Fedora graphical 
+    software manager or the yum command line tool to install 
+    dependencies.
 
-    Requiired packages:
+    The required Fedora packages are:
 
     cmake
     gcc-gfortran
     lapack
     fftw-devel
 
-    To install from the command line:
+    To install these packages from the command line, enter:
 
-    sudo yum install cmake
-    sudo yum install gcc-gfortran
-    sudo yum install lapack
-    sudo yum install fftw-devel
+    > sudo yum install cmake
+    > sudo yum install gcc-gfortran
+    > sudo yum install lapack
+    > sudo yum install fftw-devel
+
+    Instructions for obtaining source code, compiling and installing
+    are the same as for Max OSX and Ubuntu.
+
+    Developers: On a Fedora machine, you can build a *.rpm package
+    and *.tar and *.zip archives by entering
+
+    > make package
+
+    from within the build directory.
 
     To check the RPM for detailed information (Metadata, Dependencies, 
-    and File Contents): 
+    and File Contents), enter:
 
-	rpm --info -qpR -qlvp pscf-1.0.0-Linux.rpm 
+    > rpm --info -qpR -qlvp pscf-1.0.0-Linux.rpm 
 ----------------------------------------------------------------
-To build on MSI, using linux modules and the Intel compiler:
+To build on Minnesota Computer Institute (MSI) Mesabi computer, 
+using linux modules and the Intel compiler:
 
     Use the following commands to load the required modules:
 
