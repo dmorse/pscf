@@ -212,10 +212,10 @@ using linux modules and the Intel compiler:
     > module load fftw
 
     The remaining instruction for how to obtain and compile the
-    source code are the same as OSX or linux, except that one
-    tell cmake to use the intel compiler by adding the option
-    "-DUSE_INTEL=1" to the cmake command. The required command
-    is thus:
+    source code are generally the same as OSX or linux. The only
+    difference is that one must tell cmake to use the intel 
+    compiler by adding the option "-DUSE_INTEL=1" to the cmake 
+    command. The required command is thus:
 
     > cmake -DUSE_INTEL=1 -DCMAKE_INSTALL_PREFIX=/path/to/install ../pscf
 
