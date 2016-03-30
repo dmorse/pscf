@@ -83,12 +83,19 @@ if (APPLE)
 	)
 else (APPLE)
 	if (UNIX)
-		set(CPACK_GENERATOR 
-			DEB
-			RPM
-			TGZ
-			ZIP
-		)
+        if (EXISTS /etc/redhat-release)
+            set(CPACK_GENERATOR 
+                    RPM
+                    TGZ
+                    ZIP
+               )
+        else()
+            set(CPACK_GENERATOR 
+                    DEB
+                    TGZ
+                    ZIP
+               )
+        endif()
 	else (UNIX)
 		set(CPACK_GENERATOR 
 			NSIS	
