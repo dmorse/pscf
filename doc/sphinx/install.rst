@@ -134,7 +134,8 @@ dependencies required by PSCF. We have succeeded in building PSCF using both
 package managers on different machines that were running the Max OSX 10.11.
 Instructions for both systems are given separately below.
 
-Installing dependencies via Homebrew:
+Installing dependencies via Homebrew
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To install from a command line terminal using homebrew::
 
@@ -142,7 +143,8 @@ To install from a command line terminal using homebrew::
    > brew install gcc --with-fortran
    > brew install fftw 
 
-Installing dependencies via Macports:
+Installing dependencies via Macports
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 After MacPorts is installed, to install the required dependencies 
 using the most recent version of the gnu compiler collection (gcc), 
@@ -164,16 +166,17 @@ gfortran-mp-49.  CMake was unable to find this compiler
 executable without help.  To remedy this, you should set the 
 FC environment variable (the path to a Fortran compiler) to 
 point to the absolute path to the gfortran executable before
-attempting to compile, by entering, for example:
+attempting to compile, by entering, for example::
 
    > FC=/usr/opt/local/bin/gfortran-mp-5
    > export FC
 
 If expect to compile this and other fortran programs repeatedly, 
-you may want to put this in your .bashrc or .profile bash 
+you may want to put this in your .profile or .bashrc bash 
 configuration file.
 
-Getting the source code:
+Getting the source code
+^^^^^^^^^^^^^^^^^^^^^^^
 
 To obtain the PSCF source code from github:
 
@@ -290,28 +293,28 @@ Linux Modules and Intel Compiler
    Computer Institute (MSI) Mesabi computer, using linux modules and the Intel compiler. 
    Similar instructions would apply for many other large shared supercomputer clusters.
 
-    Use the following commands to load the required modules:
+    To load the required modules::
 
-    > module load cmake
-    > module load intel mkl
-    > module load fftw
+       > module load cmake
+       > module load intel mkl
+       > module load fftw
 
     The remaining instruction for how to obtain and compile the source code are generally 
     the same as OSX or linux. The only difference is that one must tell cmake to use the 
     intel compiler by adding the option "-DUSE_INTEL=1" to the cmake command. The required 
-    command is thus:
+    command is thus::
 
-    > cmake -DUSE_INTEL=1 -DCMAKE_INSTALL_PREFIX=/path/to/install ../pscf
+       > cmake -DUSE_INTEL=1 -DCMAKE_INSTALL_PREFIX=/path/to/install ../pscf
 
 Compiling via make, without cmake
 ---------------------------------
 
-It is also possible to compile using a Makefile in the src/build directory. This does an "in source" build in which all of the files generated during compilation are placed in the pscf/src/ directory. The instructions for doing this are the same on any unix-like operating system - The only difference among different operating systems is the names and locations of the required libraries. 
+It is also possible to compile using a Makefile in the src/build directory. This does an "in source" build, in which all of the files generated during compilation are placed in the pscf/src/ directory. The instructions for doing this are the same on any unix-like operating system. The main difference among different unix environments is the locations of the required libraries. 
 
 To compile the code in this way, you should:
 
-   * cd to pscf/src/build
-   * Edit the Makefile (as discussed below)
+   * cd to the pscf/src/build directory
+   * Examine and edit the Makefile (as discussed below)
    * Enter 'make pscf' from within src/build.
 
 These steps are described in more detail below
