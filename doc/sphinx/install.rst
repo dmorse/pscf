@@ -148,7 +148,7 @@ Installing dependencies via Macports
 
 After MacPorts is installed, to install the required dependencies 
 using the most recent version of the gnu compiler collection (gcc), 
-which is gcc 5.X at the time of writing, enter:
+which is gcc 5.X at the time of writing, enter::
 
    > sudo port install cmake
    > sudo port install gcc5
@@ -178,7 +178,7 @@ configuration file.
 Getting the source code
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-To obtain the PSCF source code from github:
+To obtain the PSCF source code from github::
 
    > git clone git@github.com/dmorse/pscf.git
 
@@ -289,22 +289,23 @@ and File Contents), enter::
 Linux Modules and Intel Compiler
 --------------------------------
 
-   The following instructions describe how to build PSCF in a user directory at the Minnesota 
-   Computer Institute (MSI) Mesabi computer, using linux modules and the Intel compiler. 
-   Similar instructions would apply for many other large shared supercomputer clusters.
+The following instructions describe how to build PSCF in a user directory at the Minnesota 
+Computer Institute (MSI) Mesabi computer, using linux modules and the Intel compiler. 
+Similar instructions should apply to other large supercomputer clusters that use linux
+modules.
 
-    To load the required modules::
+To load the required modules, enter::
 
-       > module load cmake
-       > module load intel mkl
-       > module load fftw
+   > module load cmake
+   > module load intel mkl
+   > module load fftw
 
-    The remaining instruction for how to obtain and compile the source code are generally 
-    the same as OSX or linux. The only difference is that one must tell cmake to use the 
-    intel compiler by adding the option "-DUSE_INTEL=1" to the cmake command. The required 
-    command is thus::
+The remaining instruction for how to obtain and compile the source code are generally 
+similar to thos given for OSX or Linux. The only difference is that, to use the Intel
+compiler, one must tell cmake to use the intel compiler by adding the option 
+"-DUSE_INTEL=1" to the cmake command.  The required command is thus::
 
-       > cmake -DUSE_INTEL=1 -DCMAKE_INSTALL_PREFIX=/path/to/install ../pscf
+   > cmake -DUSE_INTEL=1 -DCMAKE_INSTALL_PREFIX=/path/to/install ../pscf
 
 Compiling via make, without cmake
 ---------------------------------
