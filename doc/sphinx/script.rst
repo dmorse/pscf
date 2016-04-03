@@ -129,7 +129,7 @@ one-dimensional array named "kuhn".
 The CHAINS block describes the structure and composition of all polymer 
 chains, which must linear block polymers or hompolymers.
 
-.. _script-sections-sec:
+.. _script-overview-sec:
 
 Overview 
 ========
@@ -165,15 +165,14 @@ leave out the penulimate SWEEP section.
 Linear Response
 ----------------
 
-To calculate the self-consistent-field linear susceptibility of a periodic 
-microstructure, introduce a RESPONSE section after ITERATE and before FINISH, 
-and leave out the SWEEP section.
+To calculate the self-consistent-field or RPA linear susceptibility of a periodic 
+microstructure, introduce a RESPONSE section after ITERATE and before FINISH.
 
- ==========================   =========================================================
- Section                      Description
- ===========================  =========================================================
- :ref:`script-response-sub`  Calculate linear response matrix at one or more k vectors
- ===========================  =========================================================
+  ===========================  =========================================================
+  Section                      Description
+  ===========================  =========================================================
+  :ref:`script-response-sub`   Calculate linear response matrix at one or more k vectors
+  ===========================  =========================================================
 
 Utilities
 ---------
@@ -215,7 +214,7 @@ Array Parameters and Indices
 Some required input parameters are one or two dimensional arrays. One 
 dimensional parameters are indicated below by writing the name of the 
 parameter with one indices: For example, in the MONOMERS section,
- kuhn(im) denotes a one dimensional array of statistical segment 
+kuhn(im) denotes a one dimensional array of statistical segment 
 lengths for different monomer types.  Two dimensional arrays are shown 
 with two indices.  The meaning and range of each index is indicated by
 using a set of standard variable names to indicate different types of
@@ -354,14 +353,14 @@ CHAINS
 
 Chain Parameters
 
-==================== ======== ============================================ ====== 
-Variable             Type     Description                                  Format
-==================== ======== ============================================ ====== 
-N_chain              integer  Number of chain species
-N_block(ic)          integer  Number of blocks in species ic               C
-block_monomer(ib,ic) integer  Monomer type for block ib of species ic      MR
-block_length(ib,ic)  real     Number of monomers in block ib of species ic MR
-==================== ======== ============================================ ====== 
+  ==================== ======== ============================================ ====== 
+  Variable             Type     Description                                  Format
+  ==================== ======== ============================================ ====== 
+  N_chain              integer  Number of chain species
+  N_block(ic)          integer  Number of blocks in species ic               C
+  block_monomer(ib,ic) integer  Monomer type for block ib of species ic      MR
+  block_length(ib,ic)  real     Number of monomers in block ib of species ic MR
+  ==================== ======== ============================================ ====== 
 
 The block_monomer and block_length arrays are entered in a format in which each
 line contains the data with one polymer species, so that the number of entries
@@ -464,12 +463,12 @@ file from another directory, you would set in_prefix to the path to that
 directory, followed by a trailing '/' directory separator.  Both string
 variables are required, and must appear in the order listed below.
 
-  ==========  ============= ===========================================
+  ==========  ============= ==============================================
   Variable    Type          Description
-  ==========  ============= ===========================================
-  in_prefix   character(60) prefix to *omega input file
-  out_prefix  character(60)  prefix to *rho, *omega, *out output files
-  ==========  ============= ===========================================
+  ==========  ============= ==============================================
+  in_prefix   character(60) prefix to .omega input file
+  out_prefix  character(60) prefix to .rho, .omega, and .out output files
+  ==========  ============= ==============================================
 
 .. _script-basis-sub:
 
@@ -564,8 +563,8 @@ a user defined vector increment.
   ========= ===========  =====================================
   Variable  Type         Description
   ========= ===========  =====================================
-  pertbasis char         'PW' => plane wave basis
-                         'SYM' => symmetrized basis functions
+  pertbasis char         If 'PW' => plane wave basis.
+                         If 'SYM' => symmetrized basis functions
   k_group   character    Group used to construct symmetrized
                          basis functions
   kdim      int          # dimensions in k-vector (kdim >= dim)
@@ -581,14 +580,16 @@ FIELD_TO_RGRID
 
 This command reads a file containing a field in the symmetry-adapted 
 Fourier expansion format and outputs a representation containing 
-values of the field on a coordinate space grid.
+values of the field on a coordinate space grid. This and the other
+commands to transform representation can be applied to either a rho
+or omega field.
 
   ================  ============= ============================
   Variable          Type          Description
   ================  ============= ============================
   input_filename    character(60) name of the input file 
                                   (symmetry-adapated format)
-  output_Filename   character(60) name of the output file 
+  output_filename   character(60) name of the output file 
                                   (coordinate grid format)
   ================  ============= ============================
   
@@ -607,7 +608,7 @@ representationo as an symmetry-adapated Fourier expansion.
   ================ ============= ========================================
   input_filename   character(60) name of the input file 
                                  (coordinate grid format)
-  output_Filename  character(60) name of the output file 
+  output_filename  character(60) name of the output file 
                                  (symmetry-adapated Fourier format)
   ================ ============= ========================================
   
@@ -625,7 +626,7 @@ Fourier components for all wavevectors on a k-space grid.
   ================ =============  ===================================
   input_filename   character(60)  name of the input file 
                                   (coordinate r-space grid)
-  output_Filename  character(60)  name of the output file 
+  output_filename  character(60)  name of the output file 
                                   (wavevector k-space grid)
   ================ =============  ===================================
   
@@ -642,16 +643,42 @@ outputs values of the field on a coordinate r-space grid.
   ================ ============= ============================
   Variable         Type          Description
   ================ ============= ============================
-  input_Filename   character(60) name of the input file 
+  input_filename   character(60) name of the input file 
                                  (wavevector k-space grid)
   output_filename  character(60) name of the output file 
                                  (coordinate r-space grid)
   ================ ============= ============================
+  
+.. _script-rhotoomega-sub:
+
+RHO_TO_OMEGA
+--------------
+
+This command reads a file containing a monomer concetnration field
+and outputs a corresponding initial guess for the omega field. Both
+input and ouput files use the symmetry-adapated Fourier expansion
+format. The omega field is computed by simply setting the Lagrange 
+multiplier pressure field to zero, giving a field that only contains 
+the contributions that arise from the excess interaction free 
+energy, e.g., terms that explicitly involve the Flory-Huggins chi 
+parameter. This command is intended to be used to generate an initial
+guess for $\omega$ from an approximate structural model for the
+volume fraction fields in a particular structure.
+
+  ================  ============= ============================
+  Variable          Type          Description
+  ================  ============= ============================
+  input_filename    character(60) name of the input rho file 
+                                  (symmetry-adapated format)
+  output_filename   character(60) name of the output omega file 
+                                  (coordinate grid format)
+  ================  ============= ============================
   
 .. _script-finish-sub:
 
 FINISH
 ------
 
-The FINISH string causes program execution to terminate.
+The FINISH string is the last section of any input script, and
+causes program execution to terminate.
 
