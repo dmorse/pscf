@@ -312,8 +312,8 @@ segment lengths is set to unity.
 
 .. _script-sections-sec:
 
-Script Sections and Commands
-============================
+Script Sections
+===============
 
 .. _script-monomers-sub:
 
@@ -354,11 +354,21 @@ CHAINS
 
 Chain Parameters
 
+==================== ======== ============================================ ====== 
 Variable             Type     Description                                  Format
+==================== ======== ============================================ ====== 
 N_chain              integer  Number of chain species
 N_block(ic)          integer  Number of blocks in species ic               C
 block_monomer(ib,ic) integer  Monomer type for block ib of species ic      MR
 block_length(ib,ic)  real     Number of monomers in block ib of species ic MR
+==================== ======== ============================================ ====== 
+
+The block_monomer and block_length arrays are entered in a format in which each
+line contains the data with one polymer species, so that the number of entries
+in line ic must equal to the value of N_block(ic), i.e., to the number of blocks
+in chain species ic. The length of each block in an incompressible mixture is
+equal to the volume occupied by that block (computed using the density of the
+corresponding hompolymer) divided by the monomer reference volume.
 
 .. _script-solvents-sub:
 
@@ -367,30 +377,16 @@ SOLVENTS
 
 Solvent Parameters
 
-Variable
-Type
-Description
-Format
+  ==================== ========= ================================ ======
+  Variable             Type      Description                      Format
+  ==================== ========= ================================ ======
+  N_solvent            integer   Number of solvent species
+  solvent_monomer(is)  integer   Monomer type for solvent is      C
+  solvent_size(is)     real      Volume of solvent is             C
+  ==================== ========= ================================ ======
 
-
-  N_solvent
-  integer
-  Number of solvent species
-
-
-
-  solvent_monomer(is)
-  integer
-  Monomer type for solvent is
-  C
-
-
-  solvent_size(is)
-  real
-  Volume of solvent is
-  C
-
-
+The parameter solvent_size is given by the ratio of the actual volume
+occupied by a particular solvent to the monomer reference volume.
 
 .. _script-composition-sub:
 
@@ -414,21 +410,21 @@ Composition Parameters
 UNIT_CELL
 ---------
 
-The variables in the UNIT_CELL section contain the information
-necessary to define the unit cell type, size, and shape.
+The variables in the UNIT_CELL section contain the information necessary to define 
+the unit cell type, and the unit cell dimensions and shape.
 
-  ================ ============== ============================================
-  Variable         Type           Description
-  ================ ============== ============================================
+  ================ ============== ============================================ ======
+  Variable         Type           Description                                  Format
+  ================ ============== ============================================ ======
   dim              integer        dimensionality =1, 2, or 3
   crystal_system   character(60)  unit cell type
                                   (cubic, tetragonal, orthorhombic, etc.)
   N_cell_param     integer        # parameters required to describe unit cell
-  cell_param(i)    real           N_cell_param unit cell parameters
-  ================ ============== ============================================
+  cell_param(i)    real           N_cell_param unit cell parameters            R
+  ================ ============== ============================================ ======
 
-The array cell_param contains N_cell_param elements, which are input in
-row format, with all elements in a single line.
+The array cell_param contains N_cell_param elements, which are input in row format, with 
+all elements in a single line.
 
 .. _script-discretization-sub:
 
@@ -438,21 +434,18 @@ DISCRETIZATION
 The discretization section defines the grid used to spatially discretize
 the modified diffusion equaiton and the size ds of the "step" ds in the
 time-like contour length variable used to integral this equation.
-
-DISCRETIZATION 
---------------
-
+  
 Parameters
 
   ========= ========  ====================================== ====
-  Variable    Type    Description                            Form
+  Variable  Type      Description                            Form
   ========= ========  ====================================== ====
-  ngrid(id) integer  # grid points in direction id=1,..,dim  R
+  ngrid(id) integer   # grid points in direction id=1,..,dim  R
   ds        real      contour length step size
   ========= ========  ====================================== ====
 
-The integer array ngrid(id) is input in row format, with dim
-(i.e., 1,2 or 3) values on a line.
+The integer array ngrid(id) is input in row format, with dim (i.e., 1,2 or 3) 
+values on a line, where dim is the dimensionality of space.  
 
 .. _script-prefixes-sub:
 
@@ -581,13 +574,6 @@ a user defined vector increment.
   nkstep    integer      # of k-vectors
   ========= ===========  =====================================
 
-.. _script-finish-sub:
-
-FINISH
-------
-
-The FINISH string causes program execution to terminate.
-
 .. _script-fieldtorgrid-sub:
 
 FIELD_TO_RGRID
@@ -662,3 +648,10 @@ outputs values of the field on a coordinate r-space grid.
                                  (coordinate r-space grid)
   ================ ============= ============================
   
+.. _script-finish-sub:
+
+FINISH
+------
+
+The FINISH string causes program execution to terminate.
+
