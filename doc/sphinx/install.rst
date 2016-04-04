@@ -182,12 +182,16 @@ To obtain the PSCF source code from github::
 
    > git clone git@github.com/dmorse/pscf.git
 
+Compile and Install
+^^^^^^^^^^^^^^^^^^^
 Before compiling, you should make a new directory in which 
 the program will be built "out-of-source". This build directory
 should not be subdirectory of the pscf/ directory. The following 
 assumes that the build directory is called pscf-build, and that 
 it and pscf/ are subdirectories of the same parent directory.
-Starting from the common parent directory, enter::
+
+Starting from the common parent directory of pscf/ and pscf-build/,
+enter::
 
    > mkdir pscf-build
    > cd pscf-build
@@ -195,10 +199,9 @@ Starting from the common parent directory, enter::
    > make -j 4
    > make install 
 
-In the "cmake" command, the string "/path/to/install" is 
-the root of path used for installation. The executable 
-will be installed in the bin directory of 
-"/path/to/install". The last argument "../pscf" If you 
+In the "cmake" command, the string "/path/to/install" is the root 
+of path used for installation. 
+The last argument "../pscf" If you 
 use "-DCMAKE_INSTALL_PREFIX=.", the executable and other
 files that you generate will be installed in tree rooted
 at the build directory (e.g., pscf-build). The final
@@ -236,6 +239,18 @@ The steps to compile and install are the same as for Mac OSX::
    > cmake -DCMAKE_INSTALL_PREFIX=/path/to/install ../pscf
    > make -j 4
    > make install 
+
+One linux, an executable file will be installed in the bin directory of "/path/to/install". 
+The executable is movable, so you can place the executable in the build directory by entering
+
+   > cmake -DCMAKE_INSTALL_PREFIX=.  ../pscf
+
+(where the "." after the = sign represents the current directory), and then move the file to
+wherever you want. 
+
+Wherever you install the executable file, you will need to make sure that directory
+containing the executable (or a symlink to the executable) is in the bash PATH variable,
+so that the operating system can find the executable when it is invoked by name.
 
 Developers: To build *.deb package for installation of binary executables on other Ubuntu and debian systems, as well as *.tar and *.zip source code archives, after installing on your machine, simply enter::
 

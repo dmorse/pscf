@@ -1,109 +1,78 @@
 
+***************
+Bravais Lattice
+***************
 
-The variables in the UNIT_CELL section of the input script specfy 
-the dimensionality dim of the crystal (which must be 1, 2, or 3), 
-the crystal system (e.g., cubic, tetragonal, etc. for 3D crystals), 
-the number of parameters N_cell_param required to specify the size 
-and shape of the unit cell for that crystal system (e.g., 1 for a 
-cubic lattice and 6 for a triclinic cell), and a list cell_param 
-of N_cell_param parameters. Listed below are the allowed 
-crystal system names, along with the required value for N_cell_param 
-and the meanings of the elements of the cell_param array. 
+The variables in the UNIT_CELL section of the input script specify the Bravais
+lattice of the crystal. The variables required in this section, in the required
+order, are:
+
+  ===============  ===================================================
+  Variable         Meaning
+  ===============  ===================================================
+  dim              the dimensionality (i.e., number of periodic dimensions)
+                   of the crystal, which must be 1, 2, 3.
+  crystal_system   the crystal lattice system, which is a string that 
+                   can be cubic, tetragonal, etc. for 3D crystals.
+  N_cell_param     the number of parameters required to specify the 
+                   dimensions and shape of the unit cell 
+  cell_param       an array of the unit cell parameters
+  ===============  ===================================================
+
+The value of the number of parameters required to describe the unit cell,
+N_cell_param, is, for example, 1 for a 1D lamellar phase, a 2D hexagonal 
+phase or a 3D cubic phase, 3 for an orthorhombic 3D phase or 6 for a 
+triclinic 3D phase.
+
+Below, we discuss each of the possible crystals systems for 1, 2 and 3
+dimensional crystals, and specify the meaning and order of the elements
+of the parameter array cell_param
+
+1D Crystal Systems
+==================
+
+The only allowed crystal system name for a one-dimensional crystal is 
+'lamellar', for which N_cell_param = 1. The value of the single element
+of cell_param denotes the layer spacing.
 
 
-<hr/>
-
-<h3>1D Crystal Systems</h3>
-
-The only allowed crystal system name for a one-dimensional 
-crystal is 'lamellar'. 
-
-
-<hr/>
-
-<h3>2D Crystal Systems</h3>
+2D Crystal Systems
+==================
 
 For two dimensional crystals (dim=2), the parameters a and b are
-the lengths of the two Bravais lattice vectors, and gamma is the
-angle between them, in radians. 
+the lengths of the two Bravais lattice basis vectors. For an oblique 
+crystal, gamma is the angle between them, in radians. 
 
-<table width="60%">
-<tr>
-<th width="25%">systems</th>
-<th width="25%">N_cell_param</th>
-<th            >cell_param</th>
-</tr>
-<tr>
-<td>square</td>
-<td>1</td>
-<td>a</td>
-</tr>
-<tr>
-<td>rectangular</td>
-<td>2</td>
-<td>a, b</td>
-</tr>
-<tr>
-<td>hexagonal</td>
-<td>1</td>
-<td>a</td>
-</tr>
-<tr>
-<td>oblique</td>
-<td>3</td>
-<td>a, b, gamma</td>
-</tr>
-</table>
+============  ============ ============
+systems       N_cell_param cell_param
+============  ============ ============
+square        1            a
 
-<hr/>
+rectangular   2            a, b
 
-<h3>3D Crystal Systems</h3>
+hexagonal     1            a
+
+oblique       3            a, b, gamma
+============  ============ ============
+
+
+3D Crystal Systems
+===================
 
 For three dimensional crystals (dim=3), the parameters a, b, and c 
 are the lengths of the three Bravais lattice vectors, alpha is the 
 angle between b and c, beta is the angle between c and a, and gamma 
 is the angle between a and b. 
 
-<table width="60%">
-<tr>
-<th width="25%">3D systems</th>
-<th width="25%">N_cell_param</th>
-<th            >cell_param</th>
-</tr>
-<tr>
-<td>cubic</td>
-<td>1</td>
-<td>a</td>
-</tr>
-<tr>
-<td>tetragonal</td>
-<td>2</td>
-<td>a, c</td>
-</tr>
-<tr>
-<td>orthorhombic</td>
-<td>3</td>
-<td>a, b, c</td>
-</tr>
-<tr>
-<td>monoclinic</td>
-<td>4</td>
-<td>a, b, c, beta</td>
-</tr>
-<tr>
-<td>hexagonal</td>
-<td>2</td>
-<td>a, c</td>
-</tr>
-<tr>
-<td>trigonal</td>
-<td>2</td>
-<td>a, alpha</td>
-</tr>
-<tr>
-<td>triclinic</td>
-<td>6</td>
-<td>a, b, c alpha, beta, gamma</td>
-</tr>
-</table>
+============= ============ ============================
+3D systems    N_cell_param cell_param
+============= ============ ============================
+cubic         1            a
+tetragonal    2            a, c
+orthorhombic  3            a, b, c
+monoclinic    4            a, b, c, beta
+hexagonal     2            a, c
+trigonal      2            a, alpha
+triclinic     6            a, b, c alpha, beta, gamma
+============= ============ ============================
 

@@ -16,6 +16,8 @@ Contents:
    usage
    script
    field
+   lattice
+   groups
 
 
 Indices and tables

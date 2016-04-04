@@ -1,314 +1,317 @@
-
+**************
+Space Groups
+**************
 
 The symbol for a space group may be entered as the value of "space_group"
 in the BASIS section of the input script. The tables below list the allowed 
 space group symbols. 
 
+===============
+1D Space Groups
+===============
 
-<hr/> 
-
-
-<h3>1D Space Groups</h3>
-<table width="60%">
-<tr><th width="30%"> Number </th><th width="70%"> Symbol </th></tr>
-<tr><td>  1 </td><td> -1 </td></tr>
-<tr><td>  2 </td><td>  1 </td></tr>
-</table>
-
-
-<hr/> 
+======== ======  =================
+Number   Symbol  Comments
+======== ======  =================
+1        -1      Inversion symmetry
+2         1      No symmetry
+======== ======  =================
 
 
+===============
+2D Space Groups
+===============
 
-<h3>2D Space Groups</h3>
-<table width="60%">
-<tr><th width="30%"> Number </th><th width="70%"> Symbol </th></tr>
-<tr><td>  1 </td><td> p 1 </td><td>oblique</td></tr>
-<tr><td>  2 </td><td> p 2 </td><td>oblique</td></tr>
-<tr><td>  3 </td><td> p m </td><td>rectangular</td></tr>
-<tr><td>  4 </td><td> p g </td><td>rectangular</td></tr>
-<tr><td>  5 </td><td> c m </td><td>rectangular</td></tr>
-<tr><td>  6 </td><td> p 2 m m </td><td>rectangular</td></tr>
-<tr><td>  7 </td><td> p 2 m g </td><td>rectangular</td></tr>
-<tr><td>  8 </td><td> p 2 g g </td><td>rectangular</td></tr>
-<tr><td>  9 </td><td> c 2 m m </td><td>rectangular</td></tr>
-<tr><td> 10 </td><td> p 4 </td><td>square</td></tr>
-<tr><td> 11 </td><td> p 4 m m </td><td>square</td></tr>
-<tr><td> 12 </td><td> p 4 g m </td><td>square</td></tr>
-<tr><td> 13 </td><td> p 3 </td><td>hexagonal</td></tr>
-<tr><td> 14 </td><td> p 3 m 1 </td><td>hexagonal</td></tr>
-<tr><td> 15 </td><td> p 3 1 m </td><td>hexagonal</td></tr>
-<tr><td> 16 </td><td> p 6 </td><td>hexagonal</td></tr>
-<tr><td> 17 </td><td> p 6 m m </td><td>hexagonal</td></tr>
-</table>
+ ====== ======== ==============
+ Number Symbol   Lattice System
+ ====== ======== ==============
+ 1      p 1      oblique
+ 2      p 2      oblique
+ 3      p m      rectangular
+ 4      p g      rectangular
+ 5      c m      rectangular
+ 6      p 2 m m  rectangular
+ 7      p 2 m g  rectangular
+ 8      p 2 g g  rectangular
+ 9      c 2 m m  rectangular
+ 10     p 4      square
+ 11     p 4 m m  square
+ 12     p 4 g m  square
+ 13     p 3      hexagonal
+ 14     p 3 m 1  hexagonal
+ 15     p 3 1 m  hexagonal
+ 16     p 6      hexagonal
+ 17     p 6 m m  hexagonal
+ ====== ======== ==============
+
+===============
+3D Space Groups
+===============
 
 
-<hr/> 
-
-
-<h3>3D Space Groups</h3>
-<table width="60%">
-<tr><th width="30%"> Number </th><th width="70%"> Symbol </th></tr>
-<tr><td>  1 </td><td> P 1 </td></tr>
-<tr><td>  2 </td><td> P -1 </td></tr>
-<tr><td>  3 </td><td> P 1 2 1 </td></tr>
-<tr><td>  4 </td><td> P 1 21 1 </td></tr>
-<tr><td>  5 </td><td> C 1 2 1 </td></tr>
-<tr><td>  6 </td><td> P 1 m 1 </td></tr>
-<tr><td>  7 </td><td> P 1 c 1 </td></tr>
-<tr><td>  8 </td><td> C 1 m 1 </td></tr>
-<tr><td>  9 </td><td> C 1 c 1 </td></tr>
-<tr><td> 10 </td><td> P 1 2/m 1 </td></tr>
-<tr><td> 11 </td><td> P 1 21/m 1 </td></tr>
-<tr><td> 12 </td><td> C 1 2/m 1 </td></tr>
-<tr><td> 13 </td><td> P 1 2/c 1 </td></tr>
-<tr><td> 14 </td><td> P 1 21/c 1 </td></tr>
-<tr><td> 15 </td><td> C 1 2/c 1 </td></tr>
-<tr><td> 16 </td><td> P 2 2 2 </td></tr>
-<tr><td> 17 </td><td> P 2 2 21 </td></tr>
-<tr><td> 18 </td><td> P 21 21 2 </td></tr>
-<tr><td> 19 </td><td> P 21 21 21 </td></tr>
-<tr><td> 20 </td><td> C 2 2 21 </td></tr>
-<tr><td> 21 </td><td> C 2 2 2 </td></tr>
-<tr><td> 22 </td><td> F 2 2 2 </td></tr>
-<tr><td> 23 </td><td> I 2 2 2 </td></tr>
-<tr><td> 24 </td><td> I 21 21 21 </td></tr>
-<tr><td> 25 </td><td> P m m 2 </td></tr>
-<tr><td> 26 </td><td> P m c 21 </td></tr>
-<tr><td> 27 </td><td> P c c 2 </td></tr>
-<tr><td> 28 </td><td> P m a 2 </td></tr>
-<tr><td> 29 </td><td> P c a 21 </td></tr>
-<tr><td> 30 </td><td> P n c 2 </td></tr>
-<tr><td> 31 </td><td> P m n 21 </td></tr>
-<tr><td> 32 </td><td> P b a 2 </td></tr>
-<tr><td> 33 </td><td> P n a 21 </td></tr>
-<tr><td> 34 </td><td> P n n 2 </td></tr>
-<tr><td> 35 </td><td> C m m 2 </td></tr>
-<tr><td> 36 </td><td> C m c 21 </td></tr>
-<tr><td> 37 </td><td> C c c 2 </td></tr>
-<tr><td> 38 </td><td> A m m 2 </td></tr>
-<tr><td> 39 </td><td> A b m 2 </td></tr>
-<tr><td> 40 </td><td> A m a 2 </td></tr>
-<tr><td> 41 </td><td> A b a 2 </td></tr>
-<tr><td> 42 </td><td> F m m 2 </td></tr>
-<tr><td> 43 </td><td> F d d 2 </td></tr>
-<tr><td> 44 </td><td> I m m 2 </td></tr>
-<tr><td> 45 </td><td> I b a 2 </td></tr>
-<tr><td> 46 </td><td> I m a 2 </td></tr>
-<tr><td> 47 </td><td> P m m m </td></tr>
-<tr><td> 48 </td><td> P n n n : 2 </td></tr>
-<tr><td> 48 </td><td> P n n n : 1 </td></tr>
-<tr><td> 49 </td><td> P c c m </td></tr>
-<tr><td> 50 </td><td> P b a n : 2 </td></tr>
-<tr><td> 50 </td><td> P b a n : 1 </td></tr>
-<tr><td> 51 </td><td> P m m a </td></tr>
-<tr><td> 52 </td><td> P n n a </td></tr>
-<tr><td> 53 </td><td> P m n a </td></tr>
-<tr><td> 54 </td><td> P c c a </td></tr>
-<tr><td> 55 </td><td> P b a m </td></tr>
-<tr><td> 56 </td><td> P c c n </td></tr>
-<tr><td> 57 </td><td> P b c m </td></tr>
-<tr><td> 58 </td><td> P n n m </td></tr>
-<tr><td> 59 </td><td> P m m n : 2 </td></tr>
-<tr><td> 59 </td><td> P m m n : 1 </td></tr>
-<tr><td> 60 </td><td> P b c n </td></tr>
-<tr><td> 61 </td><td> P b c a </td></tr>
-<tr><td> 62 </td><td> P n m a </td></tr>
-<tr><td> 63 </td><td> C m c m </td></tr>
-<tr><td> 64 </td><td> C m c a </td></tr>
-<tr><td> 65 </td><td> C m m m </td></tr>
-<tr><td> 66 </td><td> C c c m </td></tr>
-<tr><td> 67 </td><td> C m m a </td></tr>
-<tr><td> 68 </td><td> C c c a : 2 </td></tr>
-<tr><td> 68 </td><td> C c c a : 1 </td></tr>
-<tr><td> 69 </td><td> F m m m </td></tr>
-<tr><td> 70 </td><td> F d d d : 2 </td></tr>
-<tr><td> 70 </td><td> F d d d : 1 </td></tr>
-<tr><td> 71 </td><td> I m m m </td></tr>
-<tr><td> 72 </td><td> I b a m </td></tr>
-<tr><td> 73 </td><td> I b c a </td></tr>
-<tr><td> 74 </td><td> I m m a </td></tr>
-<tr><td> 75 </td><td> P 4 </td></tr>
-<tr><td> 76 </td><td> P 41 </td></tr>
-<tr><td> 77 </td><td> P 42 </td></tr>
-<tr><td> 78 </td><td> P 43 </td></tr>
-<tr><td> 79 </td><td> I 4 </td></tr>
-<tr><td> 80 </td><td> I 41 </td></tr>
-<tr><td> 81 </td><td> P -4 </td></tr>
-<tr><td> 82 </td><td> I -4 </td></tr>
-<tr><td> 83 </td><td> P 4/m </td></tr>
-<tr><td> 84 </td><td> P 42/m </td></tr>
-<tr><td> 85 </td><td> P 4/n : 2 </td></tr>
-<tr><td> 85 </td><td> P 4/n : 1 </td></tr>
-<tr><td> 86 </td><td> P 42/n : 2 </td></tr>
-<tr><td> 86 </td><td> P 42/n : 1 </td></tr>
-<tr><td> 87 </td><td> I 4/m </td></tr>
-<tr><td> 88 </td><td> I 41/a : 2 </td></tr>
-<tr><td> 88 </td><td> I 41/a : 1 </td></tr>
-<tr><td> 89 </td><td> P 4 2 2 </td></tr>
-<tr><td> 90 </td><td> P 4 21 2 </td></tr>
-<tr><td> 91 </td><td> P 41 2 2 </td></tr>
-<tr><td> 92 </td><td> P 41 21 2 </td></tr>
-<tr><td> 93 </td><td> P 42 2 2 </td></tr>
-<tr><td> 94 </td><td> P 42 21 2 </td></tr>
-<tr><td> 95 </td><td> P 43 2 2 </td></tr>
-<tr><td> 96 </td><td> P 43 21 2 </td></tr>
-<tr><td> 97 </td><td> I 4 2 2 </td></tr>
-<tr><td> 98 </td><td> I 41 2 2 </td></tr>
-<tr><td> 99 </td><td> P 4 m m </td></tr>
-<tr><td>100 </td><td> P 4 b m </td></tr>
-<tr><td>101 </td><td> P 42 c m </td></tr>
-<tr><td>102 </td><td> P 42 n m </td></tr>
-<tr><td>103 </td><td> P 4 c c </td></tr>
-<tr><td>104 </td><td> P 4 n c </td></tr>
-<tr><td>105 </td><td> P 42 m c </td></tr>
-<tr><td>106 </td><td> P 42 b c </td></tr>
-<tr><td>107 </td><td> I 4 m m </td></tr>
-<tr><td>108 </td><td> I 4 c m </td></tr>
-<tr><td>109 </td><td> I 41 m d </td></tr>
-<tr><td>110 </td><td> I 41 c d </td></tr>
-<tr><td>111 </td><td> P -4 2 m </td></tr>
-<tr><td>112 </td><td> P -4 2 c </td></tr>
-<tr><td>113 </td><td> P -4 21 m </td></tr>
-<tr><td>114 </td><td> P -4 21 c </td></tr>
-<tr><td>115 </td><td> P -4 m 2 </td></tr>
-<tr><td>116 </td><td> P -4 c 2 </td></tr>
-<tr><td>117 </td><td> P -4 b 2 </td></tr>
-<tr><td>118 </td><td> P -4 n 2 </td></tr>
-<tr><td>119 </td><td> I -4 m 2 </td></tr>
-<tr><td>120 </td><td> I -4 c 2 </td></tr>
-<tr><td>121 </td><td> I -4 2 m </td></tr>
-<tr><td>122 </td><td> I -4 2 d </td></tr>
-<tr><td>123 </td><td> P 4/m m m </td></tr>
-<tr><td>124 </td><td> P 4/m c c </td></tr>
-<tr><td>125 </td><td> P 4/n b m : 2 </td></tr>
-<tr><td>125 </td><td> P 4/n b m : 1 </td></tr>
-<tr><td>126 </td><td> P 4/n n c : 2 </td></tr>
-<tr><td>126 </td><td> P 4/n n c : 1 </td></tr>
-<tr><td>127 </td><td> P 4/m b m </td></tr>
-<tr><td>128 </td><td> P 4/m n c </td></tr>
-<tr><td>129 </td><td> P 4/n m m : 2 </td></tr>
-<tr><td>129 </td><td> P 4/n m m : 1 </td></tr>
-<tr><td>130 </td><td> P 4/n c c : 2 </td></tr>
-<tr><td>130 </td><td> P 4/n c c : 1 </td></tr>
-<tr><td>131 </td><td> P 42/m m c </td></tr>
-<tr><td>132 </td><td> P 42/m c m </td></tr>
-<tr><td>133 </td><td> P 42/n b c : 2 </td></tr>
-<tr><td>133 </td><td> P 42/n b c : 1 </td></tr>
-<tr><td>134 </td><td> P 42/n n m : 2 </td></tr>
-<tr><td>134 </td><td> P 42/n n m : 1 </td></tr>
-<tr><td>135 </td><td> P 42/m b c </td></tr>
-<tr><td>136 </td><td> P 42/m n m </td></tr>
-<tr><td>137 </td><td> P 42/n m c : 2 </td></tr>
-<tr><td>137 </td><td> P 42/n m c : 1 </td></tr>
-<tr><td>138 </td><td> P 42/n c m : 2 </td></tr>
-<tr><td>138 </td><td> P 42/n c m : 1 </td></tr>
-<tr><td>139 </td><td> I 4/m m m </td></tr>
-<tr><td>140 </td><td> I 4/m c m </td></tr>
-<tr><td>141 </td><td> I 41/a m d : 2 </td></tr>
-<tr><td>141 </td><td> I 41/a m d : 1 </td></tr>
-<tr><td>142 </td><td> I 41/a c d : 2 </td></tr>
-<tr><td>142 </td><td> I 41/a c d : 1 </td></tr>
-<tr><td>143 </td><td> P 3 </td></tr>
-<tr><td>144 </td><td> P 31 </td></tr>
-<tr><td>145 </td><td> P 32 </td></tr>
-<tr><td>146 </td><td> R 3 : H </td></tr>
-<tr><td>146 </td><td> R 3 : R </td></tr>
-<tr><td>147 </td><td> P -3 </td></tr>
-<tr><td>148 </td><td> R -3 : H </td></tr>
-<tr><td>148 </td><td> R -3 : R </td></tr>
-<tr><td>149 </td><td> P 3 1 2 </td></tr>
-<tr><td>150 </td><td> P 3 2 1 </td></tr>
-<tr><td>151 </td><td> P 31 1 2 </td></tr>
-<tr><td>152 </td><td> P 31 2 1 </td></tr>
-<tr><td>153 </td><td> P 32 1 2 </td></tr>
-<tr><td>154 </td><td> P 32 2 1 </td></tr>
-<tr><td>155 </td><td> R 3 2 : H </td></tr>
-<tr><td>155 </td><td> R 3 2 : R </td></tr>
-<tr><td>156 </td><td> P 3 m 1 </td></tr>
-<tr><td>157 </td><td> P 3 1 m </td></tr>
-<tr><td>158 </td><td> P 3 c 1 </td></tr>
-<tr><td>159 </td><td> P 3 1 c </td></tr>
-<tr><td>160 </td><td> R 3 m : H </td></tr>
-<tr><td>160 </td><td> R 3 m : R </td></tr>
-<tr><td>161 </td><td> R 3 c : H </td></tr>
-<tr><td>161 </td><td> R 3 c : R </td></tr>
-<tr><td>162 </td><td> P -3 1 m </td></tr>
-<tr><td>163 </td><td> P -3 1 c </td></tr>
-<tr><td>164 </td><td> P -3 m 1 </td></tr>
-<tr><td>165 </td><td> P -3 c 1 </td></tr>
-<tr><td>166 </td><td> R -3 m : H </td></tr>
-<tr><td>166 </td><td> R -3 m : R </td></tr>
-<tr><td>167 </td><td> R -3 c : H </td></tr>
-<tr><td>167 </td><td> R -3 c : R </td></tr>
-<tr><td>168 </td><td> P 6 </td></tr>
-<tr><td>169 </td><td> P 61 </td></tr>
-<tr><td>170 </td><td> P 65 </td></tr>
-<tr><td>171 </td><td> P 62 </td></tr>
-<tr><td>172 </td><td> P 64 </td></tr>
-<tr><td>173 </td><td> P 63 </td></tr>
-<tr><td>174 </td><td> P -6 </td></tr>
-<tr><td>175 </td><td> P 6/m </td></tr>
-<tr><td>176 </td><td> P 63/m </td></tr>
-<tr><td>177 </td><td> P 6 2 2 </td></tr>
-<tr><td>178 </td><td> P 61 2 2 </td></tr>
-<tr><td>179 </td><td> P 65 2 2 </td></tr>
-<tr><td>180 </td><td> P 62 2 2 </td></tr>
-<tr><td>181 </td><td> P 64 2 2 </td></tr>
-<tr><td>182 </td><td> P 63 2 2 </td></tr>
-<tr><td>183 </td><td> P 6 m m </td></tr>
-<tr><td>184 </td><td> P 6 c c </td></tr>
-<tr><td>185 </td><td> P 63 c m </td></tr>
-<tr><td>186 </td><td> P 63 m c </td></tr>
-<tr><td>187 </td><td> P -6 m 2 </td></tr>
-<tr><td>188 </td><td> P -6 c 2 </td></tr>
-<tr><td>189 </td><td> P -6 2 m </td></tr>
-<tr><td>190 </td><td> P -6 2 c </td></tr>
-<tr><td>191 </td><td> P 6/m m m </td></tr>
-<tr><td>192 </td><td> P 6/m c c </td></tr>
-<tr><td>193 </td><td> P 63/m c m </td></tr>
-<tr><td>194 </td><td> P 63/m m c </td></tr>
-<tr><td>195 </td><td> P 2 3 </td></tr>
-<tr><td>196 </td><td> F 2 3 </td></tr>
-<tr><td>197 </td><td> I 2 3 </td></tr>
-<tr><td>198 </td><td> P 21 3 </td></tr>
-<tr><td>199 </td><td> I 21 3 </td></tr>
-<tr><td>200 </td><td> P m -3 </td></tr>
-<tr><td>201 </td><td> P n -3 : 2 </td></tr>
-<tr><td>201 </td><td> P n -3 : 1 </td></tr>
-<tr><td>202 </td><td> F m -3 </td></tr>
-<tr><td>203 </td><td> F d -3 : 2 </td></tr>
-<tr><td>203 </td><td> F d -3 : 1 </td></tr>
-<tr><td>204 </td><td> I m -3 </td></tr>
-<tr><td>205 </td><td> P a -3 </td></tr>
-<tr><td>206 </td><td> I a -3 </td></tr>
-<tr><td>207 </td><td> P 4 3 2 </td></tr>
-<tr><td>208 </td><td> P 42 3 2 </td></tr>
-<tr><td>209 </td><td> F 4 3 2 </td></tr>
-<tr><td>210 </td><td> F 41 3 2 </td></tr>
-<tr><td>211 </td><td> I 4 3 2 </td></tr>
-<tr><td>212 </td><td> P 43 3 2 </td></tr>
-<tr><td>213 </td><td> P 41 3 2 </td></tr>
-<tr><td>214 </td><td> I 41 3 2 </td></tr>
-<tr><td>215 </td><td> P -4 3 m </td></tr>
-<tr><td>216 </td><td> F -4 3 m </td></tr>
-<tr><td>217 </td><td> I -4 3 m </td></tr>
-<tr><td>218 </td><td> P -4 3 n </td></tr>
-<tr><td>219 </td><td> F -4 3 c </td></tr>
-<tr><td>220 </td><td> I -4 3 d </td></tr>
-<tr><td>221 </td><td> P m -3 m </td></tr>
-<tr><td>222 </td><td> P n -3 n : 2 </td></tr>
-<tr><td>222 </td><td> P n -3 n : 1 </td></tr>
-<tr><td>223 </td><td> P m -3 n </td></tr>
-<tr><td>224 </td><td> P n -3 m : 2 </td></tr>
-<tr><td>224 </td><td> P n -3 m : 1 </td></tr>
-<tr><td>225 </td><td> F m -3 m </td></tr>
-<tr><td>226 </td><td> F m -3 c </td></tr>
-<tr><td>227 </td><td> F d -3 m : 2 </td></tr>
-<tr><td>227 </td><td> F d -3 m : 1 </td></tr>
-<tr><td>228 </td><td> F d -3 c : 2 </td></tr>
-<tr><td>228 </td><td> F d -3 c : 1 </td></tr>
-<tr><td>229 </td><td> I m -3 m </td></tr>
-<tr><td>230 </td><td> I a -3 d </td></tr>
-</table>
+ ========  =================
+  Number   Symbol 
+ ========  =================
+    1      P 1 
+    2      P -1 
+    3      P 1 2 1 
+    4      P 1 21 1 
+    5      C 1 2 1 
+    6      P 1 m 1 
+    7      P 1 c 1 
+    8      C 1 m 1 
+    9      C 1 c 1 
+   10      P 1 2/m 1 
+   11      P 1 21/m 1 
+   12      C 1 2/m 1 
+   13      P 1 2/c 1 
+   14      P 1 21/c 1 
+   15      C 1 2/c 1 
+   16      P 2 2 2 
+   17      P 2 2 21 
+   18      P 21 21 2 
+   19      P 21 21 21 
+   20      C 2 2 21 
+   21      C 2 2 2 
+   22      F 2 2 2 
+   23      I 2 2 2 
+   24      I 21 21 21 
+   25      P m m 2 
+   26      P m c 21 
+   27      P c c 2 
+   28      P m a 2 
+   29      P c a 21 
+   30      P n c 2 
+   31      P m n 21 
+   32      P b a 2 
+   33      P n a 21 
+   34      P n n 2 
+   35      C m m 2 
+   36      C m c 21 
+   37      C c c 2 
+   38      A m m 2 
+   39      A b m 2 
+   40      A m a 2 
+   41      A b a 2 
+   42      F m m 2 
+   43      F d d 2 
+   44      I m m 2 
+   45      I b a 2 
+   46      I m a 2 
+   47      P m m m 
+   48      P n n n : 2 
+   48      P n n n : 1 
+   49      P c c m 
+   50      P b a n : 2 
+   50      P b a n : 1 
+   51      P m m a 
+   52      P n n a 
+   53      P m n a 
+   54      P c c a 
+   55      P b a m 
+   56      P c c n 
+   57      P b c m 
+   58      P n n m 
+   59      P m m n : 2 
+   59      P m m n : 1 
+   60      P b c n 
+   61      P b c a 
+   62      P n m a 
+   63      C m c m 
+   64      C m c a 
+   65      C m m m 
+   66      C c c m 
+   67      C m m a 
+   68      C c c a : 2 
+   68      C c c a : 1 
+   69      F m m m 
+   70      F d d d : 2 
+   70      F d d d : 1 
+   71      I m m m 
+   72      I b a m 
+   73      I b c a 
+   74      I m m a 
+   75      P 4 
+   76      P 41 
+   77      P 42 
+   78      P 43 
+   79      I 4 
+   80      I 41 
+   81      P -4 
+   82      I -4 
+   83      P 4/m 
+   84      P 42/m 
+   85      P 4/n : 2 
+   85      P 4/n : 1 
+   86      P 42/n : 2 
+   86      P 42/n : 1 
+   87      I 4/m 
+   88      I 41/a : 2 
+   88      I 41/a : 1 
+   89      P 4 2 2 
+   90      P 4 21 2 
+   91      P 41 2 2 
+   92      P 41 21 2 
+   93      P 42 2 2 
+   94      P 42 21 2 
+   95      P 43 2 2 
+   96      P 43 21 2 
+   97      I 4 2 2 
+   98      I 41 2 2 
+   99      P 4 m m 
+  100      P 4 b m 
+  101      P 42 c m 
+  102      P 42 n m 
+  103      P 4 c c 
+  104      P 4 n c 
+  105      P 42 m c 
+  106      P 42 b c 
+  107      I 4 m m 
+  108      I 4 c m 
+  109      I 41 m d 
+  110      I 41 c d 
+  111      P -4 2 m 
+  112      P -4 2 c 
+  113      P -4 21 m 
+  114      P -4 21 c 
+  115      P -4 m 2 
+  116      P -4 c 2 
+  117      P -4 b 2 
+  118      P -4 n 2 
+  119      I -4 m 2 
+  120      I -4 c 2 
+  121      I -4 2 m 
+  122      I -4 2 d 
+  123      P 4/m m m 
+  124      P 4/m c c 
+  125      P 4/n b m : 2 
+  125      P 4/n b m : 1 
+  126      P 4/n n c : 2 
+  126      P 4/n n c : 1 
+  127      P 4/m b m 
+  128      P 4/m n c 
+  129      P 4/n m m : 2 
+  129      P 4/n m m : 1 
+  130      P 4/n c c : 2 
+  130      P 4/n c c : 1 
+  131      P 42/m m c 
+  132      P 42/m c m 
+  133      P 42/n b c : 2 
+  133      P 42/n b c : 1 
+  134      P 42/n n m : 2 
+  134      P 42/n n m : 1 
+  135      P 42/m b c 
+  136      P 42/m n m 
+  137      P 42/n m c : 2 
+  137      P 42/n m c : 1 
+  138      P 42/n c m : 2 
+  138      P 42/n c m : 1 
+  139      I 4/m m m 
+  140      I 4/m c m 
+  141      I 41/a m d : 2 
+  141      I 41/a m d : 1 
+  142      I 41/a c d : 2 
+  142      I 41/a c d : 1 
+  143      P 3 
+  144      P 31 
+  145      P 32 
+  146      R 3 : H 
+  146      R 3 : R 
+  147      P -3 
+  148      R -3 : H 
+  148      R -3 : R 
+  149      P 3 1 2 
+  150      P 3 2 1 
+  151      P 31 1 2 
+  152      P 31 2 1 
+  153      P 32 1 2 
+  154      P 32 2 1 
+  155      R 3 2 : H 
+  155      R 3 2 : R 
+  156      P 3 m 1 
+  157      P 3 1 m 
+  158      P 3 c 1 
+  159      P 3 1 c 
+  160      R 3 m : H 
+  160      R 3 m : R 
+  161      R 3 c : H 
+  161      R 3 c : R 
+  162      P -3 1 m 
+  163      P -3 1 c 
+  164      P -3 m 1 
+  165      P -3 c 1 
+  166      R -3 m : H 
+  166      R -3 m : R 
+  167      R -3 c : H 
+  167      R -3 c : R 
+  168      P 6 
+  169      P 61 
+  170      P 65 
+  171      P 62 
+  172      P 64 
+  173      P 63 
+  174      P -6 
+  175      P 6/m 
+  176      P 63/m 
+  177      P 6 2 2 
+  178      P 61 2 2 
+  179      P 65 2 2 
+  180      P 62 2 2 
+  181      P 64 2 2 
+  182      P 63 2 2 
+  183      P 6 m m 
+  184      P 6 c c 
+  185      P 63 c m 
+  186      P 63 m c 
+  187      P -6 m 2 
+  188      P -6 c 2 
+  189      P -6 2 m 
+  190      P -6 2 c 
+  191      P 6/m m m 
+  192      P 6/m c c 
+  193      P 63/m c m 
+  194      P 63/m m c 
+  195      P 2 3 
+  196      F 2 3 
+  197      I 2 3 
+  198      P 21 3 
+  199      I 21 3 
+  200      P m -3 
+  201      P n -3 : 2 
+  201      P n -3 : 1 
+  202      F m -3 
+  203      F d -3 : 2 
+  203      F d -3 : 1 
+  204      I m -3 
+  205      P a -3 
+  206      I a -3 
+  207      P 4 3 2 
+  208      P 42 3 2 
+  209      F 4 3 2 
+  210      F 41 3 2 
+  211      I 4 3 2 
+  212      P 43 3 2 
+  213      P 41 3 2 
+  214      I 41 3 2 
+  215      P -4 3 m 
+  216      F -4 3 m 
+  217      I -4 3 m 
+  218      P -4 3 n 
+  219      F -4 3 c 
+  220      I -4 3 d 
+  221      P m -3 m 
+  222      P n -3 n : 2 
+  222      P n -3 n : 1 
+  223      P m -3 n 
+  224      P n -3 m : 2 
+  224      P n -3 m : 1 
+  225      F m -3 m 
+  226      F m -3 c 
+  227      F d -3 m : 2 
+  227      F d -3 m : 1 
+  228      F d -3 c : 2 
+  228      F d -3 c : 1 
+  229      I m -3 m 
+  230      I a -3 d 
+ ========  =================
 
