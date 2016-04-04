@@ -1,0 +1,32 @@
+
+
+
+General: Python modules should be separated from executable scripts, 
+rather than having both in a single file, since they should be installed 
+in different locations.
+
+Notes on where components should be installed as if installed in site
+directories (rather than user) directories:
+
+MAC OSX
+-------
+
+Python modules: /Library/python/2.7/site-packages/pscf
+
+       (Note change scripts to use 2.7, rather than 2.4)
+
+Double clickable executable: Can be installed in Applications
+
+Command line executable: Symlink from /usr/local/bin to executable
+in Applications.
+
+Matlab:           ????????
+Linux
+-----
+
+Executables:      /usr/local/bin
+
+Python modules:   /usr/local/lib/python2.7/site-packages/pscf/
+
+Matlab:           ????????
+

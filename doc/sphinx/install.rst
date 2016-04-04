@@ -40,9 +40,9 @@ directory structure of your Mac, and from which you can invoke the pscf command.
 Ubuntu or Debian Linux
 ----------------------
 
-The Ubuntu and Debian distributions of the linux operating systems both use package
-management systems that use deb package file format, with the .deb extension. To
-install on Ubuntu or Debian:
+The Ubuntu and Debian distributions of the linux operating systems both use 
+package management systems that use deb package file format, with the .deb 
+extension. To install on Ubuntu or Debian:
 
   * Download the pscf<version>.deb package from the PSCF home page
 
@@ -53,10 +53,10 @@ install on Ubuntu or Debian:
 Fedora / Redhat Linux
 ---------------------
 
-The Fedora distributions of the linux operating systems uses a package management 
-systems that use package files with .rpm extension. Instructions are similar to
-those for Ubuntu/Debian, except for the use of a different package file format and
-package manager. In this case:
+Fedora and Redhat distributions of the linux operating systems use package 
+management systems that use .rpm package files. Instructions are similar to
+those for Ubuntu/Debian, except for the use of a different package file 
+format and package manager. In this case:
 
   * Download the pscf<version>.rpm package from the PSCF home page
 
@@ -85,11 +85,11 @@ The following software packages must be installed and accessible before
 attempting to compile PSCF if you plan on using git to obtain the source
 code and cmake to build the software:
 
-1) git (in order to clone the source code)
-1) cmake (to build a makefile)
-2) a fortran 90 compiler 
-3) LAPACK linear algebra library
-4) FFTW version 3.x fast fourier transform library
+   * git (in order to clone the source code)
+   * cmake (to build a makefile)
+   * a fortran 90 compiler 
+   * LAPACK linear algebra library
+   * FFTW version 3.x fast fourier transform library
 
 In what follows we give instructions for how to build pscf on different
 opeating systems. Instructions for most systems assume that you will use 
@@ -113,18 +113,19 @@ the BLAS library upon which it depends.
 Package Managers: HomeBrew vs. MacPorts
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The remaining dependencies (cmake, gfortran and fftw) can be most easily installed 
-using either the MacPorts or Homebrew package manager systems.  These are both 
-systems for managing open-source unix software on Darwin unix subsystem of the 
-Mac OSX.  The choice of package managers is up to you, but you should avoid using 
-both on the same machine.  We also recommend against using the older Fink manager, 
-which is obsolete.  If either Homebrew or MacPorts is already installed and in use 
-on your Mac, use the existing system and do not install the alternative, because 
-they do not play well together.  If neither Homebrew or MacPorts is installed, we
-have slight preference for Homebrew, which made it slightly easier to install the
-dependencies required by PSCF. We have succeeded in building PSCF using both 
-package managers on different machines that were running the Max OSX 10.11.
-Instructions for both systems are given separately below.
+The remaining dependencies (cmake, gfortran and fftw) can be most easily 
+installed using either the MacPorts or Homebrew package manager systems.  
+These are both systems for managing open-source unix software on the unix 
+subsystem of the Mac OSX.  The choice of package managers is up to you, 
+but you should avoid using both on the same machine.  If either Homebrew 
+or MacPorts is already installed and in use on your Mac, use the existing 
+system and do not install the alternative, because they do not play well 
+together.  If neither Homebrew or MacPorts is installed, we have slight 
+preference for Homebrew, which made it slightly easier to install the
+dependencies required by PSCF. We have succeeded in building PSCF using 
+both package managers on different machines that were running the latest
+version of Mac OS X (El Capitan, X 10.11) Instructions for both package
+managers are given separately below.
 
 Installing dependencies via Homebrew
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -133,7 +134,7 @@ To install from a command line terminal using homebrew::
 
    > brew install cmake
    > brew install gcc --with-fortran
-   > brew install fftw 
+   > brew install fftw --with-fortran
 
 Installing dependencies via Macports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -147,8 +148,8 @@ which is gcc 5.X at the time of writing, enter::
    > sudo port install fftw-3 +gfortran
 
 Note that MacPorts (unlike homebrew) requires you to use "sudo"
-to execute installation as the superuser, and thus will ask for
-a password after each of the above commands.
+to execute installation with superuser/administrator privileges, 
+and thus will ask for a password after each of the above commands.
 
 We found that the gcc-5 port installs the gfortran Fortran 90 
 compiler at /usr/opt/local/bin/gfortran-mp-5 . Versions compiled 

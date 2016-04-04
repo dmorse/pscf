@@ -1,7 +1,7 @@
-##################################################
+#####################################################################
 PSCF and Libraries are Covered by the GNU General Public License
-------------------------------------------------------------
-PSCF is Copyright © 2007 David Morse, University of Minnesota Twin Cities.
+---------------------------------------------------------------------
+PSCF is Copyright © 2007-2016 Regents of the University of Minnesota. It was developed primarily in the group of David Morse in the Dept. of Chemical Engineering and Materials Science.
 
 PSCF is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 
@@ -10,9 +10,13 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA You can also find the GPL on the GNU web site.
 
 In addition, we kindly ask you to acknowledge PSCF and its authors in any program or publication in which you use PSCF. 
-##################################################
 
-##################################################
+In publications based on research that used PSCF, please cite the following article:
+
+"Broadly Accessible SCFT for Block Polymer Materials", A. Arora, J. Qin, D.C. Morse, K. Delaney, G.H. Fredrickson, F. Bates and K. Dorfman, Macromolecules (2016).
+#############################################################################
+
+#############################################################################
 GFORTRAN/GCC Libraries (libquadmath, libgcc_s, libgfortran) are Covered by the GNU General Public License (copied from https://gcc.gnu.org/onlinedocs/gfortran/Copying.html)
 ------------------------------------------------------------
 GNU General Public License
@@ -202,7 +206,6 @@ Interpretation of Sections 15 and 16.
 If the disclaimer of warranty and limitation of liability provided above cannot be given local legal effect according to their terms, reviewing courts shall apply local law that most closely approximates an absolute waiver of all civil liability in connection with the Program, unless a warranty or assumption of liability accompanies a copy of the Program in return for a fee.
 ##################################################
 
-
 ##################################################
 FFTW Libraries are also Covered by the GNU General Public License (copied from http://www.fftw.org/doc/License-and-Copyright.html)
 ------------------------------------------------------------
@@ -219,4 +222,4 @@ You should have received a copy of the GNU General Public License along with thi
 In addition, we kindly ask you to acknowledge FFTW and its authors in any program or publication in which you use FFTW. (You are not required to do so; it is up to your common sense to decide whether you want to comply with this request or not.) For general publications, we suggest referencing: Matteo Frigo and Steven G. Johnson, “The design and implementation of FFTW3,” Proc. IEEE 93 (2), 216–231 (2005).
 
 Non-free versions of FFTW are available under terms different from those of the General Public License. (e.g. they do not require you to accompany any object code using FFTW with the corresponding source code.) For these alternative terms you must purchase a license from MIT's Technology Licensing Office. Users interested in such a license should contact us (fftw@fftw.org) for more information.
-##################################################
+#####################################################################

@@ -1,6 +1,6 @@
 !-----------------------------------------------------------------------
 ! PSCF - Polymer Self-Consistent Field Theory
-! Copyright (2007) David C. Morse
+! Copyright (2007-2016) Regents of the University of Minnesota
 ! email: morse@cems.umn.edu
 !
 ! This program is free software; you can redistribute it and/or modify
