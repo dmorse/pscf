@@ -27,11 +27,11 @@ Mac OSX
 The simplest way to install PSCF on a Mac is to use the Mac installer. The 
 procedure is similar to that for installing any other application on a Mac:
 
-  * Download the Mac installer for PSCF from ....
+  * Download the Mac pscf<version>.dmg installer from the PSCF home page
 
   * Double click on the installer file
 
-  * Drag the file pscf_terminal application ... into the applications folder.
+  * Drag the file pscf_terminal application into the applications folder.
 
 Double clicking the pscf_terminal application will open up a yellow terminal
 window from which you can use standard unix commands to navigate within the
@@ -44,33 +44,25 @@ The Ubuntu and Debian distributions of the linux operating systems both use pack
 management systems that use deb package file format, with the *.deb extension. To
 install on Ubuntu or Debian:
 
-  * Download the pscf<version>.deb package for PSCF from ....
+  * Download the pscf<version>.deb package from the PSCF home page
 
-  * Untar into opt/ 
+  * Install the package by running::
 
-  * Make the executable accessible.
+       dpkg -i pscf<version>.deb
 
 Fedora / Redhat Linux
 ---------------------
 
 The Fedora distributions of the linux operating systems uses a package management 
 systems that use package files with *.rpm extension. Instructions are similar to
-that for Ubuntu/Debian, except for the use of a different package file format and
+those for Ubuntu/Debian, except for the use of a different package file format and
 package manager. In this case:
 
-  * Download the rpm package for PSCF from ....
+  * Download the pscf<version>.rpm package from the PSCF home page
 
-  * Untar into opt/ 
+  * To install, enter::
 
-  * Make the executable accessible.
-
-
-  * Download the Mac installer from ....
-
-  * double click on the installer.
-
-  * drag the file ... into the applications folder.
-
+        sudo rpm -Uvh pscf<version>.rpm
 
 Compiling from Source
 =====================
