@@ -41,7 +41,7 @@ Ubuntu or Debian Linux
 ----------------------
 
 The Ubuntu and Debian distributions of the linux operating systems both use package
-management systems that use deb package file format, with the *.deb extension. To
+management systems that use deb package file format, with the .deb extension. To
 install on Ubuntu or Debian:
 
   * Download the pscf<version>.deb package from the PSCF home page
@@ -54,7 +54,7 @@ Fedora / Redhat Linux
 ---------------------
 
 The Fedora distributions of the linux operating systems uses a package management 
-systems that use package files with *.rpm extension. Instructions are similar to
+systems that use package files with .rpm extension. Instructions are similar to
 those for Ubuntu/Debian, except for the use of a different package file format and
 package manager. In this case:
 
@@ -200,8 +200,8 @@ at the build directory (e.g., pscf-build). The final
 pscf executable is self-contained and can be copied to 
 wherever you want after it is created.
 
-For developers: To build a Mac OSX *.dmg binary installer,
-as well as *.tar and *.zip source code archive files, when
+For developers: To build a Mac OSX .dmg binary installer,
+as well as .tar and .zip source code archive files, when
 working on a Mac, after completing compilation and 
 installation, enter::
 
@@ -244,11 +244,11 @@ Wherever you install the executable file, you will need to make sure that direct
 containing the executable (or a symlink to the executable) is in the bash PATH variable,
 so that the operating system can find the executable when it is invoked by name.
 
-Developers: To build *.deb package for installation of binary executables on other Ubuntu and debian systems, as well as *.tar and *.zip source code archives, after installing on your machine, simply enter::
+Developers: To build .deb package for installation of binary executables on other Ubuntu and debian systems, as well as .tar and .zip source code archives, after installing on your machine, simply enter::
 
    > make package
 
-To check the *.deb file for semi-detailed information::
+To check the .deb file for semi-detailed information::
 
     # This extracts multiple files
     ar -vx pscf-1.0.0-Linux.deb
@@ -280,8 +280,8 @@ To install these packages from the command line, enter::
 Instructions for obtaining source code, compiling and installing
 are the same as for Max OSX and Ubuntu.
 
-Developers: On a Fedora machine, you can build a *.rpm package
-and *.tar and *.zip archives by entering::
+Developers: On a Fedora machine, you can build a .rpm package
+and .tar and .zip archives by entering::
 
    > make package
 
@@ -291,7 +291,6 @@ To check the RPM for detailed information (Metadata, Dependencies,
 and File Contents), enter::
 
    > rpm --info -qpR -qlvp pscf-1.0.0-Linux.rpm 
-----------------------------------------------------------------
 
 Linux Modules and Intel Compiler
 --------------------------------
@@ -354,7 +353,7 @@ command::
 
    > make pscf
 
-This should fill the src/build directory with *.o and *.mod files, and create an executable $(BIN)/$(EXE). By default, this will create a program named pscf in the pscf/bin directory. The executable file can be relocated to somewhere else if you desire.
+This should fill the src/build directory with .o and .mod files, and create an executable $(BIN)/$(EXE). By default, this will create a program named pscf in the pscf/bin directory. The executable file can be relocated to somewhere else if you desire.
 
 To invoke the program, you will either need to:
 
@@ -374,7 +373,7 @@ To invoke the program, you will either need to:
 Cleaning Up
 ^^^^^^^^^^^
 	
-To remove all of the *.o amd *.mod files from the src/build directory, as well as all *~ files from src and its subdirectory, if desired, enter the command::
+To remove all of the .o amd .mod files from the src/build directory, as well as any editor buffer files with a ~ suffix from src tree, enter::
 
    > make clean
 
