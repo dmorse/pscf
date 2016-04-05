@@ -45,14 +45,17 @@ module iterate_mod
    public :: input_iterate_param   ! input iteration parameters 
    public :: output_iterate_param  ! output iteration variables
    public :: iterate_NR_startup    ! allocates arrays needed by iterate_NR
+   public :: iterate_AM_startup    ! allocates arrays needed by iterate_AM
    public :: iterate_NR            ! main Newton-Raphson iteration routine
+   public :: iterate_AM            ! main Anderson-Mixing iteration routine
 
    ! public variables
    public :: max_itr    ! maximum allowable number of iterations
    public :: error_max  ! error tolerance: stop when error < error_max
    public :: domain     ! If true, adjust unit_cell_dimensions
    public :: itr_algo   ! Iteration algorithm 
-   public :: N_cut      ! dimension of cutoff response and Jacobian
+   public :: N_cut      ! dimension of cutoff response and Jacobian for NR scheme
+   public :: N_hist     ! Number of previous histories to use in Anderson-Mixing Scheme
    !***
 
    !--------------------------------------------------------------------
@@ -101,6 +104,7 @@ module iterate_mod
    character(10) ::  itr_algo      ! Iteraction algorithm string. For
                                    ! now, must be 'NR' = Newton-Raphson
    integer       ::  N_cut         ! dimension of cutoff response matrix
+   integer       ::  N_hist        ! Number of previous histories in AM
 
    ! Private variable declarations
    integer                 :: N_residual      ! number of residuals
@@ -114,7 +118,13 @@ module iterate_mod
    real(long), allocatable :: J_corner(:,:)   ! Jacobian matrix
    logical                 :: Jacobian_empty  ! if true, Jacobian is empty
    logical                 :: full_inversion  ! if true, full Jacobian is inverted
- 
+
+   ! Varaibles for Anderson Mixing scheme
+   real(long),allocatable  :: Umn(:,:)
+   real(long),allocatable  :: dev(:,:,:)
+   real(long),allocatable  :: omega_hist(:,:,:)
+    
+
 contains
 
    !--------------------------------------------------------------------
@@ -131,7 +141,13 @@ contains
    call input(error_max,'error_max')  ! error tolerance
    call input(domain,'domain')        ! T -> domain iteration
    call input(itr_algo,'itr_algo')    ! Iteration algorithm
-   call input(N_cut,'N_cut')
+
+   if (itr_algo=='NR')then
+      call input(N_cut,'N_cut')
+   elseif(itr_algo=='AM')then
+      call input(N_hist,'N_hist')
+   endif
+
    end subroutine input_iterate_param
    !====================================================================
 
@@ -150,7 +166,13 @@ contains
    call output(error_max,'error_max')  ! error tolerance
    call output(domain,'domain')        ! T -> domain iteration
    call output(itr_algo,'itr_algo')    ! Iteration algorithm
-   call output(N_cut,'N_cut')
+
+   if (itr_algo=='NR')then
+      call output(N_cut,'N_cut')
+   elseif(itr_algo=='AM')then
+      call output(N_hist,'N_hist')
+   endif
+
    end subroutine output_iterate_param
    !====================================================================
 
@@ -377,7 +399,7 @@ contains
       else if ( itr > max_itr ) then
          converge = .false.
          exit iterative_loop
-      else if ( error > large ) then
+      else if ( error > 100.0*large ) then
          converge = .false.
          exit iterative_loop
       endif
@@ -926,5 +948,558 @@ contains
 
    end subroutine Jacobian_response
    !===================================================================
+
+
+
+
+   !--------------------------------------------------------------------
+   !****p iterate_mod/iterate_AM_startup
+   ! SUBROUTINE
+   !    iterate_AM_startup(N)
+   ! PURPOSE
+   !   1) Allocate arrays needed by iterate_AM
+   ! ARGUMENTS
+   !   integer N      = # of basis functions
+   ! SOURCE
+   !---------------------------------------------------------------------
+   subroutine iterate_AM_startup(N)
+   use unit_cell_mod, only : N_cell_param
+   use chemistry_mod, only : N_monomer, ensemble
+   
+   integer, intent(IN)       :: N        ! # of basis functions 
+   integer                   :: info     ! message variable for dgetri
+!!   real(long), allocatable   :: Umn(:,:) ! Local Umn variable to calculate the
+                                         ! work space
+
+   if (allocated(ipvt)) deallocate(ipvt)
+   if (allocated(work)) deallocate(work)
+   if (allocated(dev)) deallocate(dev)
+   if (allocated(omega_hist)) deallocate(omega_hist)
+   if (allocated(Umn)) deallocate(Umn)
+
+   allocate(ipvt(N_hist))
+   allocate(work(N_hist))
+   allocate(dev(N_hist+1,N-1,N_monomer))
+   allocate(omega_hist(N_hist+1,N-1,N_monomer))
+   allocate(Umn(N_hist,N_hist))
+
+
+   ! estimate the opitimal workspace dimension
+   lwork = -1
+   call dgetri(N_hist,Umn,N_hist,ipvt,work,lwork,info)
+   lwork = work(1)
+   if (allocated(work)) deallocate(work)
+   allocate(work(lwork))
+
+   ! Umn changes size after every iteration so will be alloated in main (next)
+   ! subroutine, however, here we allocated it to calculate the maximum work
+   ! space needed for the AM scheme.
+   if (allocated(Umn)) deallocate(Umn)
+   
+   end subroutine iterate_AM_startup
+
+
+   !---------------------------------------------------------------------
+   !****p iterate_mod/iterate_AM
+   ! SUBROUTINE
+   !    subroutine iterate_AM
+   ! PURPOSE
+   !    Anderson-Mixing iteration of the SCFT
+   !    Note: Presently AM scheme is applicable only for 
+   !          the canonical ensemble (ensemble == 0)
+   ! COMMENT
+   !   1) Algorithm assumes that density_startup, iterate_AM_startup,
+   !      and make_unit_cell have been called prior to iterate_AM.
+   !
+   !   2) If domain = .true., routine iterates both omega fields and 
+   !      unit cell parameters. However, in contrast to the NR scheme,
+   !      the fields and unit cell parameters are iterated sequentially, 
+   !      and not simultaneously
+   ! SOURCE
+   !--------------------------------------------------------------------
+   subroutine iterate_AM(  &
+              N,           &!  # of basis functions
+              omega,       &!  chemical potential field (IN/OUT)
+              itr,         &!  actual number of interations
+              converge,    &!  = .true. if converged
+              error,       &!  final error = max(residuals)
+              rho,         &!  monomer density field
+              f_Helmholtz, &!  Helmholtz free energy per monomer / kT
+              !# ifdef DEVEL
+              f_component, &!  different contribution to f
+              overlap,     &!  overlap integrals
+              !# endif
+              pressure,    &!  pressure * monomer volume / kT
+              stress       &!  d(free energy)/d(cell parameters)
+              )
+   !--------------------------------------------------------------------
+
+   use io_mod, only        : output
+   use unit_cell_mod, only : N_cell_param, cell_param, &
+                             make_unit_cell, G_basis, dGG_basis
+   use basis_mod, only     : make_dGsq
+   use chemistry_mod, only : N_monomer, ensemble, chi, mu_chain, mu_solvent, &
+                             phi_solvent, phi_chain, N_chain, N_solvent 
+   !# ifdef DEVEL
+   use scf_mod, only       : density, scf_stress, set_omega_uniform, &
+                             mu_phi, free_energy, divide_energy
+   !# else
+   use scf_mod, only       : density, scf_stress, set_omega_uniform, &
+                             mu_phi, free_energy
+   !# endif
+   use grid_mod, only      : make_ksq
+
+   ! Arguments
+   integer, intent(IN)         :: N        
+   real(long), intent(INOUT)   :: omega(:,:)  ! omega(N_monomer,N)
+   integer, intent(OUT)        :: itr         
+   logical, intent(OUT)        :: converge
+   real(long), intent(OUT)     :: error
+   real(long), intent(OUT)     :: rho(:,:)    ! rho(N_monomer,N)
+   real(long), intent(OUT)     :: f_Helmholtz
+   real(long), intent(OUT)     :: pressure
+   real(long), intent(OUT)     :: stress(:)   ! stress(N_cell_param)
+   !# ifdef DEVEL
+   real(long), intent(OUT)     :: f_component(:)
+   real(long), intent(OUT)     :: overlap(:,:)
+   !# endif
+   !***
+
+   ! parameter
+   real(long), parameter :: large = 100.0
+   real(long), parameter :: stress_rescale=1.0d+2
+   real(long), parameter :: STPMX=100.0_long
+
+   ! local Variables
+   integer    :: i, k, alpha, M, info, itr_stress, itr_relax
+   integer    :: error_index
+   real(long) :: dGsq(N,N_cell_param), q(N_chain), q_solvent(N_solvent)
+   real(long) :: vsum, stpmax
+   real(long) :: delta_norm, u(N_residual), v(N_residual), uv
+   real(long) :: dstress_dcell(N_cell_param,N_cell_param), p(N_cell_param)
+
+   ! Parameters for Anderson-Mixing
+   real(long), allocatable  :: Vm(:,:), Cn(:,:)
+   real(long)               :: WW(N-1), DD(N-1)
+   real(long)               :: elm(N-1)
+   real(long)               :: dev_2, omega_2
+   real(long)               :: lam_AM
+   integer                  :: mm,nn, itr_prev
+
+   dev=0
+   omega_hist=0
+
+   M = N - 1 + ensemble 
+
+   !  Initiallization
+   call density(N, omega, rho, q, q_solvent)
+   call mu_phi(mu_chain,phi_chain,q,mu_solvent,phi_solvent,q_solvent)
+!!   call make_correlation(N)
+   do i = 1, N_cell_param
+      call make_dGsq(dGsq(:,i), dGG_basis(:,:,i))
+   enddo
+
+   ! set the homogeneous coefficents
+   if (ensemble == 0) call set_omega_uniform(omega)
+
+   itr = 0
+   
+   ! AM scheme needs atleast two previous iterations to mix and produce
+   ! output for the next. Here, we use first iteration as a guess supplied
+   ! and then create two (although need one) more iterations by linear 
+   ! combinations of the previous iterations    
+   write(6,*)'Creating History for Anderson-Mixing Scheme'
+   do i=1,3
+      itr = itr + 1
+      do alpha=1,N_monomer
+         omega(alpha,2:) = 0.9**(itr-1)*omega(alpha,2:)
+      end do
+      call density(N, omega, rho, q, q_solvent)
+      do alpha=1,N_monomer
+         if(N_monomer==2)then
+            do k=1,N-1
+               dev(itr,k,alpha) = sum(chi(:,alpha)*rho(:,k+1))&!
+                        + sum(omega(:,k+1))/N_monomer - omega(alpha,k+1)
+            end do
+
+         elseif(N_monomer==3)then
+            do k=1,N-1
+               dev(itr,k,alpha) = sum(chi(:,alpha)*rho(:,k+1)) &!
+                      + ( sum(omega(:,k+1)) + chi(1,2)*rho(3,k+1) &!
+             +  chi(2,3)*rho(1,k+1) + chi(1,3)*rho(2,k+1) )/N_monomer &!
+                      - omega(alpha,k+1)
+            end do
+         endif
+         omega_hist(itr,:,alpha) = omega(alpha,2:)
+
+      end do
+   end do   
+   itr = itr - 1   !  i=1 in the previous loop is 0th iteration
+
+    !  Calculating error in omega
+    dev_2   = 0.0
+    omega_2 = 0.0
+    do alpha = 1,N_monomer
+       dev_2 = dev_2 + norm2(dev(itr,:,alpha))**2.0
+       omega_2 = omega_2 + norm2(omega(alpha,2:))**2.0
+    end do
+    error   = (dev_2/omega_2)**0.5
+   
+   ! Calculate thermodynamic properties
+   call free_energy(N,rho,omega,phi_chain,mu_chain,phi_solvent,mu_solvent,f_Helmholtz,pressure)
+   !# ifdef DEVEL
+   call divide_energy(rho,omega,phi_chain,phi_solvent,Q,f_Helmholtz,f_component,overlap)
+   !# endif
+   if (domain) stress = scf_stress(N, N_cell_param, dGsq)
+
+
+   itr_stress = 0
+   stress_loop : do 
+
+      itr_stress = itr_stress + 1
+       
+   iterative_loop : do
+
+      itr = itr + 1
+      if(itr<N_hist+1)then
+         itr_prev = itr-1
+         lam_AM   = 1-0.9**(itr-1)
+      else
+         lam_AM   = 1.0
+         itr_prev = N_hist
+      end if
+
+      write(6,*)
+      write(6,"('Iteration ',i3)") itr
+
+      ! Output to log file
+      call output(error,                     'error       =',o=6,f='L')
+      if (domain) then
+         call output(stress,N_cell_param,    'stress      =',o=6,f='L')
+         call output(cell_param,N_cell_param,'cell_param  =',o=6,f='L')
+      endif
+      call output(f_Helmholtz,               'f_Helmholtz =',o=6,f='L')
+      if (ensemble == 1) then
+         call output(pressure,               'pressure    =',o=6,f='L')
+      endif 
+
+      ! Convergence criteria
+      if ( error < error_max ) then
+         converge = .true.
+         write(*,*)'1'
+         exit iterative_loop
+      else if ( itr > max_itr ) then
+         converge = .false.
+         write(*,*)'2'
+         exit iterative_loop
+      else if ( error > 100.0*large ) then
+         converge = .false.
+         write(*,*)'3'
+         exit iterative_loop
+      endif
+
+      if(itr==3) write(6,*)'Anderson-Mixing Starts Now '
+
+      WW  = 0.0
+      DD  = 0.0
+
+      if(itr<N_hist+2)then
+         allocate(Umn(itr_prev,itr_prev)) 
+         allocate(Vm(itr_prev,1)) 
+         allocate(Cn(itr_prev,1)) 
+      endif
+
+      Umn = 0
+      Vm  = 0 
+      Cn  = 0
+
+      do mm=1,itr_prev
+         do nn=mm,itr_prev
+            
+           do alpha=1,N_monomer 
+              elm = 0
+              elm = (dev(itr_prev+1,:,alpha) - dev(itr_prev+1-mm,:,alpha))&!
+                  *(dev(itr_prev+1,:,alpha) - dev(itr_prev+1-nn,:,alpha))
+              Umn(mm,nn) = Umn(mm,nn) + sum(elm)
+           end do
+           Umn(nn,mm) = Umn(mm,nn)       
+     
+        end do
+
+          do alpha=1,N_monomer 
+              elm = 0
+              elm = (dev(itr_prev+1,:,alpha) - dev(itr_prev+1-mm,:,alpha))&!
+                  *dev(itr_prev+1,:,alpha)
+              Vm(mm,1) = Vm(mm,1) + sum(elm)   
+          end do
+
+      end do  
+
+      ! Inverting Umn
+      call dgetrf(itr_prev,itr_prev,Umn,itr_prev,ipvt,info)
+      if(info/=0) stop "Full Umn LU factorization failed."
+      call dgetri(itr_prev,Umn,itr_prev,ipvt,work,lwork,info)
+      if(info/=0) stop "Full Umn inversion failed."
+      Cn = matmul(Umn,Vm)
+       
+      do alpha = 1,N_monomer
+         WW = omega(alpha,2:)
+         DD = dev(itr_prev+1,:,alpha) 
+         do nn=1,itr_prev
+       
+            WW = WW + Cn(nn,1)*(omega_hist(itr_prev+1-nn,:,alpha) - omega_hist(itr_prev+1,:,alpha))         
+            DD = DD + Cn(nn,1)*(dev(itr_prev+1-nn,:,alpha) - dev(itr_prev+1,:,alpha))
+      
+        end do
+
+        omega(alpha,2:) = WW + lam_AM*DD
+
+      end do      
+   
+     ! Note that Umn, Vm, Cn change sizes after every iteration 
+     ! until N_hist number of iterations are completed, so have 
+     ! to deallocate them everytime and allocate at the start of step 
+      if(itr<N_hist+1)then 
+         deallocate(Umn)
+         deallocate(Vm)
+         deallocate(Cn)
+      endif
+ 
+      call density(N, omega, rho, q, q_solvent)
+      if (domain) stress = scf_stress(N, N_cell_param, dGsq)
+
+      if(itr<N_hist+1)then
+
+         dev_2   = 0.0
+         omega_2 = 0.0
+         do alpha=1,N_monomer
+
+            if(N_monomer==2)then
+               do k=1,N-1
+                  dev(itr+1,k,alpha) = sum(chi(:,alpha)*rho(:,k+1))&!
+                       + sum(omega(:,k+1))/N_monomer - omega(alpha,k+1)
+               end do
+               
+            elseif(N_monomer==3)then
+               do k=1,N-1
+                  dev(itr+1,k,alpha) = sum(chi(:,alpha)*rho(:,k+1))&!
+                         + ( sum(omega(:,k+1)) + chi(1,2)*rho(3,k+1)&!
+                         + chi(2,3)*rho(1,k+1) + chi(1,3)*rho(2,k+1))/N_monomer&!
+                         - omega(alpha,k+1)
+               end do
+            endif
+            omega_hist(itr+1,:,alpha) = omega(alpha,2:) 
+            dev_2 = dev_2 + norm2(dev(itr+1,:,alpha))**2.0
+            omega_2 = omega_2 + norm2(omega(alpha,2:))**2.0
+
+         end do
+         error   = (dev_2/omega_2)**0.5
+
+      else
+
+         dev_2   = 0.0
+         omega_2 = 0.0
+         do alpha=1,N_monomer
+
+            dev(1:N_hist,:,alpha) = dev(2:N_hist+1,:,alpha)   
+            omega_hist(1:N_hist,:,alpha) = omega_hist(2:N_hist+1,:,alpha)
+            if(N_monomer==2)then
+               do k=1,N-1
+                  dev(N_hist+1,k,alpha) = sum(chi(:,alpha)*rho(:,k+1))&!
+                         + sum(omega(:,k+1))/N_monomer - omega(alpha,k+1)
+               end do
+
+            elseif(N_monomer==3)then
+               do k=1,N-1
+                  dev(N_hist+1,k,alpha) = sum(chi(:,alpha)*rho(:,k+1))&!
+                          + ( sum(omega(:,k+1)) + chi(1,2)*rho(3,k+1) &!
+                          + chi(2,3)*rho(1,k+1) + chi(1,3)*rho(2,k+1) )/N_monomer&! 
+                          - omega(alpha,k+1)
+               end do
+            endif
+            omega_hist(N_hist+1,:,alpha) = omega(alpha,2:)
+            dev_2 = dev_2 + norm2(dev(N_hist+1,:,alpha))**2.0
+            omega_2 = omega_2 + norm2(omega(alpha,2:))**2.0
+
+         end do
+         error   = (dev_2/omega_2)**0.5
+
+      endif
+
+      ! Calculate thermodynamic properties
+      call mu_phi(mu_chain,phi_chain,q,mu_solvent,phi_solvent,q_solvent)
+      call free_energy(N,rho,omega,phi_chain,mu_chain,phi_solvent,mu_solvent,f_Helmholtz,pressure)
+      !# ifdef DEVEL
+      call divide_energy(rho,omega,phi_chain,phi_solvent,Q,f_Helmholtz,f_component,overlap)
+      !# endif
+
+   end do iterative_loop
+
+
+   ! AM scheme first resolve omega fields for a fixed unt cell dimenions 
+   ! and then take one step of unit cell dimension. Then again resolves 
+   ! the omega fields for updated unit cell dimensions and conitnue this
+   ! to iterate fields and unit cell parameterssequentially  until both converges.
+   if(domain) then
+
+      if ( maxval(abs(stress)*stress_rescale) < error_max ) then
+         converge = .true.
+         write(*,*)'1'
+         exit stress_loop
+      else if ( itr_stress > 20 ) then
+         converge = .false.
+         write(*,*)'2'
+         exit stress_loop
+      else if ( maxval(abs(stress))*stress_rescale > large ) then
+         converge = .false.
+         write(*,*)'3'
+         exit stress_loop
+      endif
+
+      write(6,*)'Stress relaxation iteration  = ',itr_stress
+!!      itr_relax = 0
+!!      stress_relax: do
+
+!!          if(maxval(abs(stress)*stress_rescale) < error_max) exit stress_relax
+          
+!!          itr_relax = itr_relax + 1
+!!          write(6,*)'Stress relaxation for fixed omega  = ',itr_relax
+      
+          call response_dstress_dcell(N,omega,dstress_dcell )
+    
+          if(N_cell_param==1)then
+             p = -stress(1)/dstress_dcell(1,1)
+          else
+             call dgetrf(N_cell_param,N_cell_param,dstress_dcell,N_cell_param,ipvt,info)
+             if(info/=0) stop "Full dstress_dcell LU factorization failed."
+             call dgetri(N_cell_param,dstress_dcell,N_cell_param,ipvt,work,lwork,info)
+             if(info/=0) stop "Full dstress_dcell inversion failed."
+            
+             p = - matmul(dstress_dcell,stress)
+          endif
+    
+          vsum=0.0_long
+          vsum = vsum + dot_product(cell_param(1:N_cell_param),&!
+                                      cell_param(1:N_cell_param))
+          stpmax = STPMX * max( sqrt(vsum), dble(N_cell_param) )
+    
+          vsum = sqrt(dot_product(p,p))
+          if (vsum > stpmax) then
+             write(6,*) "residual rescaled"
+             p = p * stpmax / vsum
+          end if
+          
+          do i=1,N_cell_param
+             cell_param(i) = cell_param(i) + p(i)
+          end do
+
+          call make_unit_cell
+          call make_ksq(G_basis)
+          do i = 1, N_cell_param
+             call make_dGsq(dGsq(:,i), dGG_basis(:,:,i))
+          end do
+
+          stress = scf_stress(N, N_cell_param, dGsq)
+          
+          write(6,*)'Updated Unit Cell dimensions = ',cell_param(1:N_cell_param)
+          write(6,*)'stress = ',stress
+          write(6,*)''
+     
+!!      end do stress_relax
+
+      call density(N, omega, rho, q, q_solvent)
+
+      if(itr<N_hist+1)then
+
+         dev_2   = 0.0
+         omega_2 = 0.0
+         do alpha=1,N_monomer
+
+            dev(1:2,:,alpha) = dev(itr-1:itr,:,alpha)   
+            omega_hist(1:2,:,alpha) = omega_hist(itr-1:itr,:,alpha)
+            
+            if(N_monomer==2)then 
+               do k=1,N-1
+                  dev(3,k,alpha) = sum(chi(:,alpha)*rho(:,k+1))&!
+                        + sum(omega(:,k+1))/N_monomer - omega(alpha,k+1)
+               end do
+
+            elseif(N_monomer==3)then
+               do k=1,N-1
+                  dev(3,k,alpha) = sum(chi(:,alpha)*rho(:,k+1))&!
+                          + ( sum(omega(:,k+1)) + chi(1,2)*rho(3,k+1) &!
+                          + chi(2,3)*rho(1,k+1) + chi(1,3)*rho(2,k+1) )/N_monomer &!
+                          - omega(alpha,k+1)
+               end do
+            endif
+            omega_hist(3,:,alpha) = omega(alpha,2:)
+            dev_2 = dev_2 + norm2(dev(3,:,alpha))**2.0
+            omega_2 = omega_2 + norm2(omega(alpha,2:))**2.0
+
+         end do
+         error   = (dev_2/omega_2)**0.5
+
+         itr = 2  ! Number of previous iterations becuase current iteration will
+                  ! be updated at the begining of itr loop, itr = itr + 1
+
+      else
+
+         dev_2   = 0.0
+         omega_2 = 0.0
+         do alpha=1,N_monomer
+
+            dev(1:N_hist,:,alpha) = dev(2:N_hist+1,:,alpha)   
+            omega_hist(1:N_hist,:,alpha) = omega_hist(2:N_hist+1,:,alpha)
+            
+            if(N_monomer==2)then 
+               do k=1,N-1
+                  dev(N_hist+1,k,alpha) = sum(chi(:,alpha)*rho(:,k+1))&!
+                        + sum(omega(:,k+1))/N_monomer - omega(alpha,k+1)
+               end do
+
+            elseif(N_monomer==3)then
+               do k=1,N-1
+                  dev(N_hist+1,k,alpha) = sum(chi(:,alpha)*rho(:,k+1))&!
+                          + ( sum(omega(:,k+1)) + chi(1,2)*rho(3,k+1) &!
+                          + chi(2,3)*rho(1,k+1) + chi(1,3)*rho(2,k+1) )/N_monomer &!
+                          - omega(alpha,k+1)
+               end do
+            endif
+            omega_hist(N_hist+1,:,alpha) = omega(alpha,2:)
+            dev_2 = dev_2 + norm2(dev(N_hist+1,:,alpha))**2.0
+            omega_2 = omega_2 + norm2(omega(alpha,2:))**2.0
+
+         end do
+         error   = (dev_2/omega_2)**0.5
+
+         itr = N_hist
+
+     endif
+
+     if(allocated(Umn)) deallocate(Umn)
+     if(allocated(Vm))  deallocate(Vm)
+     if(allocated(Cn))  deallocate(Cn)
+
+
+     ! Calculate thermodynamic properties
+     call free_energy(N,rho,omega,phi_chain,mu_chain,phi_solvent,mu_solvent,f_Helmholtz,pressure)
+     !# ifdef DEVEL
+     call divide_energy(rho,omega,phi_chain,phi_solvent,Q,f_Helmholtz,f_component,overlap)
+     !# endif
+  
+     stress = scf_stress(N, N_cell_param, dGsq)
+
+   else
+      
+     exit stress_loop
+
+   endif
+
+   end do stress_loop
+
+   ! If fixed unit cell, calculate residual stress before output
+   if (.not.domain) stress = scf_stress(N, N_cell_param, dGsq)
+
+   end subroutine iterate_AM
 
 end module iterate_mod
