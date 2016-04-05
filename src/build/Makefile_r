@@ -37,12 +37,12 @@ FFT_FILE=fft3_mod
 # ============ LAPACK Linear Algebra Library ==================
 # LAPACKLIB = path(s) to directories containing lapack and blas
 
-# Standard linux
+# Fedora linux
 LAPACKLIB= -llapack -lblas
 #LAPACKLIB= -llapack -lblas -latlas
 
 # On Ubunta (lapack installed by apt-get)
-#LAPACKPATH=/usr/lib/liblapack.so.3gf /usr/lib/libf77blas.so.3gf /usr/lib/libatlas.so.3gf
+#LAPACKLIB=/usr/lib/liblapack.so.3gf /usr/lib/libf77blas.so.3gf /usr/lib/libatlas.so.3gf
    
 # ======  Forpedo Fortran preprocessor =========================
 # FORPEDO = path to Forpedo preprocessor
