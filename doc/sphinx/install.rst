@@ -35,7 +35,8 @@ procedure is similar to that for installing any other application on a Mac:
 
 Double clicking the pscf_terminal application will open up a yellow terminal
 window from which you can use standard unix commands to navigate within the
-directory structure of your Mac, and from which you can invoke the pscf command.
+directory structure of your Mac, and from which you can invoke the pscf 
+command.
 
 Ubuntu or Debian Linux
 ----------------------
@@ -69,8 +70,8 @@ Compiling from Source
 
 The most recent version of the source code for PSCF can be obtained either by
 cloning the code or by downloading a tar archive. We recommend using git if
-possible, since it makes it simple to update the code, but both procedures for
-obtaining the source code are described in what follows.
+possible, since it makes it simple to update the code, but both procedures 
+for obtaining the source code are described in what follows.
 
 The source code can be compiled using either cmake build system or, without
 cmake, using a simple makefile that is provided in the src/build directory. 
@@ -171,7 +172,7 @@ configuration file.
 Getting the source code
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-To obtain the PSCF source code from github::
+To obtain the most recent PSCF source code from github::
 
    > git clone git@github.com/dmorse/pscf.git
 
@@ -220,12 +221,11 @@ utility to install the following packages:
    * fftw3-dev
    * liblapack3
 
-To obtain the PSCF source code from github, as for OS X,
-type::
+To obtain the PSCF source code from github, as for OS X, enter::
 
    > git clone git@github.com/dmorse/pscf.git
 
-The steps to compile and install are the same as for Mac OSX::
+The steps to compile and install are also the same as for Mac OSX::
 
    > mkdir pscf-build
    > cd pscf-build 
@@ -233,19 +233,23 @@ The steps to compile and install are the same as for Mac OSX::
    > make -j 4
    > make install 
 
-One linux, an executable file will be installed in the bin directory of "/path/to/install". 
-The executable is movable, so you can place the executable in the build directory by entering
+On linux, an executable file will be installed in the bin directory of the
+directory "/path/to/install" that is passed to cmake.  The executable is 
+movable, so you can place the executable in the build directory by entering
 
    > cmake -DCMAKE_INSTALL_PREFIX=.  ../pscf
 
-(where the "." after the = sign represents the current directory), and then move the file to
-wherever you want. 
+(where the "." after the = sign represents the current directory), and then 
+move the file to wherever you want. 
 
-Wherever you install the executable file, you will need to make sure that directory
-containing the executable (or a symlink to the executable) is in the bash PATH variable,
-so that the operating system can find the executable when it is invoked by name.
+Wherever you install the executable file, you will need to make sure that 
+directory containing the executable (or a symlink to the executable) is 
+in the bash PATH variable, so that the operating system can find the 
+executable when it is invoked by name.
 
-Developers: To build .deb package for installation of binary executables on other Ubuntu and debian systems, as well as .tar and .zip source code archives, after installing on your machine, simply enter::
+Developers: To build .deb package for installation of binary executables 
+on other Ubuntu and debian systems, as well as .tar and .zip source code 
+archives, after installing on your machine, simply enter::
 
    > make package
 
@@ -259,47 +263,45 @@ To check the .deb file for semi-detailed information::
 Fedora / Redhat Linux
 ---------------------
 
-Instructions for Fedora are similar to those for Ubuntu,
-except that one should use the native Fedora graphical 
-software manager or the yum command line tool to install 
-dependencies.
-
-The required Fedora packages are:
+Instructions for Fedora are similar to those for Ubuntu, except that one 
+should use the native yum command line package manager or the Fedora 
+graphical software manager to install dependencies. The required Fedora 
+packages are:
 
    * cmake
    * gcc-gfortran
-   * lapack
+   * lapack-devel
    * fftw-devel
 
 To install these packages from the command line, enter::
 
    > sudo yum install cmake
    > sudo yum install gcc-gfortran
-   > sudo yum install lapack
+   > sudo yum install lapack-devel
    > sudo yum install fftw-devel
 
-Instructions for obtaining source code, compiling and installing
-are the same as for Max OSX and Ubuntu.
+Instructions for obtaining source code, compiling and installing are the same 
+as for Max OSX and Ubuntu.
 
-Developers: On a Fedora machine, you can build a .rpm package
-and .tar and .zip archives by entering::
+Developers: On a Fedora machine, you can build a .rpm package and .tar 
+and .zip archives by entering::
 
    > make package
 
 from within the build directory.
 
-To check the RPM for detailed information (Metadata, Dependencies, 
-and File Contents), enter::
+To check the RPM for detailed information (Metadata, Dependencies, and 
+File Contents), enter::
 
    > rpm --info -qpR -qlvp pscf-1.0.0-Linux.rpm 
 
 Linux Modules and Intel Compiler
 --------------------------------
 
-The following instructions describe how to build PSCF in a user directory at the Minnesota 
-Computer Institute (MSI) Mesabi computer, using linux modules and the Intel compiler. 
-Similar instructions should apply to other large supercomputer clusters that use linux
-modules.
+The following instructions describe how to build PSCF in a user directory 
+at the Minnesota Computer Institute (MSI) Mesabi computer, using linux 
+modules and the Intel compiler.  Similar instructions should apply to 
+other large supercomputer clusters that use linux modules.
 
 To load the required modules, enter::
 
@@ -307,17 +309,23 @@ To load the required modules, enter::
    > module load intel mkl
    > module load fftw
 
-The remaining instruction for how to obtain and compile the source code are generally 
-similar to thos given for OSX or Linux. The only difference is that, to use the Intel
-compiler, one must tell cmake to use the intel compiler by adding the option 
-"-DUSE_INTEL=1" to the cmake command.  The required command is thus::
+The remaining instruction for how to obtain and compile the source code 
+are generally similar to thos given for OSX or Linux. The only difference 
+is that, to use the Intel compiler, one must tell cmake to use the Intel 
+compiler by adding the option "-DUSE_INTEL=1" to the cmake command. The 
+required command is thus::
 
    > cmake -DUSE_INTEL=1 -DCMAKE_INSTALL_PREFIX=/path/to/install ../pscf
 
 Compiling via make, without cmake
 ---------------------------------
 
-It is also possible to compile using a Makefile in the src/build directory. This does an "in source" build, in which all of the files generated during compilation are placed in the pscf/src/ directory. The instructions for doing this are the same on any unix-like operating system. The main difference among different unix environments is the locations of the required libraries. 
+It is also possible to compile using a Makefile in the src/build directory. 
+This does an "in source" build, in which all of the files generated during 
+compilation are placed in the pscf/src/build/ directory. The instructions 
+for doing this are the same on any unix-like operating system. The main 
+difference among different unix environments is the locations of the 
+required libraries. 
 
 To compile the code in this way, you should:
 
@@ -327,10 +335,12 @@ To compile the code in this way, you should:
 
 These steps are described in more detail below
 
-Customize the Makefile
+Customize the Makefile:
 ^^^^^^^^^^^^^^^^^^^^^^
 
-In Makefile in the src/build directory, you will need to set values for a set of macro variables to values appropriate to your system. Makefile variables you may need to reset are:
+In Makefile in the src/build directory, you will need to set values for a 
+set of macro variables to values appropriate to your system. Makefile 
+variables you may need to reset are:
  
 ==========  ===============================================
  SCF        root of scf directory tree.
@@ -344,7 +354,10 @@ In Makefile in the src/build directory, you will need to set values for a set of
  FFTWLIB    directory with FFTW library
 ==========  ===============================================
 
-The makefile contains values appropriate for a number of different common environments, most of which are commented out. If you choose one of the existing definitions, make sure that you comment out any definitions you are not using.
+The makefile contains values appropriate for a number of different common 
+environments, most of which are commented out. Make sure you give only one
+definition for each variable, and that you comment out any definitions you 
+are not using.
 
 Compile and Link
 ^^^^^^^^^^^^^^^^
@@ -354,27 +367,34 @@ command::
 
    > make pscf
 
-This should fill the src/build directory with .o and .mod files, and create an executable $(BIN)/$(EXE). By default, this will create a program named pscf in the pscf/bin directory. The executable file can be relocated to somewhere else if you desire.
+This should fill the src/build directory with .o and .mod files, and 
+create an executable $(BIN)/$(EXE). By default, this will create a program 
+named pscf in the pscf/bin directory. The executable file can be relocated 
+to somewhere else if you desire.
 
 To invoke the program, you will either need to:
 
    * Invoke the program using an absolute path name
 
-   * Add the directory containing your executable to your command search PATH variable. To do       so, enter:
+   * Add the directory containing your executable to your command search
+     PATH variable. To do so, enter:
 
          PATH=$PATH:~$(SCF)/bin
          export path
 
-     where $(SCF) should be replaced by the actual absolute path to the pscf/ directory. You
-     may want to add this to your .bashrc or .profile file so that this directory is added 
-     to your path when automatically when you log in.
+     where $(SCF) should be replaced by the actual absolute path to the
+     pscf/ directory. You may want to add this to your .bashrc or .profile 
+     file so that this directory is added to your path when automatically 
+     when you log in.
 
-   * Move pscf to a directory such as /usr/local/bin that is already in your $PATH. 
+   * Move pscf to a directory such as /usr/local/bin that is already in 
+     your $PATH. 
 
 Cleaning Up
 ^^^^^^^^^^^
 	
-To remove all of the .o amd .mod files from the src/build directory, as well as any editor buffer files with a ~ suffix from src tree, enter::
+To remove all of the .o amd .mod files from the src/build directory, as 
+well as any editor buffer files with a ~ suffix from src tree, enter::
 
    > make clean
 

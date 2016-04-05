@@ -1,8 +1,8 @@
 
 -----------------------------------------------------------------------
  PSCF - Polymer Self-Consistent Field Theory
- Copyright (2007) David C. Morse
- email: morse@cems.umn.edu
+ Copyright (2007) Regents of the University of Minnesota
+ email: morse012@umn.edu
 
  PSCF is a Fortran 90 program for numerically solving the polymer 
  self-consistent field theory for periodic microstructures formed 
@@ -19,7 +19,9 @@
     David Morse
     Chris Tyler
     Jian Qin
+    Amit Ranjan
     Raghuram Thiagarajan
+    Akash Arora
 
 -----------------------------------------------------------------------
 I. Directory Structure
