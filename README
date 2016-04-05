@@ -1,8 +1,8 @@
 
 -----------------------------------------------------------------------
  PSCF - Polymer Self-Consistent Field Theory
- Copyright (2007) Regents of the University of Minnesota
- email: morse012@umn.edu
+ Copyright (2007-2016) Regents of the University of Minnesota
+ Contact: David Morse, morse012@umn.edu
 
  PSCF is a Fortran 90 program for numerically solving the polymer 
  self-consistent field theory for periodic microstructures formed 
@@ -30,6 +30,7 @@ src/                          - Fortran 90 source files
 src/build                     - - directory containing Makefile
 examples/                     - usage examples, with input files
 doc/                          - documentation files
+doc/sphinx                    - - user manual text files
 doc/api                       - - auto-generated api documentation
 tools/                        - Tools for processing output and source
 tools/matlab                  - - matlab m-files for visualization
@@ -48,20 +49,10 @@ program.
 ----------------------------------------------------------------------
 III. Compiling and Linking
 
-The program must be compiled from source. The source is standard
-Fortran 90, and has been tested with the Intel and Portland Group 
-Fortran 90 compilers in a linux environment.
+Instructions for compiling the program from source, as well as various
+ways to install precompiled executables, are discussed in the file 
 
-A Makefile for compiling on a linux machine is located in 
-subdirectory src/build. To compile the code, after installing the
-required FFTW and LAPACK libraries, you will generally have to cd 
-to src/build, change the values of various macro variables in this 
-Makefile to values appropriate to your system, and issue the 
-command 'make pscf' from within src/build.  
-
-More detailed instructions for editing the Makefile and compiling 
-are provided in the file src/build/INSTALL, and in comments in the 
-file src/build/Makefile.
+   doc/sphinx/install.rst
 
 An annotated list of source files is provided in the file src/SRC_FILES. 
 
