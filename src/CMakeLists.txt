@@ -40,14 +40,6 @@ add_subdirectory(rpa)
 add_subdirectory(iterate)
 add_subdirectory(response)
 
-##### Excluded subdirs ######
-#add_subdirectory(tests/rpa)
-#add_subdirectory(tests/group/2dgroups)
-# TODO: debug for gfortran: 
-#add_subdirectory(utility)
-# TODO: debug incomplete code:
-#add_subdirectory(tests/group)
-
 ### PREPROCESS THE MAIN FILE ###
 add_custom_command(
    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/pscf_pd.f 
@@ -76,6 +68,7 @@ install(TARGETS pscf
         LIBRARY DESTINATION lib COMPONENT Runtime
         ARCHIVE DESTINATION lib/static COMPONENT Runtime
 )
+
 # Copy libraries into the DMG
 INSTALL(CODE "
    include(BundleUtilities)
