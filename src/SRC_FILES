@@ -16,11 +16,11 @@ File Name Conventions:
 src/
 ----
 
-scf_pd.fp.f :
+pscf_pd.fp.f :
 	Main program (preprocessor input file). Used to generate the 
-	compilable fortran file build/scf_pd.f
+	compilable fortran file build/pscf_pd.f
 
-const_mod : 
+const_mod :
 	Defines global variable dim (= # dimensions of space) and 
 	parameter long (=real kind for double precision). Used by
 	all other modules.
@@ -135,14 +135,14 @@ iterate/iterate_mod.fp.f :
 	input file, which is used to generate build/iterate_mod.f
 
 iterate/sweep_mod :
-       Used to conduct a "sweep" along a path through the space 
-       of SCF input parameters (i.e., chi, block_lengths, etc).
-       Implements 1st and 2nd order continuation of solutions 
-       along such a path.
+        Used to conduct a "sweep" along a path through the space 
+        of SCF input parameters (i.e., chi, block_lengths, etc).
+        Implements 1st and 2nd order continuation of solutions 
+        along such a path.
 
 iterate/respond_pd_mod.f:
-       Calculate response of periodic structures in form needed to
-       construct approximate Jacobian for iterate_mod.f
+        Calculate response of periodic structures in form needed to
+        construct approximate Jacobian for iterate_mod.f
 
 src/response/
 -------------
@@ -165,17 +165,17 @@ build/Makefile:
 	Makefile for recompiling the program. 
 
 build/INSTALL:
-	Instructions for recompiling the program.
+	Instructions using make to recompile the program.
 
 src/tests/
 ----------
 
-    Programs to test specific fortran 90 modules
+        Programs to test specific fortran 90 modules
 
 src/utilities/
 --------------
 
-    Fortran 90 utility programs that are not used by main program
+        Fortran 90 utility programs that are not used by main program
 
 
 ---------------------------------------------------------------------
@@ -194,29 +194,40 @@ src/utilities/
      src/scf/scf_mod.fp.f 
 
   These contain preprocessor directives for conditional compilation, 
-  which are used to generate corresponding Fortran 90 files:
+  which are used to generate corresponding Fortran 90 files, with
+  the same names without the .fp. string. If the program is compiled
+  using the makefile in the src/build directory, the resulting 
+  fortran files are installed in the src/build directory, giving
+  files:
      
      src/build/scf_pd.f 
      src/build/iterate_mod.f 
      src/build/scf_mod.f 
 
-  as part of the compilation process. The use of a preprocessor
-  script makes it easy for developers to maintain code that contains 
-  experimental features that are not yet ready to be released as part
-  of a stable version, without maintaining separate stable and 
-  development copies. Sections of code containing features that are 
-  not ready for prime time are surrounded by conditional compilation 
-  directives and are excluded from stable versions of the 
-  corresponding src/build/*.f files. 
+  If the program is compiled out-of-source using cmake, these files
+  are instead installed in the build directory from which cmake is 
+  invoked.
+
+  The use of a preprocessor script makes it easier for developers to 
+  maintain code that contains experimental features that are not yet 
+  ready to be released as part of a stable version, without maintaining 
+  separate stable and development copies. Sections of code containing 
+  features that are not ready for prime time are surrounded by 
+  conditional compilation directives and are excluded from stable 
+  versions of the corresponding src/build/*.f files. 
+
+  This feature has become less necessary as the result of the adoption
+  of the use of git as a version control system, because of the ease
+  with which branches can be created and maintained. 
   
   Copies of the compilable src/build/*.f files are included in the 
-  public distribution. It is thus possible to compile the program with
-  using the preprocessor. Because these are automatically generated
-  files, however, they are not stored in the CVS repository used by
-  developers. To modify these files, a user can either: i) Modify 
-  the corresponding *.fp.f files and use the Makefile to invoke the
-  preprocessor, or ii) Modify the *.f files directly, if the user 
-  wishes to avoid the use of the preprocessor. 
+  public distribution. It is thus possible to compile the program 
+  without using the preprocessor. Because these are automatically 
+  generated files, however, they are not stored in the repository 
+  used by developers. To modify these files, a user can either: 
+  i) Modify the corresponding *.fp.f files and use the Makefile to 
+  invoke the preprocessor, or ii) Modify the *.f files directly, 
+  if the user wishes to avoid the use of the preprocessor. 
 
   If these *.f files are removed, or if the corresponding *.fp.f 
   preprocessor files are modified, and the program is then recompiled

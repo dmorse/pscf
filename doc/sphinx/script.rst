@@ -137,9 +137,8 @@ Overview
 Primary Sections
 ----------------
 
-The following list shows the titles of the blocks required to calculate 
-a 'sweep' of solutions for a sequence of incrementally different different 
-parameters, in the order in which they appear in the above example script. 
+The following list shows the titles of the blocks required to complete most
+standard computations, in the order in which they normally appear. 
 Subsequent sections describe each of the corresponding blocks of the input 
 file in detail. To solve the SCF problem for a single set of parameters,
 leave out the penulimate SWEEP section.
@@ -156,34 +155,37 @@ leave out the penulimate SWEEP section.
   :ref:`script-discretization-sub`  Numbers of spatial grid points and 'time' step ds.
   :ref:`script-prefixes-sub`        Prefixes for paths to input and output files
   :ref:`script-basis-sub`           Read space group and construct 
-                                    symmetry-adapated basis functions
+                                    symmetry-adapted basis functions
   :ref:`script-iterate-sub`         Solve SCFT for one set of parameters
-  :ref:`script-sweep-sub`           Solve SCFT for a sweep of consecutive parameters
+  :ref:`script-sweep-sub`           Solve SCFT for multiple sets of parameters
+  :ref:`script-response-sub`   Calculate linear response matrix at one or more k vectors
   :ref:`script-finish-sub`          Stop program
   ================================  ===================================================
  
-Linear Response
-----------------
+Several standard types of computation are possible using the blocks listed above::
 
-To calculate the self-consistent-field or RPA linear susceptibility of a periodic 
-microstructure, introduce a RESPONSE section after ITERATE and before FINISH.
+   - Iterate: To solve solve SCF equations for a single state point, include 
+     all of the listed below sections except the SWEEP and RESPONSE sections. 
 
-  ===========================  =========================================================
-  Section                      Description
-  ===========================  =========================================================
-  :ref:`script-response-sub`   Calculate linear response matrix at one or more k vectors
-  ===========================  =========================================================
+   - Sweep: To compute a sequence of different states along a line in parameter
+     space, include both an ITERATE and SWEEP function, but not a RESPONSE
+     section. The ITERATE section must precede the SWEEP section, and is used
+     to obtain a solution for the initial choice of parameters.
 
-Utilities
----------
+   - Response: To compute the self-consistent-field or RPA linear susceptibility of a
+     periodic microstructure, include ITERATE and RESPONSE sections, but do not include
+     a SWEEP section.
 
-The following sections invoke various operations on fields or parameters.
+Miscellaneous Utilities
+-----------------------
+
+The following sections are used to invoke a variety of data processing operations or
+transformations on fields or parameters, or to output additional information.
 
   ==============================  ====================================================
   Section                         Description
   ==============================  ====================================================
-  :ref:`output_waves`             Output plane waves and coefficients used to define
-                                  symmetry adapted basis functions
+  :ref:`output_waves`             Output contents of symmetry adapted basis functions
   :ref:`script-fieldtorgrid-sub`  Convert field from basis function expansion to 
                                   values on a r-space coordinate grid
   :ref:`script-rgridtofield-sub`  Convert field from basis function expansion to 
@@ -201,51 +203,87 @@ Further details about the contents and purpose of each section are given below.
 
 .. _script-conventions-sec:
 
-Format and Variable Conventions
+Parameter Units and Conventions
 ===============================
 
-The descriptions given below of the input formats for many sections of the
-input script contain tables that list input parameters in that section. 
-A few comments about how to read these tables:
+Length Units
+------------
 
-Array Parameters and Indices
-----------------------------
+PSCF does not impose the use of a particular system of units
+for lengths. Any system of units can be used for entering values
+of the monomer statistical segment lengths and the unit cell 
+dimensions, as long as the same unit of length are used for all 
+relevant quantities.  One can use either a physical unit, such 
+as nanometers or Angstroms, or dimensionless units in which one 
+or more of the statistical segment lengths is set to unity. 
 
-Some required input parameters are one or two dimensional arrays. One 
-dimensional parameters are indicated below by writing the name of the 
-parameter with one indices: For example, in the MONOMERS section,
-kuhn(im) denotes a one dimensional array of statistical segment 
-lengths for different monomer types.  Two dimensional arrays are shown 
-with two indices.  The meaning and range of each index is indicated by
-using a set of standard variable names to indicate different types of
-indices in this documentation. For example, the symbol 'im' indicates 
-an index for a monomer type.  The meaning and range of every index
-symbol is summarized in the following table:
+Dependence on Monomer Reference Volume
+--------------------------------------
 
-Meaning of Array Indices
-------------------------
+SCFT also leaves the user some freedom to redefine what he or 
+she means by a ``monomer", which need not correspond to a chemical
+repeat unit.  The choice of values of the parameters block_length, 
+solvent_size, kuhn, and chi to represent a particular experimental
+system all depend on the choice of a value for a reference volume 
+used to define an effective repeat unit.  Each element of the 
+variable block_length represents the number of "monomers" in a 
+block of a block copolymer, defined to be the ratio of the block 
+volume to the chosen reference volume.  Similarly, the variable 
+solvent_size is given by ratio of the solvent volume to the 
+reference volume. The values of the chi parameters are proportional
+to the reference volume, while kuhn lengths are proportional to
+the square root of the reference volume.  Note that PSCF does not 
+require the user to input a value for the monomer reference volume 
+- the choice only effects the values required for other quantities.
+
+.. _script-array-sec:
+
+Array-Valued Parameters
+=======================
+
+Some input parameters are one or two-dimensional array. Here, we discuss how 
+the dimension and format of these parameters is indicated in subsequent sections
+that describe the parameters required in different sections of the input 
+script.
+
+Below, the discussion of possible section of an input script contains a table
+listing the required parameters and meaning. One or two-dimensional parameters
+are indicated in these tables by displaying the name of each array variable
+with an appropriate number of indices.  One dimensional parameters are thus 
+indicated by writing the name of the parameter with one index: For example, 
+in the description of the MONOMERS section, kuhn(im) denotes a one dimensional 
+array of statistical segment lengths for different monomer types.  Two 
+dimensional arrays are shown with two indices.  
+
+The meaning and range of each such array index is indicated by using a set of 
+standard variable names to indicate different types of indices, with different
+ranges of allowed values. For example, in the remainder of this page, the 
+symbol 'im' is always used to indicates an index for a monomer type.  The 
+meaning and range of every index symbol is summarized in the following table:
+
+Meaning of Array Indices:
 
   ========= =====================  ================
   Indices   Meaning                Range   
   ========= =====================  ================
-  im, in    monomer types          1,...N_monomer
-  ic        chain/polymer species  1,...N_chain
-  ib        blocks within a chain  1,...N_block(ic)
-  is        solvent species        1,...N_solvent
+  im, in    monomer types          1,...,N_monomer
+  ic        chain/polymer species  1,...,N_chain
+  ib        blocks within a chain  1,...,N_block(ic)
+  is        solvent species        1,...,N_solvent
+  id        Cartesian direction    1,...,dim
   ========= =====================  ================
  
-Array Parameter Formats
------------------------
-
-For array parameters,the elements of the array are expected to appear in 
-the input script in a specific format. Generally, arrays that contain a 
-polymer or solvent molecular species index are input with the required 
+For each array parameter, the elements of the array are expected to appear 
+in the input script in a specific format. Generally, arrays that contain 
+a polymer or solvent molecular species index are input with the required 
 information about each molecule on a separate line, while values 
 associated with different monomer types or with different blocks within 
 a molecule are listed sequentially on a single line. The expected format 
-for each array parameter in specified by a code in the 'Format' column of 
-each table of parameters. The meaning of each array format code is 
-specified below:
+for each array parameter in specified by a code labeled "Format" in each
+the table of parameters for each section. The meaning of each array format 
+code is specified below:
+
+Array Format Codes:
 
   =======  ==================================================
   Format   Meaning   
@@ -263,6 +301,7 @@ a separate line. In the multiple row (MR) format, which is used for the
 arrays block_monomer(ib,ic) and block_length(ib,ic), each line of data 
 contains the values for all of the blocks of one chain molecule, with 
 N_block(ic) values in the line for molecule number ic.
+
 The lower triangular (LT) format for square 2D arrays is used for the
 array chi(im,in) of Flory-Huggin interaction parameters. In this format,
 a symmetric array with zero diagonal elements is input in the form::
@@ -276,43 +315,17 @@ system with only two monomer types (e.g., a diblock copolymer melt
 or a binary homopolymer blend), only the single value chi(2,1) on 
 a single line is required. 
 
-
-Conditionally Required Parameters
----------------------------------
-Some variables may be present or absent depending on the value
-of a previous variable.  These conditions, if any, are given in 
-the 'Absent if' column.
-
-Reference Volume
-----------------
-Values of the parameters block_length, solvent_size, kuhn, and
-chi all depend on the choice of a value for a reference volume
-used to define an effective repeat unit.  Each element of the 
-variable block_length represents the number of "monomers" in a 
-block of a block copolymer, defined to be the ratio of the block 
-volume to the chosen reference volume.  Similarly, the variable 
-solvent_size is given by ratio of the solvent volume to the 
-reference volume. The values of the chi parameters are proportional
-to the reference volume, while kuhn lengths are proportional to
-the square root of the reference volume. The program does not
-require a value for the reference volume as an input - the
-choice only effects the values required for other quantities.
-
-Length Units
-------------
-
-Any units of length can be used for the kuhn lengths and the
-unit cell dimensions, as long as the same units are used for 
-all quantities with units of length. One can use either a
-physical unit, such as nanometers or Angstroms, or 
-dimensionless units in which one or more of the statistical 
-segment lengths is set to unity. 
-
-
 .. _script-sections-sec:
 
 Script Sections
 ===============
+
+Each of the following subsections describes the format of an allowed
+section of the input script. Array-valued parameters are indicated using
+the conventions described above.  Some variables may be present or absent 
+depending on the value of a previous variable.  These conditions, if any, 
+are given in a column entitled 'Required if' or 'Absent if'.
+
 
 .. _script-monomers-sub:
 
@@ -508,10 +521,14 @@ for one set of input parameters.
   Variable  Type          Description
   ========= ============= =====================================================
   max_itr   integer       maximum allowed number of iterations
-  max_error real          tolerance - maximum error after convergence
-  domain    logical       variable unit cell if true, fixed unit cell if false
-  itr_algo  character(10) character code for iteration algorithm
-  N_cut     integer       dimension of cutoff Jacobian
+  max_error real          tolerance - maximum norm of residual 
+  domain    logical       variable unit cell if true, fixed cell if false
+  itr_algo  character(10) code for iteration algorithm:
+                          'NR' => Newton/Broyden, 'AM' => Anderson mixing.
+  N_cut     integer       dimension of cutoff Jacobian in NR algorithm
+                          (required iff itr_algo = 'NR')
+  N_hist    integer       Number of histories used in AM algorithm
+                          (required iff itr_algo = 'AM')
   ========= ============= =====================================================
 
 For now, the value of the 'itr_algo' variable must be 'NR', for Newton-Raphson.
@@ -587,9 +604,9 @@ or omega field.
   ================  ============= ============================
   Variable          Type          Description
   ================  ============= ============================
-  input_filename    character(60) name of the input file 
-                                  (symmetry-adapated format)
-  output_filename   character(60) name of the output file 
+  input_filename    character(60) name of input file 
+                                  (symmetry-adapted format)
+  output_filename   character(60) name of output file 
                                   (coordinate grid format)
   ================  ============= ============================
   
@@ -601,15 +618,15 @@ RGRID_TO_FIELD
 This command performs the inverse of the transformation performed
 by FIELD_TO_RGRID: It reads a file containing values of a field on
 the nodes of a coordinate grid and outputs a file containing a
-representationo as an symmetry-adapated Fourier expansion.
+representationo as an symmetry-adapted Fourier expansion.
 
   ================ ============= ========================================
   Variable         Type          Description
   ================ ============= ========================================
-  input_filename   character(60) name of the input file 
+  input_filename   character(60) name of input file 
                                  (coordinate grid format)
-  output_filename  character(60) name of the output file 
-                                 (symmetry-adapated Fourier format)
+  output_filename  character(60) name of output file 
+                                 (symmetry-adapted format)
   ================ ============= ========================================
   
 .. _script-rgridtokgrid-sub:
@@ -624,10 +641,10 @@ Fourier components for all wavevectors on a k-space grid.
   ================ =============  ===================================
   Variable         Type           Description
   ================ =============  ===================================
-  input_filename   character(60)  name of the input file 
-                                  (coordinate r-space grid)
+  input_filename   character(60)  name of input file 
+                                  (coordinate grid)
   output_filename  character(60)  name of the output file 
-                                  (wavevector k-space grid)
+                                  (wavevector grid)
   ================ =============  ===================================
   
 .. _script-kgridtorgrid-sub:
@@ -643,10 +660,10 @@ outputs values of the field on a coordinate r-space grid.
   ================ ============= ============================
   Variable         Type          Description
   ================ ============= ============================
-  input_filename   character(60) name of the input file 
-                                 (wavevector k-space grid)
-  output_filename  character(60) name of the output file 
-                                 (coordinate r-space grid)
+  input_filename   character(60) name of input file 
+                                 (wavevector grid)
+  output_filename  character(60) name of output file 
+                                 (coordinate grid)
   ================ ============= ============================
   
 .. _script-rhotoomega-sub:
@@ -656,7 +673,7 @@ RHO_TO_OMEGA
 
 This command reads a file containing a monomer concetnration field
 and outputs a corresponding initial guess for the omega field. Both
-input and ouput files use the symmetry-adapated Fourier expansion
+input and ouput files use the symmetry-adapted Fourier expansion
 format. The omega field is computed by simply setting the Lagrange 
 multiplier pressure field to zero, giving a field that only contains 
 the contributions that arise from the excess interaction free 
@@ -668,10 +685,10 @@ volume fraction fields in a particular structure.
   ================  ============= ============================
   Variable          Type          Description
   ================  ============= ============================
-  input_filename    character(60) name of the input rho file 
-                                  (symmetry-adapated format)
-  output_filename   character(60) name of the output omega file 
-                                  (coordinate grid format)
+  input_filename    character(60) name of input rho file 
+                                  (symmetry-adapted)
+  output_filename   character(60) name of output omega file 
+                                  (symmetry-adapted)
   ================  ============= ============================
   
 .. _script-finish-sub:
