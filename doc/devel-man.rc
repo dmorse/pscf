@@ -39,7 +39,7 @@ Src_dir:
 ../src
 
 Doc_dir:
-api
+devel-man
 
 Com_char:
 !

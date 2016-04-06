@@ -1,41 +1,35 @@
 
-Re-Generating API Documentation
--------------------------------
+Re-Generating Developer API Documentation
+-----------------------------------------
 
 If you modify the source files, you may wish to regenerate the html 
 api documentation. This documentation is extracted from the Fortran 
-source files by the GDoc.py python script. 
+source files by the GDoc.py python script, which is distributed as
+part of this package.  To generate html api documentation:
 
-To generate html api documentation:
+ - From within the pscf/doc directory, enter::
 
-1) Install the GDoc python package somewhere within your $PYTHONPATH, 
-   environment path variable, if it is not already installed
+      > make devel-man
 
-2) Edit the Makefile in this doc directory so that $(GDOC) points to 
-   the GDoc.py script and $(PYTHON) points to an appropriate python 
-   interpreter executable. The script requires python version 2.2 or 
-   greater.
+ - At the prompt "Enter name of rc configuration file:", enter::
 
-3) If you wish to save any documentation that is currently in the 
-   doc/api directory, rename this directory before proceeding. All
-   files in the existing directory will otherwise be overwritten.
+      devel-man.rc
 
-4) From within the doc directory, issue the command
+   The resulting documentation will be created in subdirectory 
+   doc/devel-man, which will be created if it does not already exist. 
 
-   > make api
+ - To remove old html documentation and start over, enter::
 
-5) At the prompt "Enter name of rc configuration file:", enter 
-
-   "api.rc" 
-
-   The resulting documentation will be created in subdirectory doc/api,
-   which will be created if it does not already exist. 
-
-6) To remove old html documentation and start over, issue the command
-
-   > make clean
+      > make clean
 
    This will remove the entire doc/api subdirectory.
+
+Re-Generating Developer API Documentation
+-----------------------------------------
+
+   To generate a local copy of the user manual, enter::
+
+      > make user-man
 
 
 Preprocessor Generated Fortran Files
@@ -73,13 +67,13 @@ the corresponding *.f targets in src/build/Makefile, which list the
 and by the the fact that the *.f fortran files are listed as 
 dependences for the corresponding *.o targets for these three files.
 
-The "api" target of the documentation Makefile in the doc directory 
+The "devel-man" target of the documentation Makefile in the doc directory 
 first temporarily copies these three *.f programs from scr/build to 
 appropriate locations in the directory tree, each in the same directory 
 as the corresponding *.fp.f source file, then builds the html 
 documentation, and ends by removes these temporary copies of the 
-*.f files. (Read the api target of the Makefile if this is not 
-clear). The directory structure of the api documentation, which 
+*.f files. (Read the devel-man target of the Makefile if this is 
+not clear). The directory structure of the api documentation, which 
 mimics the structure of the src directory, is thus constructed as 
 if each compilable *.f fortran were in the directory that contains 
 the corresponding *.fp.f preprocessor input file.

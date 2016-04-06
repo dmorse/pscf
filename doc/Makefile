@@ -7,11 +7,17 @@ BUILD=$(SRC)/build
 PYTHON=python
 GDOC=../tools/python/GDoc/GDoc.py
 
-# ====== Target to make html api documentation =================
-#
-.PHONY: api
+# ====== Target to make html user manual  =======================
+# Note: This requires the python2.7-sphinx python package
 
-api:	
+user-man:
+	cd user-man; make html
+
+# ====== Target to make html developer/api documentation ========
+#
+.PHONY: devel-man 
+
+devel-man:	
 	cp $(BUILD)/pscf_pd.f $(SRC)/pscf_pd.f
 	cp $(BUILD)/scf_mod.f $(SRC)/scf/scf_mod.f
 	cp $(BUILD)/iterate_mod.f $(SRC)/iterate/iterate_mod.f
@@ -20,10 +26,9 @@ api:
 	rm $(SRC)/scf/scf_mod.f
 	rm $(SRC)/iterate/iterate_mod.f
 
-# ======   clean - dummy target to clean up debris =============
-
 .PHONY: clean
 
 clean:
-	rm -rf  *~ api
+	rm -rf  devel-man/*
+	rm -rf  user-man/_build
 
