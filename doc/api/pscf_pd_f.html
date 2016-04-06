@@ -78,7 +78,7 @@ program <strong>pscf_pd</strong>
                              <a href="scf/chemistry_mod_f.html#input_composition">input_composition</a>, <a href="scf/chemistry_mod_f.html#input_interaction">input_interaction</a>, &
                              <a href="scf/chemistry_mod_f.html#output_monomers">output_monomers</a>, <a href="scf/chemistry_mod_f.html#output_chains">output_chains</a>, <a href="scf/chemistry_mod_f.html#output_solvents">output_solvents</a>,&
                              <a href="scf/chemistry_mod_f.html#output_composition">output_composition</a>, <a href="scf/chemistry_mod_f.html#output_interaction">output_interaction</a>, &
-                             <a href="scf/chemistry_mod_f.html#N_monomer">N_monomer</a>, <a href="scf/chemistry_mod_f.html#N_chain">N_chain</a>, <a href="scf/chemistry_mod_f.html#N_block">N_block</a>, <a href="scf/chemistry_mod_f.html#N_solvent">N_solvent</a>
+                             <a href="scf/chemistry_mod_f.html#N_monomer">N_monomer</a>, <a href="scf/chemistry_mod_f.html#N_chain">N_chain</a>, <a href="scf/chemistry_mod_f.html#N_block">N_block</a>, <a href="scf/chemistry_mod_f.html#N_solvent">N_solvent</a>, <a href="scf/chemistry_mod_f.html#chi">chi</a>
    use <a href="crystal/unit_cell_mod_f.html#unit_cell_mod">unit_cell_mod</a>, only : <a href="crystal/unit_cell_mod_f.html#input_unit_cell">input_unit_cell</a>, <a href="crystal/unit_cell_mod_f.html#output_unit_cell">output_unit_cell</a>, &
                              <a href="crystal/unit_cell_mod_f.html#N_cell_param">N_cell_param</a>, <a href="crystal/unit_cell_mod_f.html#cell_param">cell_param</a>, &
                              <a href="crystal/unit_cell_mod_f.html#make_unit_cell">make_unit_cell</a>, <a href="crystal/unit_cell_mod_f.html#R_basis">R_basis</a>, <a href="crystal/unit_cell_mod_f.html#G_basis">G_basis</a>
@@ -86,14 +86,20 @@ program <strong>pscf_pd</strong>
    use <a href="grid/grid_mod_f.html#grid_mod">grid_mod</a>,      only : <a href="grid/grid_mod_f.html#ngrid">ngrid</a>, <a href="grid/grid_mod_f.html#input_grid">input_grid</a>, <a href="grid/grid_mod_f.html#allocate_grid">allocate_grid</a>, <a href="grid/grid_mod_f.html#make_ksq">make_ksq</a>
    use <a href="crystal/basis_mod_f.html#basis_mod">basis_mod</a>,     only : <a href="crystal/basis_mod_f.html#N_wave">N_wave</a>, <a href="crystal/basis_mod_f.html#N_star">N_star</a>, group, &
                              <a href="crystal/basis_mod_f.html#make_basis">make_basis</a>, <a href="crystal/basis_mod_f.html#output_waves">output_waves</a>, <a href="crystal/basis_mod_f.html#release_basis">release_basis</a>
+   
+   use <a href="grid/fft3_mod_f.html#fft_mod">fft_mod</a>,        only : <a href="grid/fft3_mod_f.html#fft_plan">fft_plan</a>, <a href="grid/fft3_mod_f.html#create_fft_plan">create_fft_plan</a>, <a href="grid/fft3_mod_f.html#fft">fft</a>, <a href="grid/fft3_mod_f.html#ifft">ifft</a>
+
    use <a href="crystal/grid_basis_mod_f.html#grid_basis_mod">grid_basis_mod</a>
    use <a href="scf/chain_mod_f.html#chain_mod">chain_mod</a>
    use <a href="scf/scf_mod_f.html#scf_mod">scf_mod</a>,       only : <a href="scf/scf_mod_f.html#density_startup">density_startup</a>, <a href="scf/scf_mod_f.html#density">density</a>
-   use <a href="iterate/iterate_mod_f.html#iterate_mod">iterate_mod</a>,   only : <a href="iterate/iterate_mod_f.html#input_iterate_param">input_iterate_param</a>, <a href="iterate/iterate_mod_f.html#output_iterate_param">output_iterate_param</a>, &
-                             <a href="iterate/iterate_mod_f.html#iterate_NR_startup">iterate_NR_startup</a>, <a href="iterate/iterate_mod_f.html#iterate_NR">iterate_NR</a>, <a href="iterate/iterate_mod_f.html#domain">domain</a>
-   use <a href="iterate/sweep_mod_f.html#sweep_mod">sweep_mod</a>
+   use <a href="iterate/iterate_mod_f.html#iterate_mod">iterate_mod</a>,   only : <a href="iterate/iterate_mod_f.html#input_iterate_param">input_iterate_param</a>, <a href="iterate/iterate_mod_f.html#output_iterate_param">output_iterate_param</a>, itr_algo, &
+                             <a href="iterate/iterate_mod_f.html#iterate_NR_startup">iterate_NR_startup</a>, <a href="iterate/iterate_mod_f.html#iterate_AM_startup">iterate_AM_startup</a>, <a href="iterate/iterate_mod_f.html#iterate_NR">iterate_NR</a>, iterate_AM, <a href="iterate/iterate_mod_f.html#domain">domain</a>
+   use <a href="iterate/sweep_mod_f.html#sweep_mod">sweep_mod</a> 
    use <a href="response/response_mod_f.html#response_mod">response_mod</a>,  only : <a href="response/response_mod_f.html#response_startup">response_startup</a>, <a href="response/response_mod_f.html#response_sweep">response_sweep</a>
    implicit none
+
+   ! FFT variable
+   type(<a href="grid/fft3_mod_f.html#fft_plan">fft_plan</a>)  :: <a href="scf/scf_mod_f.html#plan">plan</a>
 
    ! SCFT variables
    real(<a href="const_mod_f.html#long">long</a>)      :: omega(:,:)      ! chemical potential field 
@@ -122,11 +128,21 @@ program <strong>pscf_pd</strong>
    character(60)   :: input_file      ! <a href="io/io_mod_f.html#input">input</a> file for FIELD_TO_GRID
    character(60)   :: output_file     ! <a href="io/io_mod_f.html#output">output</a> file for FIELD_TO_GRID
 
+   !  Variable for Kgrid to Rgrid transformation
+   integer                     :: i1, i2, i3, alpha
+   complex(<a href="const_mod_f.html#long">long</a>), allocatable  :: k_grid(:,:,:,:)
+   real(<a href="const_mod_f.html#long">long</a>), allocatable     :: r_grid(:,:,:,:)
+   real(<a href="const_mod_f.html#long">long</a>), allocatable     :: omega_basis(:,:)
+   real                        :: ff, qR
+   real(<a href="const_mod_f.html#long">long</a>)                  :: rnodes       ! number of grid points
+   character(25)               :: fmt
+
    ! Variables for iteration (fixed chemistry)
    integer         :: extr_order      ! extrapolation order
    integer         :: itr             ! iteration index
    real(<a href="const_mod_f.html#long">long</a>)      :: error           ! error = max(residual)
    logical         :: converge        ! true if converged
+   character(10)   :: algo
 
    ! Variables for sweep (sequence of parameters)
    integer         :: i, j            ! step indices
@@ -140,19 +156,20 @@ program <strong>pscf_pd</strong>
 
    ! Logical operation flags - set true as each operation requested
    ! Note: These are listed in normal sequence within <a href="io/io_mod_f.html#input">input</a> file
-   logical :: monomer_flag     = .FALSE. ! monomer data read
-   logical :: chain_flag       = .FALSE. ! chain data read
-   logical :: solvent_flag     = .FALSE. ! solvent data read
-   logical :: composition_flag = .FALSE. ! composition data read
-   logical :: interaction_flag = .FALSE. ! interaction data read
-   logical :: unit_cell_flag   = .FALSE. ! unit_cell made
-   logical :: discretize_flag  = .FALSE. ! grid and ds made
-   logical :: prefix_flag      = .FALSE. ! io file prefixes read
-   logical :: basis_flag       = .FALSE. ! symmetrized basis made
-   logical :: omega_flag       = .FALSE. ! initial omega exists
-   logical :: iterate_flag     = .FALSE. ! 1st iteration requested
-   logical :: output_flag      = .FALSE. ! deferred iterate <a href="io/io_mod_f.html#output">output</a>
-   logical :: sweep_flag       = .FALSE. ! sweep requested
+   logical :: monomer_flag           = .FALSE. ! monomer data read
+   logical :: chain_flag             = .FALSE. ! chain data read
+   logical :: solvent_flag           = .FALSE. ! solvent data read
+   logical :: composition_flag       = .FALSE. ! composition data read
+   logical :: interaction_flag       = .FALSE. ! interaction data read
+   logical :: unit_cell_flag         = .FALSE. ! unit_cell made
+   logical :: discretize_flag        = .FALSE. ! grid and ds made
+   logical :: prefix_flag            = .FALSE. ! io file prefixes read
+   logical :: basis_flag             = .FALSE. ! symmetrized basis made
+   logical :: omega_flag             = .FALSE. ! initial omega exists
+   logical :: iterate_flag           = .FALSE. ! 1st iteration requested
+   logical :: output_flag            = .FALSE. ! deferred iterate <a href="io/io_mod_f.html#output">output</a>
+   logical :: sweep_flag             = .FALSE. ! sweep requested
+   logical :: rho_flag               = .FALSE. ! initial_rho_exist
 
    ! Timing variables
    real(<a href="const_mod_f.html#long">long</a>) :: start_time, basis_time, scf_time
@@ -426,7 +443,7 @@ program <strong>pscf_pd</strong>
             close(field_unit)
             omega_flag = .TRUE.
          end if
- 
+        
          iterate_flag = .TRUE.
  
          call cpu_time(basis_time)
@@ -440,23 +457,44 @@ program <strong>pscf_pd</strong>
          ! Create <a href="grid/fft3_mod_f.html#fft_plan">fft_plan</a>, which is saved in <a href="scf/scf_mod_f.html#scf_mod">scf_mod</a> as public variable
          call <a href="scf/scf_mod_f.html#density_startup">density_startup</a>(<a href="grid/grid_mod_f.html#ngrid">ngrid</a>,extr_order,chain_step,&
                                   update_chain=.false.)
- 
-         ! Allocate private arrays for Newton-Raphson iteration
-         call <a href="iterate/iterate_mod_f.html#iterate_NR_startup">iterate_NR_startup</a>(<a href="crystal/basis_mod_f.html#N_star">N_star</a>)
-      
-         write(6,FMT = "( / '************************************' / )" )
-         ! Main Newton-Raphson iteration loop
-         call <a href="iterate/iterate_mod_f.html#iterate_NR">iterate_NR</a>(      &
-                  <a href="crystal/basis_mod_f.html#N_star">N_star</a>,      &! # of basis functions
-                  omega,       &! chemical potential field (IN/OUT)
-                  itr,         &! actual number of interations
-                  converge,    &! = .TRUE. if converged
-                  error,       &! final error = max(residuals)
-                  rho,         &! monomer <a href="scf/scf_mod_f.html#density">density</a> field
-                  f_Helmholtz, &! Helmholtz free energy per monomer/kT
-                  pressure,    &! pressure * monomer volume / kT
-                  stress       &! d(free energy)/d(cell parameters)
-                       )
+
+         if(itr_algo=='NR')then
+
+             ! Allocate private arrays for Newton-Raphson iteration
+             call <a href="iterate/iterate_mod_f.html#iterate_NR_startup">iterate_NR_startup</a>(<a href="crystal/basis_mod_f.html#N_star">N_star</a>)
+    
+             write(6,FMT = "( / '************************************' / )" )
+             ! Main Newton-Raphson iteration loop
+             call <a href="iterate/iterate_mod_f.html#iterate_NR">iterate_NR</a>(      &
+                      <a href="crystal/basis_mod_f.html#N_star">N_star</a>,      &! # of basis functions
+                      omega,       &! chemical potential field (IN/OUT)
+                      itr,         &! actual number of interations
+                      converge,    &! = .TRUE. if converged
+                      error,       &! final error = max(residuals)
+                      rho,         &! monomer <a href="scf/scf_mod_f.html#density">density</a> field
+                      f_Helmholtz, &! Helmholtz free energy per monomer/kT
+                      pressure,    &! pressure * monomer volume / kT
+                      stress       &! d(free energy)/d(cell parameters)
+                           )
+
+         elseif(itr_algo=='AM')then
+
+             ! Allocate private arrays for Anderson-Mixing iteration
+             call <a href="iterate/iterate_mod_f.html#iterate_AM_startup">iterate_AM_startup</a>(<a href="crystal/basis_mod_f.html#N_star">N_star</a>)
+    
+             call iterate_AM(      &
+                      <a href="crystal/basis_mod_f.html#N_star">N_star</a>,      &! # of basis functions
+                      omega,       &! chemical potential field (IN/OUT)
+                      itr,         &! actual number of interations
+                      converge,    &! = .TRUE. if converged
+                      error,       &! final error = max(residuals)
+                      rho,         &! monomer <a href="scf/scf_mod_f.html#density">density</a> field
+                      f_Helmholtz, &! Helmholtz free energy per monomer/kT
+                      pressure,    &! pressure * monomer volume / kT
+                      stress       &! d(free energy)/d(cell parameters)
+                           )
+
+         endif        
 
          ! Defer <a href="io/io_mod_f.html#output">output</a> to SWEEP, RESPONSE, or FINISH operation
          ! If <a href="io/io_mod_f.html#output">output</a> by SWEEP, '0.' will be added to output_prefix
@@ -537,18 +575,35 @@ program <strong>pscf_pd</strong>
                                  update_chain=.TRUE.)
  
             ! Main iteration routine
-            call <a href="iterate/iterate_mod_f.html#iterate_NR">iterate_NR</a>( &
-                <a href="crystal/basis_mod_f.html#N_star">N_star</a>,      &! # of basis functions
-                omega,       &! chemical potential field (IN/OUT)
-                itr,         &! actual number of interations
-                converge,    &! = .TRUE. if converged
-                error,       &! final error = max(residuals)
-                rho,         &! monomer <a href="scf/scf_mod_f.html#density">density</a> field
-                f_Helmholtz, &! Helmholtz free energy per monomer/kT
-                pressure,    &! pressure * monomer volume/kT
-                stress       &! d(free energy)/d(cell parameters)
-                )
-         
+            if(itr_algo=='NR')then
+
+               call <a href="iterate/iterate_mod_f.html#iterate_NR">iterate_NR</a>( &
+                   <a href="crystal/basis_mod_f.html#N_star">N_star</a>,      &! # of basis functions
+                   omega,       &! chemical potential field (IN/OUT)
+                   itr,         &! actual number of interations
+                   converge,    &! = .TRUE. if converged
+                   error,       &! final error = max(residuals)
+                   rho,         &! monomer <a href="scf/scf_mod_f.html#density">density</a> field
+                   f_Helmholtz, &! Helmholtz free energy per monomer/kT
+                   pressure,    &! pressure * monomer volume/kT
+                   stress       &! d(free energy)/d(cell parameters)
+                   )
+               
+           elseif(itr_algo=='AM')then
+    
+             call iterate_AM(      &
+                      <a href="crystal/basis_mod_f.html#N_star">N_star</a>,      &! # of basis functions
+                      omega,       &! chemical potential field (IN/OUT)
+                      itr,         &! actual number of interations
+                      converge,    &! = .TRUE. if converged
+                      error,       &! final error = max(residuals)
+                      rho,         &! monomer <a href="scf/scf_mod_f.html#density">density</a> field
+                      f_Helmholtz, &! Helmholtz free energy per monomer/kT
+                      pressure,    &! pressure * monomer volume / kT
+                      stress       &! d(free energy)/d(cell parameters)
+                           )
+           endif
+
             if (converge) then
    
                i = i + 1
@@ -593,7 +648,7 @@ program <strong>pscf_pd</strong>
          end do sweep_loop 
          ! end loop over sweep through parameters
  
- 
+
       case ('RESPONSE')
 
          ! Calculate and diagonalize linear SCF response functions for
@@ -643,13 +698,13 @@ program <strong>pscf_pd</strong>
          call <a href="crystal/basis_mod_f.html#output_waves">output_waves</a>(field_unit, group_name)
          close(field_unit)
 
-      case ('FIELD_TO_GRID')
+      case ('FIELD_TO_RGRID')
 
          ! Read representation of field as list of coefficients of
          ! symmetrized basis functions, <a href="io/io_mod_f.html#output">output</a> file containing field
-         ! values at grid points.
+         ! values at grid points (rgrid).
 
-         ! Check preconditions for FIELD_TO_GRID
+         ! Check preconditions for FIELD_TO_RGRID
          if ( .not. unit_cell_flag ) then
             write(6,*) "Error: Must make UNIT_CELL before FIELD_TO_GRID"
             exit op_loop
@@ -679,10 +734,149 @@ program <strong>pscf_pd</strong>
          close(field_unit)
  
          ! Write values of field on a grid to output_file 
-         open(unit=field_unit,file=trim(output_prefix)//trim(output_file),status='replace')
+         open(unit=field_unit,file=trim(output_prefix)//trim(output_file)//'_grid',status='replace')
          call <a href="io/field_io_mod_f.html#output_field_grid">output_field_grid</a>(rho,field_unit,<a href="grid/grid_mod_f.html#ngrid">ngrid</a>)
          close(field_unit)
+
+
+      case ('KGRID_TO_RGRID')
+
+         ! Read representation of field as list of coefficients of
+         ! on FFT grid (kgrid) and <a href="io/io_mod_f.html#output">output</a> file containing field
+         ! values at grid points (rgrid).
+
+         ! Check preconditions for KGRID_TO_RGRID
+         if ( .not. unit_cell_flag ) then
+            write(6,*) "Error: Must make UNIT_CELL before FIELD_TO_GRID"
+            exit op_loop
+         else if (.not.discretize_flag) then
+            write(6,*) &
+                  "Error: Must make DISCRETIZATION before FIELD_TO_GRID"
+            exit op_loop
+         else if (.not.basis_flag) then
+            write(6,*) "Error: Must make BASIS before FIELD_TO_GRID"
+            exit op_loop
+         end if
  
+
+         ! Read <a href="io/io_mod_f.html#input">input</a> and <a href="io/io_mod_f.html#output">output</a> file names from <a href="io/io_mod_f.html#input">input</a> script
+         call <a href="io/io_mod_f.html#input">input</a>(input_file,'input_filename')
+         call <a href="io/io_mod_f.html#input">input</a>(output_file,'output_filename')
+       
+         allocate( k_grid(0:<a href="grid/grid_mod_f.html#ngrid">ngrid</a>(1)/2, 0:<a href="grid/grid_mod_f.html#ngrid">ngrid</a>(2)-1, 0:<a href="grid/grid_mod_f.html#ngrid">ngrid</a>(3)-1, <a href="scf/chemistry_mod_f.html#N_monomer">N_monomer</a>) )
+         allocate( omega_basis(<a href="scf/chemistry_mod_f.html#N_monomer">N_monomer</a>,<a href="crystal/basis_mod_f.html#N_star">N_star</a>) )
+
+         ! Read field (coefficients of basis functions) from input_file
+         open(unit=field_unit,file=trim(input_prefix)//trim(input_file),status='old')
+
+         ! Skip first 13 lines 
+         do i=1,13
+            read(field_unit,*)
+         end do
+
+         k_grid=0.0         
+         do i1=0,<a href="grid/grid_mod_f.html#ngrid">ngrid</a>(1)/2
+            do i2=0,<a href="grid/grid_mod_f.html#ngrid">ngrid</a>(2)-1
+               do i3=0,<a href="grid/grid_mod_f.html#ngrid">ngrid</a>(3)-1
+                     read(field_unit,*)k_grid(i1,i2,i3,:)
+               end do 
+            end do
+         end do
+         close(field_unit)
+
+
+         call <a href="grid/fft3_mod_f.html#create_fft_plan">create_fft_plan</a>(<a href="grid/grid_mod_f.html#ngrid">ngrid</a>,<a href="scf/scf_mod_f.html#plan">plan</a>)
+         do alpha=1,<a href="scf/chemistry_mod_f.html#N_monomer">N_monomer</a>
+               call <a href="crystal/grid_basis_mod_f.html#kgrid_to_basis">kgrid_to_basis</a>(k_grid(:,:,:,alpha),rho(alpha,:))
+         end do
+
+         do alpha=1,<a href="scf/chemistry_mod_f.html#N_monomer">N_monomer</a>
+            do i=1,<a href="crystal/basis_mod_f.html#N_star">N_star</a>
+               omega_basis(alpha,i) = sum(<a href="scf/chemistry_mod_f.html#chi">chi</a>(:,alpha)*rho(:,i))
+            end do
+         end do
+
+
+         open(unit=field_unit,file=trim(output_prefix)//trim(output_file),status='replace')
+         call <a href="io/field_io_mod_f.html#output_field">output_field</a>(rho,field_unit,group_name)
+         close(field_unit)
+
+         open(unit=field_unit,file=trim(output_prefix)//trim(output_file)//'_grid',status='replace')
+         call <a href="io/field_io_mod_f.html#output_field_grid">output_field_grid</a>(rho,field_unit,<a href="grid/grid_mod_f.html#ngrid">ngrid</a>)
+         close(field_unit)
+
+         open(unit=field_unit,file=trim(output_prefix)//'omega',status='replace')
+         call <a href="io/field_io_mod_f.html#output_field">output_field</a>(omega_basis,field_unit,group_name)
+         close(field_unit)
+
+
+      case ('RGRID_TO_FIELD')
+
+         ! Read representation of field as the values on the grid points
+         ! (rgrid) , and outputs file containing field
+         ! values in terms of symmetry adapted basis functions (basis).
+
+         ! Check preconditions for RGRID_TO_FIELD
+         if ( .not. unit_cell_flag ) then
+            write(6,*) "Error: Must make UNIT_CELL before FIELD_TO_GRID"
+            exit op_loop
+         else if (.not.discretize_flag) then
+            write(6,*) &
+                  "Error: Must make DISCRETIZATION before FIELD_TO_GRID"
+            exit op_loop
+         else if (.not.basis_flag) then
+            write(6,*) "Error: Must make BASIS before FIELD_TO_GRID"
+            exit op_loop
+         end if
+ 
+         ! Read <a href="io/io_mod_f.html#input">input</a> and <a href="io/io_mod_f.html#output">output</a> file names from <a href="io/io_mod_f.html#input">input</a> script
+         call <a href="io/io_mod_f.html#input">input</a>(input_file,'input_filename')
+         call <a href="io/io_mod_f.html#input">input</a>(output_file,'output_filename')
+       
+         allocate( r_grid(0:<a href="grid/grid_mod_f.html#ngrid">ngrid</a>(1)-1, 0:<a href="grid/grid_mod_f.html#ngrid">ngrid</a>(2)-1, 0:<a href="grid/grid_mod_f.html#ngrid">ngrid</a>(3)-1, <a href="scf/chemistry_mod_f.html#N_monomer">N_monomer</a>) )
+         allocate( k_grid(0:<a href="grid/grid_mod_f.html#ngrid">ngrid</a>(1)/2, 0:<a href="grid/grid_mod_f.html#ngrid">ngrid</a>(2)-1, 0:<a href="grid/grid_mod_f.html#ngrid">ngrid</a>(3)-1, <a href="scf/chemistry_mod_f.html#N_monomer">N_monomer</a>) )
+         allocate( omega_basis(<a href="scf/chemistry_mod_f.html#N_monomer">N_monomer</a>,<a href="crystal/basis_mod_f.html#N_star">N_star</a>) )
+
+         ! Read field values at grid points from input_file
+         open(unit=field_unit,file=trim(input_prefix)//trim(input_file),status='old')
+         ! Skip first 13 lines 
+         do i=1,13
+            read(field_unit,*)
+         end do
+         r_grid=0.0
+         do i3=0,<a href="grid/grid_mod_f.html#ngrid">ngrid</a>(3)-1
+            do i2=0,<a href="grid/grid_mod_f.html#ngrid">ngrid</a>(2)-1
+               do i1=0,<a href="grid/grid_mod_f.html#ngrid">ngrid</a>(1)-1
+                   read(field_unit,*)r_grid(i1,i2,i3,:)
+               end do 
+            end do
+         end do
+         close(field_unit)
+
+         call <a href="grid/fft3_mod_f.html#create_fft_plan">create_fft_plan</a>(<a href="grid/grid_mod_f.html#ngrid">ngrid</a>,<a href="scf/scf_mod_f.html#plan">plan</a>)
+         rnodes=dble( <a href="scf/scf_mod_f.html#plan">plan</a>%n(1) * <a href="scf/scf_mod_f.html#plan">plan</a>%n(2) * <a href="scf/scf_mod_f.html#plan">plan</a>%n(3) )
+       
+         do alpha=1,<a href="scf/chemistry_mod_f.html#N_monomer">N_monomer</a>
+               call <a href="grid/fft3_mod_f.html#fft">fft</a>(<a href="scf/scf_mod_f.html#plan">plan</a>,r_grid(:,:,:,alpha),k_grid(:,:,:,alpha))
+               k_grid(:,:,:,alpha)=k_grid(:,:,:,alpha)/rnodes
+               call <a href="crystal/grid_basis_mod_f.html#kgrid_to_basis">kgrid_to_basis</a>(k_grid(:,:,:,alpha),rho(alpha,:))
+         end do
+        
+         do alpha=1,<a href="scf/chemistry_mod_f.html#N_monomer">N_monomer</a>
+            do i=1,<a href="crystal/basis_mod_f.html#N_star">N_star</a>
+               omega_basis(alpha,i) = sum(<a href="scf/chemistry_mod_f.html#chi">chi</a>(:,alpha)*rho(:,i))
+            end do
+         end do
+
+         open(unit=field_unit,file=trim(output_prefix)//trim(output_file),status='replace')
+         call <a href="io/field_io_mod_f.html#output_field">output_field</a>(rho,field_unit,group_name)
+         close(field_unit)
+        
+         open(unit=field_unit,file=trim(output_prefix)//'omega',status='replace')
+         call <a href="io/field_io_mod_f.html#output_field">output_field</a>(omega_basis,field_unit,group_name)
+         close(field_unit)
+
+
       case ('FINISH')
 
          ! Deferred <a href="io/io_mod_f.html#output">output</a> of ITERATE, if necessary

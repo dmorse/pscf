@@ -30,6 +30,7 @@
 <li>procedure <a href="#iterate_NR">iterate_NR</a></li>
 <li>procedure <a href="#make_residual">make_residual</a></li>
 <li>procedure <a href="#Jacobian_response">Jacobian_response</a></li>
+<li>procedure <a href="#iterate_AM_startup">iterate_AM_startup</a></li>
 </ul>
 <h2 id="iterate_mod" ><a href="iterate_mod_f_.html#iterate_mod" target="source">iterate_mod</a></h2>
 <p><strong>MODULE</strong></p>  <pre>
@@ -64,14 +65,17 @@ module <strong>iterate_mod</strong>
    public :: <a href="#input_iterate_param">input_iterate_param</a>   ! <a href="../io/io_mod_f.html#input">input</a> iteration parameters 
    public :: <a href="#output_iterate_param">output_iterate_param</a>  ! <a href="../io/io_mod_f.html#output">output</a> iteration variables
    public :: <a href="#iterate_NR_startup">iterate_NR_startup</a>    ! allocates arrays needed by <a href="#iterate_NR">iterate_NR</a>
+   public :: <a href="#iterate_AM_startup">iterate_AM_startup</a>    ! allocates arrays needed by iterate_AM
    public :: <a href="#iterate_NR">iterate_NR</a>            ! main Newton-Raphson iteration routine
+   public :: iterate_AM            ! main Anderson-Mixing iteration routine
 
    ! public variables
    public :: <a href="#max_itr">max_itr</a>    ! maximum allowable number of iterations
    public :: <a href="#error_max">error_max</a>  ! error tolerance: stop when error < <a href="#error_max">error_max</a>
    public :: <a href="#domain">domain</a>     ! If true, adjust unit_cell_dimensions
    public :: itr_algo   ! Iteration algorithm 
-   public :: <a href="#N_cut">N_cut</a>      ! dimension of cutoff response and Jacobian
+   public :: <a href="#N_cut">N_cut</a>      ! dimension of cutoff response and Jacobian for NR scheme
+   public :: N_hist     ! Number of previous histories to use in Anderson-Mixing Scheme
 </pre>
 <h2 id="max_itr" ><a href="iterate_mod_f_.html#max_itr" target="source">max_itr</a></h2>
 <p><strong>VARIABLE</strong></p>  <pre>
@@ -248,6 +252,56 @@ module <strong>iterate_mod</strong>
    logical, intent(IN)       :: <a href="#domain">domain</a>
    real(<a href="../const_mod_f.html#long">long</a>), intent(IN)    :: omega(:,:)
    real(<a href="../const_mod_f.html#long">long</a>), intent(OUT)   :: Jacobian(:,:)
+</pre>
+<h2 id="iterate_AM_startup" ><a href="iterate_mod_f_.html#iterate_AM_startup" target="source">iterate_AM_startup</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>iterate_AM_startup</strong>(N)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+    1) Allocate arrays needed by iterate_AM
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+    integer N      = # of basis functions
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>iterate_AM_startup</strong>(N)
+   use <a href="../crystal/unit_cell_mod_f.html#unit_cell_mod">unit_cell_mod</a>, only : <a href="../crystal/unit_cell_mod_f.html#N_cell_param">N_cell_param</a>
+   use <a href="../scf/chemistry_mod_f.html#chemistry_mod">chemistry_mod</a>, only : <a href="../scf/chemistry_mod_f.html#N_monomer">N_monomer</a>, <a href="../scf/chemistry_mod_f.html#ensemble">ensemble</a>
+   
+   integer, intent(IN)       :: N        ! # of basis functions 
+   integer                   :: info     ! message variable for dgetri
+!!   real(<a href="../const_mod_f.html#long">long</a>), allocatable   :: Umn(:,:) ! Local Umn variable to calculate the
+                                         ! work space
+
+   if (allocated(ipvt)) deallocate(ipvt)
+   if (allocated(work)) deallocate(work)
+   if (allocated(dev)) deallocate(dev)
+   if (allocated(omega_hist)) deallocate(omega_hist)
+   if (allocated(Umn)) deallocate(Umn)
+
+   allocate(ipvt(N_hist))
+   allocate(work(N_hist))
+   allocate(dev(N_hist+1,N-1,<a href="../scf/chemistry_mod_f.html#N_monomer">N_monomer</a>))
+   allocate(omega_hist(N_hist+1,N-1,<a href="../scf/chemistry_mod_f.html#N_monomer">N_monomer</a>))
+   allocate(Umn(N_hist,N_hist))
+
+
+   ! estimate the opitimal workspace dimension
+   lwork = -1
+   call dgetri(N_hist,Umn,N_hist,ipvt,work,lwork,info)
+   lwork = work(1)
+   if (allocated(work)) deallocate(work)
+   allocate(work(lwork))
+
+   ! Umn changes size after every iteration so will be alloated in main (next)
+   ! subroutine, however, here we allocated it to calculate the maximum work
+   ! space needed for the AM scheme.
+   if (allocated(Umn)) deallocate(Umn)
+   
+   end subroutine <strong>iterate_AM_startup</strong>
+
+
+   !---------------------------------------------------------------------
 </pre>
 </body>
 </html>

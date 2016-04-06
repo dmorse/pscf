@@ -1,0 +1,615 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<link rel="stylesheet" href="GDoc.css" type="text/css">
+<title>GDoc_py</title>
+</head>
+<body bgcolor="#FFFFFF">
+<br />
+<p>
+[<a href="toc.html#top">table of contents</a>]
+[<a href="master_index.html#top">master index</a>]
+[<a href="function_index.html#top">functions</a>]
+[<a href="script_index.html#top">scripts</a>]
+[<a href="method_index.html#top">methods</a>]
+[<a href="module_index.html#top">modules</a>]
+[<a href="class_index.html#top">classes</a>]
+</p>
+<h3 align="center">TABLE OF CONTENTS</h3>
+<ul><li>module <a href="#GDoc">GDoc</a></li>
+<ul>
+<li>class <a href="#Section">Section</a></li>
+<ul>
+<li>method <a href="#Section.write">Section.write</a></li>
+</ul>
+<li>class <a href="#Item">Item</a></li>
+<ul>
+<li>method <a href="#Item.read">Item.read</a></li>
+<li>method <a href="#Item.write">Item.write</a></li>
+<li>method <a href="#Item.html_ref">Item.html_ref</a></li>
+<li>method <a href="#Item.html_link">Item.html_link</a></li>
+<li>method <a href="#Item.set_depth">Item.set_depth</a></li>
+<li>method <a href="#Item.html_toc">Item.html_toc</a></li>
+</ul>
+<li>class <a href="#SrcFile">SrcFile</a></li>
+<ul>
+<li>method <a href="#SrcFile.read">SrcFile.read</a></li>
+<li>method <a href="#SrcFile.write">SrcFile.write</a></li>
+</ul>
+<li>class <a href="#Document">Document</a></li>
+<ul>
+<li>method <a href="#Document.read">Document.read</a></li>
+<li>method <a href="#Document.make_indices">Document.make_indices</a></li>
+<li>method <a href="#Document.make_tree">Document.make_tree</a></li>
+<li>method <a href="#Document.html_index">Document.html_index</a></li>
+<li>method <a href="#Document.index_links">Document.index_links</a></li>
+<li>method <a href="#Document.write">Document.write</a></li>
+</ul>
+<li>class <a href="#InputFile">InputFile</a></li>
+<ul>
+<li>method <a href="#InputFile.readline">InputFile.readline</a></li>
+<li>method <a href="#InputFile.next_line">InputFile.next_line</a></li>
+<li>method <a href="#InputFile.read_string_dict">InputFile.read_string_dict</a></li>
+<li>method <a href="#InputFile.read_string_list">InputFile.read_string_list</a></li>
+<li>method <a href="#InputFile.read_path">InputFile.read_path</a></li>
+</ul>
+<li>function <a href="#read_config">read_config</a></li>
+<li>function <a href="#link_namespace">link_namespace</a></li>
+<li>function <a href="#escape">escape</a></li>
+<li>function <a href="#header">header</a></li>
+<li>function <a href="#footer">footer</a></li>
+<li>function <a href="#find_directory">find_directory</a></li>
+<li>script <a href="#Main">Main</a></li>
+</ul>
+<h2 id="GDoc" ><a href="GDoc_py_.html#GDoc" target="source">GDoc</a></h2>
+<p><strong>MODULE</strong></p>  <pre>
+     <strong>GDoc</strong> - Generic documentation tool
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     <strong>GDoc</strong> is designed to extract multi-line documentation strings from
+     programs or other text files, and output them formatted documentation.
+     Currently, the program can produce a set of hyperlinked html files, 
+     a single latex document, or (for storage) xml documents.
+</pre>
+<p><strong>FORMAT</strong></p>  <pre>
+     <strong>GDoc</strong> extracts documentation "Items", which are usually <a href="#header">header</a> blocks
+     written above functions or variables, and outputs these as formatted 
+     documentation. Each documentation item contains a series of sections,
+     each of which contains a heading on a line by itself (e.g., "PURPOSE",
+     "ARGUMENTS", etc.) followed by one or more lines of text. To provide
+     an example, the source code for the <strong>GDoc</strong> module is itself formatted 
+     with <a href="#header">header</a> blocks in the required formate.
+ 
+     Items: 
+         <strong>GDoc</strong> recognizes the beginnning and end of each documentation 
+     <a href="#Item">Item</a> by using the Python regular expression engine to search for 
+     beginning and ending marker lines. Examples of such marker lines
+     are show below:
+ 
+     beginning marker:    "#****c  parent/name" , or
+                          "#****ic parent/name"
+ 
+     ending marker        "#***"
+    
+     Here # is an example of a comment character that is used to mark the 
+     beginning of a one line comment or remark in the language used in the 
+     source code (e.g., ! in Fortran 90). The 4 asterisks in the beginning 
+     marker line and the 3 asterisks in the ending marker are literal and 
+     are required.  The "c" following the asterisks in the first beginning
+     marker is an example of a single character code used to indicate the 
+     type of object being documented (e.g., "c" for class, "f" for function,
+     etc.) in a user defined dictionary. The optional "i" character in the 
+     second example of a beginning marker is used to indicate that the 
+     item is an "internal" (or private) item.  The string "name" in the above 
+     denotes the name of the documentation <a href="#Item">Item</a>, which is typically the name 
+     of the variable, function, or other thing that is being documented.  
+     <strong>GDoc</strong> searches for instances of <a href="#Item">Item</a> names to create hyperlinks in html 
+     documentation.  The string "parent" in the above is the name of 
+     another documentation <a href="#Item">Item</a> that is the parent of this one in a hierarchy: 
+     For example, a module may be the parent of a variable or procedure, and 
+     a class may be the parent of its data attributes and/or methods.  These 
+     parent/child relationships are used to create a hierarchical tables of 
+     contents for each source file (in multi-file html documentation) and 
+     for the entire document (in both html or latex documentation). 
+ 
+     Sections:
+          Each documentation item contains a list of Sections, each
+     of which begins with a heading, such "NAME" or "PURPOSE", on a line
+     by itself, followed by one or more lines of text. The user must
+     provide supply a list of recognized <a href="#Section">Section</a> headings in the 
+     configuration file, as discussed below.
+ 
+     Configuration:
+          Before parsing the source files, <strong>GDoc</strong> reads a configuration 
+     file. The configuration file must specify, among other things: 
+     i)  The comment character that appears at the beginning of 
+         begining and ending marker lines, and at the beginning of each
+         line of documentation (e.g, '#' in the above examples and in
+         the source code of the <strong>GDoc</strong> module).
+     ii) A list of names of the types of items to document (e.g., 
+         "module", "function", "variable", etc.), and an associated 
+         single character codes for each. These (key : value) pairs 
+         are stored in a user defined dictionary, e.g., 
+         ("m":"module", #    "f":"function", "v":"variable" , ... ).  
+     iii)A list of recognized section headings (e.g., "NAME", "PURPOSE", 
+         etc.).  
+    The format of the configuration file is discussed in detail in the 
+    documentation for function read_config. Examples of working 
+    configuration files for generating the hmtl and latex documentation 
+    for <strong>GDoc</strong> itself are given in the html.rc and latex.rc files, 
+    respectively.
+</pre>
+<p><strong>USAGE</strong></p>  <pre>
+     To execute <strong>GDoc</strong> in Unix or Linux:
+ 
+     1) Change directory to a directory one level above the directory
+     containing the source file source, and the directory in which you
+     intend to create documentation.  Make the documentation directory,
+     if it does not already exist, and create a configuration file. 
+ 
+     2) Start the python interpreter by typing "python" at the shell
+     prompt. Within the interpreter, type "import <strong>GDoc</strong>". Then, enter 
+     the name of the configuration file (relative to the current 
+     directory) when prompted to do so. The <strong>GDoc</strong> directory must either 
+     be in the PYTHONPATH environment variable or a subdirectory of a 
+     directory in PYTHONPATH in order for python to find the module.
+    
+     To execute <strong>GDoc</strong> in MS Windows, one may either:
+ 
+     1) Start up the python interpreter and "import <strong>GDoc</strong>", as in
+     unix. This requires that python search path be set so that it 
+     can find the <strong>GDoc</strong> directory.
+ 
+     2) Double click on the <strong>GDoc</strong>/GDoc.py file, which should look 
+     like a snake. This, however, makes the <strong>GDoc</strong> directory the 
+     current directory, and thus requires that the source and 
+     documentation directory be specified in the configuration file
+     either as as absolute paths or as paths relative to the <strong>GDoc</strong> 
+     directory. 
+ 
+</pre>
+<h2 id="Section" ><a href="GDoc_py_.html#Section" target="source">Section</a></h2>
+<p><strong>CLASS</strong></p>  <pre>
+      <strong>Section</strong>
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+      Contains one <strong>Section</strong> within an <a href="#Item">Item</a> of documentation. Each
+      <strong>Section</strong> contains a heading (e.g., 'FUNCTION', 'PURPOSE', etc.)
+      and the corresponding text.
+</pre>
+<p><strong>CLASS ATTRIBUTES</strong></p>  <pre>
+      types  = list of recognized heading strings, e.g.,
+               Section.types = ('FUNCTION','PURPOSE',..)
+      ignore = list of <strong>Section</strong> types to exclude from documentation
+</pre>
+<p><strong>INSTANCE ATTRIBUTES</strong></p>  <pre>
+      heading  = heading string (must be in list Section.types)
+      text     = list of strings, each one line with '\n' stripped
+</pre>
+<p><strong>METHODS</strong></p>  <pre>
+      __init__([heading],[text]) - constructor
+      write(format,namespace)    - returns string representation 
+                                   in format = 'html' or 'xml'
+</pre>
+<h2 id="Section.write" ><a href="GDoc_py_.html#Section.write" target="source">Section.write</a></h2>
+<p><strong>METHOD</strong></p>  <pre>
+      <strong>Section.write</strong>(format,namespace)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+      Output one documentation <a href="#Section">Section</a> as a string
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+      format    - output format ('html' or 'xml')
+      namespace - dictionary of Items accessed by name. 
+                  Used to hyperlink html output
+</pre>
+<p><strong>RETURN</strong></p>  <pre>
+      string representation of item in chosen output format
+      If format == 'html', result is hyper-linked using namespace
+      If Section.type is in Section.ignore, returns blank string
+</pre>
+<h2 id="Item" ><a href="GDoc_py_.html#Item" target="source">Item</a></h2>
+<p><strong>CLASS</strong></p>  <pre>
+      <strong>Item</strong>
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+      Each <strong>Item</strong> object contains the documentation for one
+      module, variable, function, class, etc.
+</pre>
+<p><strong>CLASS ATTRIBUTES</strong></p>  <pre>
+      types   = Dictionary of allowed <strong>Item</strong> types, 
+                keys are user defined one-character strings
+                values are strings, e.g., FUNCTION, VARIABLE, etc.
+      current = <strong>Item</strong> currently being processed
+</pre>
+<p><strong>INSTANCE ATTRIBUTES</strong></p>  <pre>
+      name    = name (string)
+      type    = type of object (string)
+      parent  = parent (<strong>Item</strong> object)
+      access  = 'public' or 'private' (string)
+      <a href="#SrcFile">SrcFile</a> = file from which it was extracted (<a href="#SrcFile">SrcFile</a> object)
+      pattern = regular expression object for name
+      Sections= list of <a href="#Section">Section</a> objects
+</pre>
+<p><strong>METHODS</strong></p>  <pre>
+      __init__([attributes])  - constructor, all attributes optional
+      read(lines,i,n)         - extract documentation for <strong>Item</strong> from source
+      write(format,namespace) - returns string representation in 'format' 
+      html_ref(ext,target)    - returns hyper-link to self
+      html_link(line,namespace) - returns line with self.names replaced
+                                  by href links
+</pre>
+<h2 id="Item.read" ><a href="GDoc_py_.html#Item.read" target="source">Item.read</a></h2>
+<p><strong>METHOD</strong></p>  <pre>
+      <strong>Item.read</strong>(lines,i,n)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+      Read one documentation <a href="#Item">Item</a> object from a list of text lines
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+      lines - list of text line strings
+      i     - # of current line
+      n     - total # of strings in lines
+</pre>
+<p><strong>RETURN</strong></p>  <pre>
+      i     - current line, from which to begin reading next <a href="#Item">Item</a>
+</pre>
+<h2 id="Item.write" ><a href="GDoc_py_.html#Item.write" target="source">Item.write</a></h2>
+<p><strong>METHOD</strong></p>  <pre>
+      <strong>Item.write</strong>(format,namespace,Doc_access,recursive)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+      Output one documentation item as a string
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+      format    - output format ('html', 'tex', or 'xml')
+      namespace - dictionary of Items accessed by name. 
+                  Used to hyperlink html output
+      Doc_access- 'public'  -> write only if public Items,
+                  'private' -> write public or private
+</pre>
+<p><strong>RETURN</strong></p>  <pre>
+      string representation of item in chosen output format
+      If format == 'html', result is hyper-linked using namespace
+</pre>
+<h2 id="Item.html_ref" ><a href="GDoc_py_.html#Item.html_ref" target="source">Item.html_ref</a></h2>
+<p><strong>METHOD</strong></p>  <pre>
+      <strong>Item.html_ref</strong>([ext],[target])
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+      Returns string containing html element <a ... >Item.name</a>
+      with an html href attribute linking to anchor of <a href="#Item">Item</a> 
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+      ext    = if present, appends 'ext' string to filename in href.
+               Used to distinguish html documentation and html source
+      target = if present, adds target attribute to href.
+               Used to create new Browswer window
+</pre>
+<h2 id="Item.html_link" ><a href="GDoc_py_.html#Item.html_link" target="source">Item.html_link</a></h2>
+<p><strong>METHOD</strong></p>  <pre>
+      <strong>Item.html_link</strong>(line)
+</pre>
+<p><strong>RETURN</strong></p>  <pre>
+      string line with instances of self.name replaced by html
+      <a href=..>self.name</a> hyperlinks to self. Uses method html_ref
+</pre>
+<h2 id="Item.set_depth" ><a href="GDoc_py_.html#Item.set_depth" target="source">Item.set_depth</a></h2>
+<p><strong>METHOD</strong></p>  <pre>
+      <strong>Item.set_depth</strong>(depth)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+      Sets depth attribute of self and all of its descendants.
+</pre>
+<h2 id="Item.html_toc" ><a href="GDoc_py_.html#Item.html_toc" target="source">Item.html_toc</a></h2>
+<p><strong>METHOD</strong></p>  <pre>
+      <strong>Item.html_toc</strong>()
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+      Returns string containing an html table of contents list item 
+      for self, and a nested list containing its children, if any. 
+      The method is applied recursively to children to generate a 
+      table of contents for the tree of Items rooted at self. 
+</pre>
+<h2 id="SrcFile" ><a href="GDoc_py_.html#SrcFile" target="source">SrcFile</a></h2>
+<p><strong>CLASS</strong></p>  <pre>
+      <strong>SrcFile</strong> - documentation extracted from a source file
+</pre>
+<p><strong>CLASS ATTRIBUTES</strong></p>  <pre>
+      current = current <strong>SrcFile</strong>
+</pre>
+<p><strong>INSTANCE ATTRIBUTES</strong></p>  <pre>
+      name  = <strong>SrcFile</strong> name (in format used for output file names)
+      Items = list of <a href="#Item">Item</a> objects
+</pre>
+<h2 id="SrcFile.read" ><a href="GDoc_py_.html#SrcFile.read" target="source">SrcFile.read</a></h2>
+<p><strong>METHOD</strong></p>  <pre>
+      <strong>SrcFile.read</strong>(file,namespace)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+      Extract documentation Items from an entire file
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+      file      - file object
+      namespace - namespace dictionary to which Items are added
+</pre>
+<p><strong>RETURN</strong></p>  <pre>
+      lines  - Full text of input source file, with minimal
+               hyper-text anchors inserted for documented items
+</pre>
+<h2 id="SrcFile.write" ><a href="GDoc_py_.html#SrcFile.write" target="source">SrcFile.write</a></h2>
+<p><strong>METHOD</strong></p>  <pre>
+      <strong>SrcFile.write</strong>(format,namespace,Doc_access)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+      Output documentation for instance <a href="#SrcFile">SrcFile</a>
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+      format    - output format ('html' or 'xml')
+      namespace - dictionary of Items accessed by name. 
+                  Used to hyperlink html output
+      Doc_access- 'public'  -> write only if public Items,
+                  'private' -> write public or private
+</pre>
+<p><strong>RETURN</strong></p>  <pre>
+      string representation of <a href="#SrcFile">SrcFile</a> in chosen output format
+      If format == 'html', output is hyper-linked using namespace
+</pre>
+<h2 id="Document" ><a href="GDoc_py_.html#Document" target="source">Document</a></h2>
+<p><strong>CLASS</strong></p>  <pre>
+      <strong>Document</strong> - documentation for an entire program or project
+</pre>
+<p><strong>INSTANCE ATTRIBUTES</strong></p>  <pre>
+      src_dir  = path name for source directory
+      doc_dir  = path name for documentation directory
+      filenames = list of file names of source files in src_dir
+      format   = format of documentation, 'html' or 'xml'
+      access   = 'public' (public Items only) or 'private' (private also)
+      SrcFiles = list of <a href="#SrcFile">SrcFile</a> objects, in same order as filenames
+      namespace = dictionary of <a href="#Item">Item</a> objects accessed by name
+      indices  = dictionary of lists of items, used to create indices.
+                 Keys are type name, or "master" for master index.
+      root     = string identifier for "parent" of top level Items 
+</pre>
+<p><strong>METHODS</strong></p>  <pre>
+      read()  - read source files in self.filenames from self.src_dir
+      make_indices() - make master indices and 
+      make_tree() - finds parents of each <a href="#Item">Item</a>, thus creating a tree
+      html_index(key,columns) - returns html table of self.indices[key]
+      index_links() - return string with hyperlinks to toc and indices
+      write() - write documentation to files in self.doc_dir
+</pre>
+<h2 id="Document.read" ><a href="GDoc_py_.html#Document.read" target="source">Document.read</a></h2>
+<p><strong>METHOD</strong></p>  <pre>
+      <strong>Document.read</strong>()
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+      Extract documentation for a multi-file <a href="#Document">Document</a>
+</pre>
+<h2 id="Document.make_indices" ><a href="GDoc_py_.html#Document.make_indices" target="source">Document.make_indices</a></h2>
+<p><strong>METHOD</strong></p>  <pre>
+      <strong>Document.make_indices</strong>()
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+      Make dictionary of indices Document.indices 
+      The keys of Document.indices are <a href="#Item">Item</a> types, and "master".
+      The values are sorted lists of Items of each type, and all Items.
+</pre>
+<p><strong>USAGE</strong></p>  <pre>
+      Call after read method
+</pre>
+<h2 id="Document.make_tree" ><a href="GDoc_py_.html#Document.make_tree" target="source">Document.make_tree</a></h2>
+<p><strong>METHOD</strong></p>  <pre>
+      <strong>Document.make_tree</strong>()
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+      Construct tree of parent and child items by constructing
+      Item.children list for each <a href="#Item">Item</a> in namespace
+</pre>
+<p><strong>USAGE</strong></p>  <pre>
+      Call after read method
+</pre>
+<h2 id="Document.html_index" ><a href="GDoc_py_.html#Document.html_index" target="source">Document.html_index</a></h2>
+<p><strong>METHOD</strong></p>  <pre>
+      <strong>Document.html_index</strong>(key,columns)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+      Returns a string containing the html table containing an index
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+      key       - key to index of interest in dictionary self.indices
+      columns   - number of columns in html table
+</pre>
+<h2 id="Document.index_links" ><a href="GDoc_py_.html#Document.index_links" target="source">Document.index_links</a></h2>
+<p><strong>METHOD</strong></p>  <pre>
+      <strong>Document.index_links</strong>()
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+      Returns a string containing hyper-links to indices and toc
+</pre>
+<h2 id="Document.write" ><a href="GDoc_py_.html#Document.write" target="source">Document.write</a></h2>
+<p><strong>METHOD</strong></p>  <pre>
+      <strong>Document.write</strong>()
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+      Output documentation for a multi-file <a href="#Document">Document</a>
+</pre>
+<p><strong>USAGE</strong></p>  <pre>
+      Call after read, make_indices, and make_tree methods
+</pre>
+<h2 id="InputFile" ><a href="GDoc_py_.html#InputFile" target="source">InputFile</a></h2>
+<p><strong>CLASS</strong></p>  <pre>
+      <strong>InputFile</strong>
+</pre>
+<p><strong>INSTANCE ATTRIBUTES</strong></p>  <pre>
+      file - file object
+      line - last line read from file, without newline
+</pre>
+<p><strong>METHODS</strong></p>  <pre>
+      __init__(filename)- open file filename, assign to self.file 
+      readline()  - read and return next line, store in self.line
+      next_line() - find, store, and return the next non-blank line
+      read_string_dict() - read a dictionary, one key value pair per line
+      read_string_list() - read a string list, one string per line
+</pre>
+<h2 id="InputFile.readline" ><a href="GDoc_py_.html#InputFile.readline" target="source">InputFile.readline</a></h2>
+<p><strong>METHOD</strong></p>  <pre>
+     <strong>InputFile.readline</strong>()
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Reads and returns one line of file, saves in self.line
+</pre>
+<h2 id="InputFile.next_line" ><a href="GDoc_py_.html#InputFile.next_line" target="source">InputFile.next_line</a></h2>
+<p><strong>METHOD</strong></p>  <pre>
+     <strong>InputFile.next_line</strong>()
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Returns next non-blank line
+</pre>
+<h2 id="InputFile.read_string_dict" ><a href="GDoc_py_.html#InputFile.read_string_dict" target="source">InputFile.read_string_dict</a></h2>
+<p><strong>METHOD</strong></p>  <pre>
+     <strong>InputFile.read_string_dict</strong>()
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Reads a dictionary of key and value string pairs, from a
+     file containing one key / value pair per line, with strings
+     delimited by blank space, until a blank line is encountered.
+     Returns a dictionary of key and value strings. 
+</pre>
+<h2 id="InputFile.read_string_list" ><a href="GDoc_py_.html#InputFile.read_string_list" target="source">InputFile.read_string_list</a></h2>
+<p><strong>METHOD</strong></p>  <pre>
+     <a href="#InputFile.read_string_dict">InputFile.read_string_dict</a>()
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Reads and a list of strings, with one string per line,
+     until a blank line is returned. Returns a list of strings
+     with leading and trailing white space removed.
+</pre>
+<h2 id="InputFile.read_path" ><a href="GDoc_py_.html#InputFile.read_path" target="source">InputFile.read_path</a></h2>
+<p><strong>METHOD</strong></p>  <pre>
+     <strong>InputFile.read_path</strong>([root])
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Read absolute or relative path from next line of file, and 
+     and return a corresponding absolute path.  If input path name 
+     is absolute, return the input. Otherwise, treat input path as
+     a relative path, relative to argument root (if present) or to 
+     the current working directory (if root is not present).
+</pre>
+<h2 id="read_config" ><a href="GDoc_py_.html#read_config" target="source">read_config</a></h2>
+<p><strong>FUNCTION</strong></p>  <pre>
+      <strong>read_config</strong>(rc_filename)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+      Reads data from file rc_filename.
+      Return a <a href="#Document">Document</a> object with specified values for attributes:
+         src_dir, doc_dir, filenames, format, and access
+      Also sets values for <a href="#Item">Item</a> and <a href="#Section">Section</a> class attributes:
+         Item.types, Section.types, Section.ignore
+</pre>
+<p><strong>FORMAT</strong></p>  <pre>
+     The configuration file consists of a series of control lines,
+     most of which are followed by one or more lines containing data. 
+     There may be no blank lines between the control line and the 
+     associated data line(s), or between data lines. One or more blank
+     lines separate each control line and associated data line(s) from 
+     the next control line.  The recognized control lines and associated 
+     data are:
+ 
+      'Item_types:'    - dictionary of recognized <a href="#Item">Item</a> types and 
+                         associated one character codes, e.g.,
+      'Section_types:' - list of recognized section headings
+      'Com_char:'      - character used at beginning of item marker lines
+      'Src_dir:'       - source directory path
+      'Doc_dir:'       - documentation directory path
+      'Filenames:'     - list of names of source files in Src_dir
+      'Format:'        - format of output. Either 'html' or 'xml'
+      'Access:'        - if 'private', include internal Items
+                       - if 'public', exclude internal Items
+      'Done'           - stop reading file, return from function
+ 
+    Lists (e.g., Section_types, and filenames) or dictionaries
+    (e.g., Item_types) are listed with one item, or one key/value pair,
+    per line.  Directory paths may be either absolute or relative to 
+    current working directory.  The configuration file is read as an 
+    infinite loop, which exits when the "Done" control line is read.
+ 
+    For examples of the required format, see the GDoc_rc.html or 
+    GDoc_rc.latex file in the <a href="#GDoc">GDoc</a> directory, which are used to 
+    generate the html and latex versions of the documentation for
+    the <a href="#GDoc">GDoc</a> module itself. 
+</pre>
+<h2 id="link_namespace" ><a href="GDoc_py_.html#link_namespace" target="source">link_namespace</a></h2>
+<p><strong>FUNCTION</strong></p>  <pre>
+     <strong>link_namespace</strong>(line,namespace)
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+     line      - a string
+     namespace - dictionary of Items accessed by name
+</pre>
+<p><strong>RETURN</strong></p>  <pre>
+     string line with <a href="#Item">Item</a> names replaced by href links
+</pre>
+<h2 id="escape" ><a href="GDoc_py_.html#escape" target="source">escape</a></h2>
+<p><strong>FUNCTION</strong></p>  <pre>
+      <strong>escape</strong>(a_string,format)
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+      a_string - string
+      format   - output format. May be 'html', 'xml', or 'latex'
+</pre>
+<p><strong>RETURN</strong></p>  <pre>
+      Returns a copy of a_string appropriate for output in format, 
+      in which special characters are replaced by <strong>escape</strong> sequences.
+</pre>
+<h2 id="header" ><a href="GDoc_py_.html#header" target="source">header</a></h2>
+<p><strong>FUNCTION</strong></p>  <pre>
+      <strong>header</strong>(title,format)
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+      title  - title string for html or latex. Note used in xml.
+      format - output format. May be 'html', 'tex', or 'xml'
+</pre>
+<p><strong>RETURN</strong></p>  <pre>
+      A string containing a standard <strong>header</strong> for output file.
+</pre>
+<h2 id="footer" ><a href="GDoc_py_.html#footer" target="source">footer</a></h2>
+<p><strong>FUNCTION</strong></p>  <pre>
+      <strong>footer</strong>(format)
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+      format - output format. 
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+      Returns a string containing a standard <strong>footer</strong> for output
+      files in the specified format. Outputs null string for 'xml'
+</pre>
+<h2 id="find_directory" ><a href="GDoc_py_.html#find_directory" target="source">find_directory</a></h2>
+<p><strong>FUNCTION</strong></p>  <pre>
+     <strong>find_directory</strong>(name)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     Searches python path and subdirectories of those in this path 
+     for a directory with basename == name, and returns the absolute 
+     path for this directory. Raises an error if the search fails.
+</pre>
+<h2 id="Main" ><a href="GDoc_py_.html#Main" target="source">Main</a></h2>
+<p><strong>SCRIPT</strong></p>  <pre>
+      <strong>Main</strong> script
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+# Find <a href="#GDoc">GDoc</a> source directory
+GDoc_dir = <a href="#find_directory">find_directory</a>('<a href="#GDoc">GDoc</a>')
+
+# Find configuration file
+rc_filename = raw_input("Enter name of rc configuration file: ")
+
+Doc = <a href="#read_config">read_config</a>(rc_filename)
+Doc.read()
+Doc.make_indices()
+Doc.make_tree()
+Doc.write()
+
+</pre>
+</body>
+</html>

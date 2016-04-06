@@ -5,7 +5,7 @@
 SRC=../src
 BUILD=$(SRC)/build
 PYTHON=python
-GDOC=/CEMS/web/research/morse/code/GDoc/GDoc/GDoc.py
+GDOC=../tools/python/GDoc/GDoc.py
 
 # ====== Target to make html api documentation =================
 #

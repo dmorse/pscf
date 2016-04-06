@@ -22,6 +22,7 @@
 <li>procedure <a href="#init_response_pd">init_response_pd</a></li>
 <li>procedure <a href="#response_pd_omega">response_pd_omega</a></li>
 <li>procedure <a href="#response_pd_cell">response_pd_cell</a></li>
+<li>procedure <a href="#response_dstress_dcell">response_dstress_dcell</a></li>
 <li>procedure <a href="#make_correlation">make_correlation</a></li>
 </ul>
 <h2 id="response_pd_mod" ><a href="response_pd_mod_f_.html#response_pd_mod" target="source">response_pd_mod</a></h2>
@@ -51,6 +52,7 @@ module <strong>response_pd_mod</strong>
    PUBLIC :: <a href="#response_pd_cell">response_pd_cell</a>  ! calculate d_rho/d_cell_param
    PUBLIC :: <a href="#make_correlation">make_correlation</a>  ! block-block correlation of ideal chains
    PUBLIC :: corrlt            ! used by <a href="../rpa/spinodal_mod_f.html#spinodal_mod">spinodal_mod</a>
+   PUBLIC :: <a href="#response_dstress_dcell">response_dstress_dcell</a>  ! calculate dstress/dcell only
 
    real(<a href="../const_mod_f.html#long">long</a>), allocatable :: corrlt(:,:,:)   ! correlation function
 </pre>
@@ -123,6 +125,26 @@ module <strong>response_pd_mod</strong>
    integer, intent(IN)       :: N
    real(<a href="../const_mod_f.html#long">long</a>), intent(IN)    :: omega(:,:)
    real(<a href="../const_mod_f.html#long">long</a>), intent(OUT)   :: drho_dcell(:,:,:)
+   real(<a href="../const_mod_f.html#long">long</a>), intent(OUT)   :: dstress_dcell(:,:)
+</pre>
+<h2 id="response_dstress_dcell" ><a href="response_pd_mod_f_.html#response_dstress_dcell" target="source">response_dstress_dcell</a></h2>
+<p><strong>SUBROUTINE</strong></p>  <pre>
+     <strong>response_dstress_dcell</strong>(N,omega,drho_dcell,dstress_dcell)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+     dstress_dcell(i,j)    = d stress(i) / d <a href="../crystal/unit_cell_mod_f.html#cell_param">cell_param</a>(j)
+</pre>
+<p><strong>SOURCE</strong></p>  <pre>
+   subroutine <strong>response_dstress_dcell</strong>(N,omega,dstress_dcell)
+   use <a href="../scf/chemistry_mod_f.html#chemistry_mod">chemistry_mod</a>, only : <a href="../scf/chemistry_mod_f.html#ensemble">ensemble</a>, <a href="../scf/chemistry_mod_f.html#N_monomer">N_monomer</a>
+   use <a href="../scf/scf_mod_f.html#scf_mod">scf_mod</a>,       only : <a href="../scf/scf_mod_f.html#density">density</a>, <a href="../scf/scf_mod_f.html#scf_stress">scf_stress</a>
+   use <a href="../grid/grid_mod_f.html#grid_mod">grid_mod</a>,      only : <a href="../grid/grid_mod_f.html#make_ksq">make_ksq</a>
+   use <a href="../crystal/basis_mod_f.html#basis_mod">basis_mod</a>,      only : <a href="../crystal/basis_mod_f.html#make_dGsq">make_dGsq</a>
+   use <a href="../crystal/unit_cell_mod_f.html#unit_cell_mod">unit_cell_mod</a>, only : <a href="../crystal/unit_cell_mod_f.html#N_cell_param">N_cell_param</a>, <a href="../crystal/unit_cell_mod_f.html#cell_param">cell_param</a>, &!
+                             <a href="../crystal/unit_cell_mod_f.html#G_basis">G_basis</a>, <a href="../crystal/unit_cell_mod_f.html#dGG_basis">dGG_basis</a>, <a href="../crystal/unit_cell_mod_f.html#make_unit_cell">make_unit_cell</a>
+
+   integer, intent(IN)       :: N
+   real(<a href="../const_mod_f.html#long">long</a>), intent(IN)    :: omega(:,:)
    real(<a href="../const_mod_f.html#long">long</a>), intent(OUT)   :: dstress_dcell(:,:)
 </pre>
 <h2 id="make_correlation" ><a href="response_pd_mod_f_.html#make_correlation" target="source">make_correlation</a></h2>

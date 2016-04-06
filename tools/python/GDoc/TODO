@@ -1,0 +1,15 @@
+
+1) Use Item type as default section heading for 1st section
+
+2) Suppress selected indices as an option (default, all types)
+
+3) Suppress indices as an option (default, indices created)
+
+4) Suppress global TOC as an option (default, toc created)
+
+5) Suppress source file echoing, as an option (default, echo)
+
+6) Add more error checking to data in configuration file
+
+7) Allow user to hyperlink entire source file, if desired.
+

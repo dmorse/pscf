@@ -1,0 +1,54 @@
+
+Item_types:
+M  module
+c  class
+m  method
+f  function
+s  script
+
+Section_types:
+MODULE
+CLASS
+FUNCTION
+METHOD
+SCRIPT
+PURPOSE
+ARGUMENTS
+RETURN
+ATTRIBUTES
+CLASS ATTRIBUTES
+INSTANCE ATTRIBUTES
+METHODS
+USAGE
+FORMAT
+NOTE
+COMMENT
+AUTHOR
+HISTORY
+VERSION
+SOURCE
+
+Section_ignore:
+AUTHOR
+HISTORY
+VERSION
+
+Com_char:
+#
+
+Src_dir:
+.
+
+Doc_dir:
+latex
+
+Filenames:
+GDoc.py
+
+Format:
+tex
+
+Access:
+private
+
+Done

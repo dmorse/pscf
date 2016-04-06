@@ -1,0 +1,19 @@
+
+<!ELEMENT SrcFile (Item)* >
+<!ATTLIST SrcFile name CDATA #IMPLIED>
+
+<!ELEMENT Item (Section)* >
+<!ATTLIST Item
+  type    CDATA  #IMPLIED
+  parent  CDATA  #IMPLIED
+  name    CDATA  #IMPLIED
+  pattern CDATA  #IMPLIED
+  SrcFile CDATA  #IMPLIED
+>
+
+<!ELEMENT Section (#PCDATA) >
+<!ATTLIST Section
+  heading   CDATA       #REQUIRED
+  xml:space (preserve)  #FIXED 'preserve'
+ >
+

@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<link rel="stylesheet" href="GDoc.css" type="text/css">
+<title>file_util_py</title>
+</head>
+<body bgcolor="#FFFFFF">
+<br />
+<p>
+[<a href="toc.html#top">table of contents</a>]
+[<a href="master_index.html#top">master index</a>]
+[<a href="function_index.html#top">functions</a>]
+[<a href="script_index.html#top">scripts</a>]
+[<a href="method_index.html#top">methods</a>]
+[<a href="module_index.html#top">modules</a>]
+[<a href="class_index.html#top">classes</a>]
+</p>
+<h3 align="center">TABLE OF CONTENTS</h3>
+<ul><li>module <a href="#file_util">file_util</a></li>
+<ul>
+<li>function <a href="#relative_path">relative_path</a></li>
+<li>function <a href="#chdirs">chdirs</a></li>
+<li>function <a href="#open_w">open_w</a></li>
+<li>function <a href="#rename">rename</a></li>
+</ul>
+<h2 id="file_util" ><a href="file_util_py_.html#file_util" target="source">file_util</a></h2>
+<p><strong>MODULE</strong></p>  <pre>
+    <strong>file_util</strong>
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+    Utility functions for manipulating files and paths
+</pre>
+<h2 id="relative_path" ><a href="file_util_py_.html#relative_path" target="source">relative_path</a></h2>
+<p><strong>FUNCTION</strong></p>  <pre>
+    <strong>relative_path</strong>(path1,path2)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+    Generates relative path of path2 relative to path1. 
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+    path1 and path2 are paths relative to a common directory
+</pre>
+<p><strong>RETURN</strong></p>  <pre>
+    Path for file2 relative to directory containing path1
+</pre>
+<h2 id="chdirs" ><a href="file_util_py_.html#chdirs" target="source">chdirs</a></h2>
+<p><strong>FUNCTION</strong></p>  <pre>
+    <strong>chdirs</strong>(dir)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+    Change current working directory to dir (like os.chdir), and
+    create dir and any necessary parents if it does not yet exist.
+</pre>
+<h2 id="open_w" ><a href="file_util_py_.html#open_w" target="source">open_w</a></h2>
+<p><strong>FUNCTION</strong></p>  <pre>
+    <strong>open_w</strong>(path)
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+    Open file with specified path for writing, return file object.
+    Similar to built-in function open(path,'w'), except that <strong>open_w</strong>
+    will create any non-existent directories in the path.
+</pre>
+<p><strong>RETURN</strong></p>  <pre>
+    file object with specified path, opened for writing
+</pre>
+<h2 id="rename" ><a href="file_util_py_.html#rename" target="source">rename</a></h2>
+<p><strong>FUNCTION</strong></p>  <pre>
+    <strong>rename</strong>(old_path,new_path)
+</pre>
+<p><strong>ARGUMENTS</strong></p>  <pre>
+    old_path - path of file or directory to be 
+</pre>
+<p><strong>PURPOSE</strong></p>  <pre>
+    Rename a file or directory. Similar to os.rename,but will 
+    create any non-existent directories in the path
+</pre>
+<p><strong>RETURN</strong></p>  <pre>
+    file object with specified path, opened for writing
+</pre>
+</body>
+</html>
