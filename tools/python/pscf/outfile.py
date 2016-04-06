@@ -1,12 +1,10 @@
-#!/usr/bin/env python2.4
-
 from io import *
 from version import *
 import string 
 
 class OutFile(object):
     '''
-    An OutFile object contains the data in a *.out output
+    An OutFile object contains the data in a .out output
     file produced by F90 program pscf_pd. 
     '''
    
@@ -685,22 +683,3 @@ class OutFile(object):
             exec( key + '= self.' + key )
         return eval(expr1)
          
-if __name__ == '__main__':
-
-    '''
-    USAGE
-      scf_out.py filename
-    PURPOSE
-      Reads and parses scf output file with path filename.
-      Prints the dictionary of attributes
-    '''
-    import sys 
-
-    # Read file "filename"
-    filename = sys.argv[1]
-    x = OutFile(filename)
-    print x
-
-    # Print dictionary of attributes
-    # for key in x.__dict__.keys():
-    #    print key, ':', x.__dict__[key]

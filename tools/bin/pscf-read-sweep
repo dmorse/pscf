@@ -1,0 +1,57 @@
+#!/usr/bin/env python2.7
+
+from pscf.outfile import OutFile
+from pscf.sweep import Sweep
+import sys, os, string
+
+'''
+SCRIPT
+   sweep.py directory [ expr1 expr2 ]
+PURPOSE
+   Reads outfiles from the directory with the specified path, 
+   creates a corresponding Sweep object, and prints a two-column
+   summary of results. The format of the output depends upon 
+   whether optional command line arguments expr1 and expr2 are 
+   present:
+
+   1) If expr1 and expr2 are absent, each entry in column 1 of 
+   the output is an integer i corresponding to the integer in
+   a filename directory/i.out, and column 2 is the Helmholtz 
+   free energy reported in that output file.
+
+   2) If present, arguments expr1 and expr2 are Python
+   expressions that may refer to local variables whose names 
+   and values correspond to the names and values of attributes 
+   of the current OutFile object. The names of the allowed 
+   variables also correspond to names of corresponding 
+   variables in the scf code. 
+
+EXAMPLES
+
+   1) To produce a two-column output in which the first column is
+   the [0][1] element of the chi matrix (i.e., the value of chi
+   for a system with two monomer types) and the second is the
+   Helmholtz free energy, enter:
+
+       > sweep.py directory chi[0][1] f_Helmholtz 
+
+   2) To produce a file in which the second column is the difference
+   between the Helmholtz free energy and that of a homogeneous
+   system, enter:
+
+       > sweep.py directory chi[0][1] 'f_Helmholtz - f_homo'
+
+   Quotes are required around expressions that contain spaces, to 
+   force the unix shell to pass the expression to the script as a 
+   single argument.  
+'''
+
+if len(sys.argv) == 1:
+    print "Error: Required directory argument not supplied"
+# Read directory and create Sweep object
+x = Sweep(sys.argv[1])
+# Read two column summary
+if len(sys.argv) == 4:
+    print x.write(sys.argv[2],sys.argv[3])
+else:
+    print x.write('i','f_Helmholtz')
