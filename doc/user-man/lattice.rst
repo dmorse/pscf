@@ -1,4 +1,6 @@
 
+.. _lattice-page:
+
 ***************
 Bravais Lattice
 ***************

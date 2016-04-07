@@ -1,4 +1,6 @@
 
+.. _script-page:
+
 *******************
 Input Script Format
 *******************
@@ -14,7 +16,7 @@ value or (for arrays) values on one more subsequent lines.  The
 order in which variables must appear within a section is fixed. The
 program stops when it encounters the block title 'FINISH'. 
 
-.. example-sec:
+.. _example-sec:
 
 Example
 =======
@@ -143,9 +145,9 @@ Subsequent sections describe each of the corresponding blocks of the input
 file in detail. To solve the SCF problem for a single set of parameters,
 leave out the penulimate SWEEP section.
 
-  ================================  ===================================================
+  ================================  ====================================================
   Section                           Description
-  ================================  ===================================================
+  ================================  ====================================================
   :ref:`script-monomers-sub`        # of monomers and kuhn lengths
   :ref:`script-chains-sub`          Chain species, block sequences and lengths, etc.
   :ref:`script-solvents-sub`        Solvent species, chemical identities, volumes
@@ -158,11 +160,11 @@ leave out the penulimate SWEEP section.
                                     symmetry-adapted basis functions
   :ref:`script-iterate-sub`         Solve SCFT for one set of parameters
   :ref:`script-sweep-sub`           Solve SCFT for multiple sets of parameters
-  :ref:`script-response-sub`   Calculate linear response matrix at one or more k vectors
+  :ref:`script-response-sub`        Calculate linear susceptibility of an ordered phase
   :ref:`script-finish-sub`          Stop program
-  ================================  ===================================================
+  ================================  ====================================================
  
-Several standard types of computation are possible using the blocks listed above::
+Several standard types of computation are possible using the blocks listed above:
 
    - Iterate: To solve solve SCF equations for a single state point, include 
      all of the listed below sections except the SWEEP and RESPONSE sections. 
@@ -203,8 +205,8 @@ Further details about the contents and purpose of each section are given below.
 
 .. _script-conventions-sec:
 
-Parameter Units and Conventions
-===============================
+ Units and Conventions
+======================
 
 Length Units
 ------------
@@ -235,6 +237,13 @@ to the reference volume, while kuhn lengths are proportional to
 the square root of the reference volume.  Note that PSCF does not 
 require the user to input a value for the monomer reference volume 
 - the choice only effects the values required for other quantities.
+
+String Parameters
+-----------------
+
+All parameters that are represented internally as characters or
+character strings must be input with single quotes, e.g., 'chi' 
+or 'out.'. 
 
 .. _script-array-sec:
 
@@ -334,12 +343,12 @@ MONOMERS
 
 Chemistry Parameters
 
-  ============  ========  =========================================   =============
-  Variable      Type      Description                                 Format
-  ============  ========  =========================================   =============
-  N_monomer     integer   Number of monomer types
-  kuhn(im)      real      statistical segment length of monomer im    R
-  ============  ========  =========================================   =============
+  ===========  ========  =========================================   ==========
+  Variable     Type      Description                                 Format
+  ===========  ========  =========================================   ==========
+  N_monomer    integer   Number of monomer types
+  kuhn(im)     real      statistical segment length of monomer im    R
+  ===========  ========  =========================================   ==========
 
 .. _script-interaction-sub:
 
@@ -351,8 +360,8 @@ Interaction Parameters
   ============ ======= ==================================  ======  ============
   Variable     Type    Description                         Format  Required if
   ============ ======= ==================================  ======  ============
-  chi_flag     char(1) 'B' for 'bare' chi values
-                       'T' for chi=chi_A/T + chi_B
+  chi_flag     char(1) 'B' => bare chi,
+                       'T' => chi=chi_A/T + chi_B
   chi(im,in)   real    Flory-Huggins parameter ('bare')    LT      chi_flag='B'
   chi_A(im,in) real    Enthalpic coefficient for chi(T)    LT      chi_flag='T'
   chi_B(im,in) real    Entropic contribution to chi(T)     LT      chi_flag='T'
@@ -389,13 +398,13 @@ SOLVENTS
 
 Solvent Parameters
 
-  ==================== ========= ================================ ======
-  Variable             Type      Description                      Format
-  ==================== ========= ================================ ======
-  N_solvent            integer   Number of solvent species
-  solvent_monomer(is)  integer   Monomer type for solvent is      C
-  solvent_size(is)     real      Volume of solvent is             C
-  ==================== ========= ================================ ======
+  ==================== ======== ============================= ======
+  Variable             Type     Description                   Format
+  ==================== ======== ============================= ======
+  N_solvent            integer  Number of solvent species
+  solvent_monomer(is)  integer  Monomer type for solvent is   C
+  solvent_size(is)     real     Volume of solvent is          C
+  ==================== ======== ============================= ======
 
 The parameter solvent_size is given by the ratio of the actual volume
 occupied by a particular solvent to the monomer reference volume.
@@ -423,7 +432,8 @@ UNIT_CELL
 ---------
 
 The variables in the UNIT_CELL section contain the information necessary to define 
-the unit cell type, and the unit cell dimensions and shape.
+the unit cell type, and the unit cell dimensions and shape. 
+
 
   ================ ============== ============================================ ======
   Variable         Type           Description                                  Format
@@ -435,8 +445,11 @@ the unit cell type, and the unit cell dimensions and shape.
   cell_param(i)    real           N_cell_param unit cell parameters            R
   ================ ============== ============================================ ======
 
-The array cell_param contains N_cell_param elements, which are input in row format, with 
-all elements in a single line.
+The array cell_param contains N_cell_param elements, which are input in row format, 
+with all elements in a single line. Further information about the allowed values of 
+the crystal_system string and the number and type of parameters required by each
+type of lattice is given in the :ref:`lattice-page`  page.
+
 
 .. _script-discretization-sub:
 
@@ -464,17 +477,19 @@ values on a line, where dim is the dimensionality of space.
 FILE_PREFIXES
 -------------
 
-The FILE_PREFIXES section inputs the prefixes that are used to construct
-the names of the input and output files. The input prefix is concatenated
-with 'omega' to construct the name of the input file. The output prefix
-is concatenated with the suffixes 'out', 'rho', and 'omega' to create
-the name of the output summary, output monomer concentration field, and
-output omega field files. This, to specify file name 'in.omega', 'out',
-'rho', and 'omega' in the current directory, you would set in_prefix to
-'in.', and the output prefix to the blank string ''. To specify an input
-file from another directory, you would set in_prefix to the path to that
-directory, followed by a trailing '/' directory separator.  Both string
-variables are required, and must appear in the order listed below.
+The FILE_PREFIXES section contains prefixes strings that are used 
+to construct paths for input and output files. The input_prefix is 
+a string that is concatenated with a suffix "omega" to obtain the 
+path to the input omega field that is read by the ITERATE command.  
+The output prefix is concatenated with the suffixes 'out', 'rho', 
+and 'omega' to create paths for the output summary, output monomer 
+concentration field, and output omega field files. 
+
+Examples: To specify an input file 'in.omega' and output files 'out', 
+'rho', and 'omega' in the current directory, you would set in_prefix 
+to 'in.', and the output prefix to the blank string ''. To specify 
+an input file from another directory, you would set in_prefix to the 
+path to that directory, followed by a trailing '/' directory separator.  
 
   ==========  ============= ==============================================
   Variable    Type          Description
@@ -513,9 +528,11 @@ are provided in src/tests/group.
 ITERATE
 -------
 
-The ITERATE block reads in variables required by our iteration
-algorithm, and attempts to iteratively solve the SCFT equations
-for one set of input parameters.
+The ITERATE command causes the program to read in an input omega file
+and attempts to iteratively solve the SCFT equations for one set of 
+input parameters. The name of the input file is given by concatenating
+the input_prefix and the string `omega'. This section must precede any
+SWEEP or RESPONSE section.
 
   ========= ============= =====================================================
   Variable  Type          Description
@@ -531,9 +548,9 @@ for one set of input parameters.
                           (required iff itr_algo = 'AM')
   ========= ============= =====================================================
 
-For now, the value of the 'itr_algo' variable must be 'NR', for Newton-Raphson.
-The variable is included in order to allow us to add other iteration algorithms
-in the future.
+For now, the value of the 'itr_algo' variable must be 'NR', for Newton-Raphson
+or 'AM', for Anderson mixing. Other iteration algorithms may be added in the
+future.
 
 .. _script-sweep-sub:
 
