@@ -145,11 +145,12 @@ contains
    !   ngrid      -  grid dimensions
    ! SOURCE
    !---------------------------------------------------------------
-   subroutine output_field_grid(field,field_unit,ngrid)
+   subroutine output_field_grid(field,field_unit,group_name,ngrid)
 
-   real(long)      :: field(:,:)   ! (N_monomer, N_basis)
-   integer         :: field_unit
-   integer         :: ngrid(:)     ! (3)
+   real(long)                    :: field(:,:)   ! (N_monomer, N_basis)
+   integer                       :: field_unit
+   character(*),intent(IN)       :: group_name
+   integer                       :: ngrid(:)     ! (3)
    !***
 
    complex(long)   :: k_grid(0:ngrid(1)/2,&
@@ -179,6 +180,7 @@ contains
 
    ! Header
    call output_unit_cell(field_unit,'F')
+   call output(trim(group_name),'group_name',o=field_unit)
    call output(N_monomer,'N_monomer',f='A',o=field_unit)
    call output(ngrid,dim,'ngrid',f='A',s='R',o=field_unit)
 

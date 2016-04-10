@@ -1497,6 +1497,8 @@ contains
 
    end do stress_loop
 
+   deallocate(dev)
+   deallocate(omega_hist)
    ! If fixed unit cell, calculate residual stress before output
    if (.not.domain) stress = scf_stress(N, N_cell_param, dGsq)
 

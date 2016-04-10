@@ -1,7 +1,7 @@
 ! fortran_dialect=elf
 !-----------------------------------------------------------------------
 ! PSCF - Polymer Self-Consistent Field Theory
-! Copyright (2007-2016) Regents of the University of Minnesota
+! Copyright (2007) David C. Morse
 ! email: morse@cems.umn.edu
 !
 ! This program is free software; you can redistribute it and/or modify
@@ -130,6 +130,7 @@ program pscf_pd
 
    !  Variable for Kgrid to Rgrid transformation
    integer                     :: i1, i2, i3, alpha
+   integer, allocatable        :: grid_size(:)
    complex(long), allocatable  :: k_grid(:,:,:,:)
    real(long), allocatable     :: r_grid(:,:,:,:)
    real(long), allocatable     :: omega_basis(:,:)
@@ -317,7 +318,8 @@ program pscf_pd
  
          ! Read unit cell parameters (see unit_cell_mod)
          call input_unit_cell(5,'F')       
- 
+         allocate(grid_size(dim)) 
+
          ! Construct initial unit cell (see unit_cell_mod)
          call make_unit_cell 
  
@@ -343,18 +345,18 @@ program pscf_pd
          extr_order = 1
          call input(chain_step,'chain_step')
  
-      case ('FILE_PREFIXES')
-
-         ! Input prefixes used to contruct input and output file names.
-         ! Prefixes can include directories paths, if they end with a
-         ! trailing directory separator '/'. The input omega file name 
-         ! is constructed by appending 'omega' to input_prefix. Output
-         ! file names are constructed by appending 'out', 'rho' and
-         ! 'omega' to output_prefix. 
-
-         prefix_flag = .TRUE.
-         call input(input_prefix, 'input_prefix')  ! input  file prefix
-         call input(output_prefix,'output_prefix') ! output file prefix
+!!      case ('FILE_PREFIXES')
+!!
+!!         ! Input prefixes used to contruct input and output file names.
+!!         ! Prefixes can include directories paths, if they end with a
+!!         ! trailing directory separator '/'. The input omega file name 
+!!         ! is constructed by appending 'omega' to input_prefix. Output
+!!         ! file names are constructed by appending 'out', 'rho' and
+!!         ! 'omega' to output_prefix. 
+!!
+!!         prefix_flag = .TRUE.
+!!         call input(input_prefix, 'input_prefix')  ! input  file prefix
+!!         call input(output_prefix,'output_prefix') ! output file prefix
  
       case ('BASIS')
 
@@ -366,9 +368,6 @@ program pscf_pd
             exit op_loop
          else if (.not.discretize_flag) then
             write(6,*) "Error: Must make DISCRETIZATION before BASIS"
-            exit op_loop
-         else if ( .not.prefix_flag ) then
-            write(6,*) "Error: Must provide FILE_PREFIXES before BASIS"
             exit op_loop
          end if
          basis_flag = .TRUE.
@@ -448,14 +447,15 @@ program pscf_pd
          else if (.not.basis_flag) then
             write(6,*) "Error: Must make BASIS before ITERATION"
             exit op_loop
-         else if ( .not.prefix_flag ) then
-            write(6,*) "Error: Must read FILE_PREFIXES before ITERATION"
-            exit op_loop
          end if
+
+         ! Read input filename and output file prefix
+         call input(input_file, 'input_filename')  ! input  file prefix
+         call input(output_prefix,'output_prefix') ! output file prefix
 
          ! Read omega file, if not read previously
          if (.not.omega_flag) then
-            open(unit=field_unit,file=trim(input_prefix)//'omega',&
+            open(unit=field_unit,file=trim(input_file),&
                               status='old',iostat=ierr)
             if (ierr/=0) stop "Error while opening omega source file."
             call input_field(omega,field_unit)
@@ -768,13 +768,13 @@ program pscf_pd
          call input(output_file,'output_filename')
         
          ! Read field (coefficients of basis functions) from input_file
-         open(unit=field_unit,file=trim(input_prefix)//trim(input_file),status='old')
+         open(unit=field_unit,file=trim(input_file),status='old')
          call input_field(rho,field_unit)
          close(field_unit)
  
          ! Write values of field on a grid to output_file 
-         open(unit=field_unit,file=trim(output_prefix)//trim(output_file)//'_grid',status='replace')
-         call output_field_grid(rho,field_unit,ngrid)
+         open(unit=field_unit,file=trim(output_file),status='replace')
+         call output_field_grid(rho,field_unit,group_name,ngrid)
          close(field_unit)
 
 
@@ -786,14 +786,14 @@ program pscf_pd
 
          ! Check preconditions for KGRID_TO_RGRID
          if ( .not. unit_cell_flag ) then
-            write(6,*) "Error: Must make UNIT_CELL before FIELD_TO_GRID"
+            write(6,*) "Error: Must make UNIT_CELL before KGRID_TO_RGRID"
             exit op_loop
          else if (.not.discretize_flag) then
             write(6,*) &
-                  "Error: Must make DISCRETIZATION before FIELD_TO_GRID"
+                  "Error: Must make DISCRETIZATION before KGRID_TO_RGRID"
             exit op_loop
          else if (.not.basis_flag) then
-            write(6,*) "Error: Must make BASIS before FIELD_TO_GRID"
+            write(6,*) "Error: Must make BASIS before KGRID_TO_RGRID"
             exit op_loop
          end if
  
@@ -803,15 +803,32 @@ program pscf_pd
          call input(output_file,'output_filename')
        
          allocate( k_grid(0:ngrid(1)/2, 0:ngrid(2)-1, 0:ngrid(3)-1, N_monomer) )
-         allocate( omega_basis(N_monomer,N_star) )
 
          ! Read field (coefficients of basis functions) from input_file
-         open(unit=field_unit,file=trim(input_prefix)//trim(input_file),status='old')
+         open(unit=field_unit,file=trim(input_file),status='old')
 
          ! Skip first 13 lines 
-         do i=1,13
+         do i=1,14
             read(field_unit,*)
          end do
+
+         read(field_unit,*)grid_size
+         if(dim==1)then
+            if(grid_size(1)/=ngrid(1))then
+               write(6,*) "Error: Grid size in rho_kgrid file is not equal to the one in input file"
+               exit op_loop
+            end if
+         elseif(dim==2)then
+            if(grid_size(1)/=ngrid(1).or.grid_size(2)/=ngrid(2))then
+               write(6,*) "Error: Grid size in rho_kgrid file is not equal to the one in input file"
+               exit op_loop
+            end if
+         elseif(dim==3)then 
+            if(grid_size(1)/=ngrid(1).or.grid_size(2)/=ngrid(2).or.grid_size(3)/=ngrid(3))then
+               write(6,*) "Error: Grid size in rho_kgrid file is not equal to the one in input file"
+               exit op_loop
+            end if
+         endif
 
          k_grid=0.0         
          do i1=0,ngrid(1)/2
@@ -823,30 +840,16 @@ program pscf_pd
          end do
          close(field_unit)
 
-
          call create_fft_plan(ngrid,plan)
          do alpha=1,N_monomer
                call kgrid_to_basis(k_grid(:,:,:,alpha),rho(alpha,:))
          end do
 
-         do alpha=1,N_monomer
-            do i=1,N_star
-               omega_basis(alpha,i) = sum(chi(:,alpha)*rho(:,i))
-            end do
-         end do
-
-
-         open(unit=field_unit,file=trim(output_prefix)//trim(output_file),status='replace')
-         call output_field(rho,field_unit,group_name)
+         open(unit=field_unit,file=trim(output_file),status='replace')
+         call output_field_grid(rho,field_unit,group_name,ngrid)
          close(field_unit)
 
-         open(unit=field_unit,file=trim(output_prefix)//trim(output_file)//'_grid',status='replace')
-         call output_field_grid(rho,field_unit,ngrid)
-         close(field_unit)
-
-         open(unit=field_unit,file=trim(output_prefix)//'omega',status='replace')
-         call output_field(omega_basis,field_unit,group_name)
-         close(field_unit)
+         deallocate(k_grid)
 
 
       case ('RGRID_TO_FIELD')
@@ -857,14 +860,14 @@ program pscf_pd
 
          ! Check preconditions for RGRID_TO_FIELD
          if ( .not. unit_cell_flag ) then
-            write(6,*) "Error: Must make UNIT_CELL before FIELD_TO_GRID"
+            write(6,*) "Error: Must make UNIT_CELL before RGRID_TO_FIELD"
             exit op_loop
          else if (.not.discretize_flag) then
             write(6,*) &
-                  "Error: Must make DISCRETIZATION before FIELD_TO_GRID"
+                  "Error: Must make DISCRETIZATION before RGRID_TO_FIELD"
             exit op_loop
          else if (.not.basis_flag) then
-            write(6,*) "Error: Must make BASIS before FIELD_TO_GRID"
+            write(6,*) "Error: Must make BASIS before RGRID_TO_FIELD"
             exit op_loop
          end if
  
@@ -874,14 +877,32 @@ program pscf_pd
        
          allocate( r_grid(0:ngrid(1)-1, 0:ngrid(2)-1, 0:ngrid(3)-1, N_monomer) )
          allocate( k_grid(0:ngrid(1)/2, 0:ngrid(2)-1, 0:ngrid(3)-1, N_monomer) )
-         allocate( omega_basis(N_monomer,N_star) )
 
          ! Read field values at grid points from input_file
-         open(unit=field_unit,file=trim(input_prefix)//trim(input_file),status='old')
+         open(unit=field_unit,file=trim(input_file),status='old')
          ! Skip first 13 lines 
-         do i=1,13
+         do i=1,14
             read(field_unit,*)
          end do
+          
+         read(field_unit,*)grid_size
+         if(dim==1)then
+            if(grid_size(1)/=ngrid(1))then
+               write(6,*) "Error: Grid size in rho_kgrid file is not equal to the one in input file"
+               exit op_loop
+            end if
+         elseif(dim==2)then
+            if(grid_size(1)/=ngrid(1).or.grid_size(2)/=ngrid(2))then
+               write(6,*) "Error: Grid size in rho_kgrid file is not equal to the one in input file"
+               exit op_loop
+            end if
+         elseif(dim==3)then 
+            if(grid_size(1)/=ngrid(1).or.grid_size(2)/=ngrid(2).or.grid_size(3)/=ngrid(3))then
+               write(6,*) "Error: Grid size in rho_kgrid file is not equal to the one in input file"
+               exit op_loop
+            end if
+         endif
+
          r_grid=0.0
          do i3=0,ngrid(3)-1
             do i2=0,ngrid(2)-1
@@ -901,20 +922,53 @@ program pscf_pd
                call kgrid_to_basis(k_grid(:,:,:,alpha),rho(alpha,:))
          end do
         
+         open(unit=field_unit,file=trim(output_file),status='replace')
+         call output_field(rho,field_unit,group_name)
+         close(field_unit)
+
+         deallocate(r_grid)
+         deallocate(k_grid)
+        
+
+      case('RHO_TO_OMEGA')
+
+         ! Transform rho field to omega field by assuming Lagrange mulitplier
+         ! field (pressure field) to be zero. Both rho and omega are in terms 
+         ! of symmetry-adapted basis functions. 
+
+         ! Check preconditions for RGRID_TO_FIELD
+         if ( .not. unit_cell_flag ) then
+            write(6,*) "Error: Must make UNIT_CELL before RHO_TO_OMEGA"
+            exit op_loop
+         else if (.not.discretize_flag) then
+            write(6,*) &
+                  "Error: Must make DISCRETIZATION before RHO_TO_OMEGA"
+            exit op_loop
+         else if (.not.basis_flag) then
+            write(6,*) "Error: Must make BASIS before RHO_TO_OMEGA"
+            exit op_loop
+         end if
+
+         allocate( omega_basis(N_monomer,N_star) )
+
+         call input(input_file,'input_filename')
+         call input(output_file,'output_filename')
+         
+         open(unit=field_unit,file=trim(input_file),status='old')
+         call input_field(rho,field_unit)
+         close(field_unit) 
+         
          do alpha=1,N_monomer
             do i=1,N_star
                omega_basis(alpha,i) = sum(chi(:,alpha)*rho(:,i))
             end do
          end do
 
-         open(unit=field_unit,file=trim(output_prefix)//trim(output_file),status='replace')
-         call output_field(rho,field_unit,group_name)
-         close(field_unit)
-        
-         open(unit=field_unit,file=trim(output_prefix)//'omega',status='replace')
+         open(unit=field_unit,file=trim(output_file),status='replace')
          call output_field(omega_basis,field_unit,group_name)
          close(field_unit)
 
+         deallocate( omega_basis )
 
       case ('FINISH')
 
