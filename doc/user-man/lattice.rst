@@ -5,7 +5,7 @@
 Bravais Lattice
 ***************
 
-The variables in the UNIT_CELL section of the input script specify the Bravais
+The variables in the UNIT_CELL section of the parameter file specify the Bravais
 lattice of the crystal. The variables required in this section, in the required
 order, are:
 

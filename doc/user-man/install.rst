@@ -191,17 +191,17 @@ Note that MacPorts (unlike homebrew) requires you to use "sudo"
 to execute installation with superuser/administrator privileges, 
 and thus will ask for a password after each of the above commands.
 
-We found that the gcc-5 port installs the gfortran Fortran 90 
-compiler at /usr/opt/local/bin/gfortran-mp-5 . Versions compiled 
-with other versions of gcc (e.g., 4.9) seem to be placed in the 
-same directory with a different numerical suffix, e.g., 
-gfortran-mp-49.  CMake was unable to find this compiler 
-executable without help.  To remedy this, you should set the 
-FC environment variable (the path to a Fortran compiler) to 
-point to the absolute path to the gfortran executable before
-attempting to compile, by entering, for example::
+The gcc5 MacPorts package installs the gfortran Fortran 90 compiler 
+executable at /opt/local/bin/gfortran-mp-5 . Versions compiled with 
+earlier versions of gcc (e.g., 4.9) seem to be placed in the same 
+directory with a different numerical suffix, e.g., gfortran-mp-49.  
+CMake appears to be unable to find this compiler executable without 
+help.  To remedy this, you should set the FC environment variable 
+(which indicates the path to a Fortran compiler) to point to the 
+absolute path to the gfortran executable before attempting to 
+compile, by entering, for example::
 
-   > FC=/usr/opt/local/bin/gfortran-mp-5
+   > FC=/opt/local/bin/gfortran-mp-5
    > export FC
 
 If expect to compile this and other fortran programs repeatedly, 
@@ -213,7 +213,7 @@ Getting the source code
 
 To obtain the most recent PSCF source code from github::
 
-   > git clone git@github.com/dmorse/pscf.git
+   > git clone https://github.com/dmorse/pscf.git
 
 Compile and Install
 ^^^^^^^^^^^^^^^^^^^

@@ -46,7 +46,7 @@ Documentation
 *  API documentation. The package includes HTML documentation of all 
    public module variables and procedures, which is extracted from 
    comment blocks in the source code.
-*  Examples of converged solutions and input scripts are included.
+*  Examples of converged solutions and input files are included.
 
 Dependencies
 ============

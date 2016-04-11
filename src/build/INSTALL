@@ -14,34 +14,47 @@
  the LICENSE file in the top-level PSCF directory. 
 
 -----------------------------------------------------------------------
-To compile the program:
+These are instructions for compiling the program uisng the simple
+Makefile that is provided in the src/build directory. Is it also 
+possible to compile the program using cmake, as described in the
+web user manual, or in the file doc/user-man/install.rst.
 
 1. Install the open source LAPACK linear algebra library and the 
-FFTW fast fourier transform library.  The program can use either 
-version 2 or version 3 of the FFTW library.  
+FFTW fast fourier transform library. 
 
-2. Edit the Makefile in the src/build directory. You will need to
+2. Change directory (cd) to the src/build directory within the repository
+directory tree, and copy the file Makefile_r to Makefile, by entering
+
+>  cp Makefile_r Makefile
+
+Explanation: The file Makefile_r is the default version of the Makefile
+that is stored in the git repository. Users should make a copy named
+Makefile that they can modify while keeping the default copy unmodified.
+
+
+3. Edit the Makefile in the src/build directory. You will need to
 set the following variables to values appropriate to your operating
 system and preferences:
 
      F90       = executable for Fortran 90 compiler
      FAST      = compiler options for high optimization
      NOPT      = compiler options for no optimization
-     LAPACKLIB = directory containing LAPACK libraries
-     FFTWLIB   = directory containing FFTW library
+     LAPACKLIB = path to LAPACK library
+     FFTWLIB   = path to FFTW library
      FFT_FILE  = fft2_mod for FFTW v2 or fft3_mod for v3
      DEVEL     = empty string for stable version (see Makefile)
      BIN       = directory to which executable should be written
      EXE       = name of executable file
 
-Appropriate values for some compilers and common locations are
-provided in notes within the Makefile.  The values of the macro 
+Appropriate values for some compilers and common locations are in 
+commented out lines within the Makefile.  The values of the macro 
 variables SCF, SRC, and FORPEDO use relative paths that rely on 
 the directory structure of the package, and should not need to be 
 reset.
 
 The code can be linked with either version 2 or version 3 of the
-FFTW library.  Because the interfaces of the different versions 
+FFTW library, but the use of version 2 is deprecated: Use version
+3 if you can. Because the interfaces of the different versions 
 of FFTW are different, two different fortran 90 modules, named
 fft2_mod and fft3_mod, are provided as wrappers for versions 2
 and 3 of FFTW, respectively. The choice of which of these modules 
@@ -49,7 +62,7 @@ to compile and link is controlled by the value of the Makefile
 macro variable FFT_FILE, which should be set to either 'fft2_mod' 
 or 'fft3_mod'.
 
-3. To compile, issue the command:
+4. To compile, issue the command:
 
    > make pscf
 
@@ -57,7 +70,7 @@ or 'fft3_mod'.
    directory with *.o and *.mod files and create an executable file
    $(BIN)/$(EXE).
 		      
-4. If desired, to remove all of the generated *.o, *.mod and files 
+5. If desired, to remove all of the generated *.o, *.mod and files 
    from the src/build directory, as well as any *~ files from src 
    and its subdirectories, enter the command
 
