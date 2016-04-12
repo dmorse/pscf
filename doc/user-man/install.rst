@@ -368,41 +368,49 @@ required libraries.
 
 To compile the code in this way, you should:
 
-   * cd to the pscf/src/build directory
-   * Examine and edit the Makefile (as discussed below)
-   * Enter 'make pscf' from within src/build.
+   * Change the working directory to pscf/src/build.
 
-These steps are described in more detail below
+   * Make a copy named makefile of the file Makefile_r, by entering::
+
+        cd Makefile_r Makefile
+
+   * Examine and edit the Makefile to reflect your environment
+
+   * To compile, enter::
+
+        > make pscf
+
+     from within src/build.
+
+Some of these steps are discussed in more detail below
 
 Customize the Makefile:
 ^^^^^^^^^^^^^^^^^^^^^^
 
-In Makefile in the src/build directory, you will need to set values for a 
-set of macro variables to values appropriate to your system. Makefile 
-variables you may need to reset are:
+In the Makefile in the src/build directory (which you must create by
+copying Makefile_r), you will need to set values for a set of macro 
+variables to values appropriate to your system. Makefile variables 
+you may need to reset are:
  
-==========  ===============================================
- SCF        root of scf directory tree.
- SRC        source file directory. Default: $(SCF)/src
- BIN        directory to which executable should be written
+ =========  ========================================================
+ BIN        directory in which executable should be installed
  EXE        name of executable file
  F90        path to executable for Fortran 90 compiler
  FAST       compiler options for high optimization
  NOPT       compiler options for no optimization
- LAPACKLIB  directory with Lapack libraries
- FFTWLIB    directory with FFTW library
-==========  ===============================================
+ LAPACKLIB  name of lapack library, and directory if not standard
+ FFTWLIB    name of the FFTW library, and directory if not standard
+ =========  ========================================================
 
 The makefile contains values appropriate for a number of different common 
-environments, most of which are commented out. Make sure you give only one
-definition for each variable, and that you comment out any definitions you 
-are not using.
+environments, most of which are commented out. Make sure you give exactly
+one uncommented definition for each variable, and that you comment out any 
+definitions you are not using.
 
 Compile and Link
 ^^^^^^^^^^^^^^^^
 
-To compile and link, from the src/build directory, issue the
-command::
+To compile and link, from the src/build directory, simply enter::
 
    > make pscf
 
@@ -411,6 +419,9 @@ create an executable $(BIN)/$(EXE). By default, this will create a program
 named pscf in the pscf/bin directory. The executable file can be relocated 
 to somewhere else if you desire.
 
+Setting your Path and Running 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 To invoke the program, you will either need to:
 
    * Invoke the program using an absolute path name
@@ -418,13 +429,13 @@ To invoke the program, you will either need to:
    * Add the directory containing your executable to your command search
      PATH variable. To do so, enter:
 
-         PATH=$PATH:~$(SCF)/bin
+         PATH=$PATH:$(BIN)
          export path
 
-     where $(SCF) should be replaced by the actual absolute path to the
-     pscf/ directory. You may want to add this to your .bashrc or .profile 
-     file so that this directory is added to your path when automatically 
-     when you log in.
+     where $(BIN) denotes the path in which you installed the executable.
+     You may want to add this to your .bashrc or .profile file so that 
+     this directory is added to your path when automatically when you 
+     log in.
 
    * Move pscf to a directory such as /usr/local/bin that is already in 
      your $PATH. 
@@ -437,3 +448,5 @@ well as any editor buffer files with a ~ suffix from src tree, enter::
 
    > make clean
 
+If you have moved the executable, you will need to remove this manually
+to fully clean up.

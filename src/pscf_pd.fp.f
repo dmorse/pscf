@@ -125,8 +125,8 @@ program pscf_pd
                                       !   output_prefix//rho
                                       !   output_prefix//group
                                       !   output_prefix//waves
-   character(60)   :: input_file      ! input file for FIELD_TO_GRID
-   character(60)   :: output_file     ! output file for FIELD_TO_GRID
+   character(60)   :: input_filename      ! input file for FIELD_TO_GRID
+   character(60)   :: output_filename     ! output file for FIELD_TO_GRID
 
    !  Variable for Kgrid to Rgrid transformation
    integer                     :: i1, i2, i3, alpha
@@ -450,12 +450,12 @@ program pscf_pd
          end if
 
          ! Read input filename and output file prefix
-         call input(input_file, 'input_filename')  ! input  file prefix
+         call input(input_filename, 'input_filename')  ! input  file prefix
          call input(output_prefix,'output_prefix') ! output file prefix
 
          ! Read omega file, if not read previously
          if (.not.omega_flag) then
-            open(unit=field_unit,file=trim(input_file),&
+            open(unit=field_unit,file=trim(input_filename),&
                               status='old',iostat=ierr)
             if (ierr/=0) stop "Error while opening omega source file."
             call input_field(omega,field_unit)
@@ -764,16 +764,16 @@ program pscf_pd
          endif
 
          ! Read input and output file names from input script
-         call input(input_file,'input_filename')
-         call input(output_file,'output_filename')
+         call input(input_filename,'input_filename')
+         call input(output_filename,'output_filename')
         
-         ! Read field (coefficients of basis functions) from input_file
-         open(unit=field_unit,file=trim(input_file),status='old')
+         ! Read field (coefficients of basis functions) from input_filename
+         open(unit=field_unit,file=trim(input_filename),status='old')
          call input_field(rho,field_unit)
          close(field_unit)
  
-         ! Write values of field on a grid to output_file 
-         open(unit=field_unit,file=trim(output_file),status='replace')
+         ! Write values of field on a grid to output_filename 
+         open(unit=field_unit,file=trim(output_filename),status='replace')
          call output_field_grid(rho,field_unit,group_name,ngrid)
          close(field_unit)
 
@@ -799,13 +799,13 @@ program pscf_pd
  
 
          ! Read input and output file names from input script
-         call input(input_file,'input_filename')
-         call input(output_file,'output_filename')
+         call input(input_filename,'input_filename')
+         call input(output_filename,'output_filename')
        
          allocate( k_grid(0:ngrid(1)/2, 0:ngrid(2)-1, 0:ngrid(3)-1, N_monomer) )
 
-         ! Read field (coefficients of basis functions) from input_file
-         open(unit=field_unit,file=trim(input_file),status='old')
+         ! Read field (coefficients of basis functions) from input_filename
+         open(unit=field_unit,file=trim(input_filename),status='old')
 
          ! Skip first 13 lines 
          do i=1,14
@@ -845,7 +845,7 @@ program pscf_pd
                call kgrid_to_basis(k_grid(:,:,:,alpha),rho(alpha,:))
          end do
 
-         open(unit=field_unit,file=trim(output_file),status='replace')
+         open(unit=field_unit,file=trim(output_filename),status='replace')
          call output_field_grid(rho,field_unit,group_name,ngrid)
          close(field_unit)
 
@@ -872,14 +872,14 @@ program pscf_pd
          end if
  
          ! Read input and output file names from input script
-         call input(input_file,'input_filename')
-         call input(output_file,'output_filename')
+         call input(input_filename,'input_filename')
+         call input(output_filename,'output_filename')
        
          allocate( r_grid(0:ngrid(1)-1, 0:ngrid(2)-1, 0:ngrid(3)-1, N_monomer) )
          allocate( k_grid(0:ngrid(1)/2, 0:ngrid(2)-1, 0:ngrid(3)-1, N_monomer) )
 
-         ! Read field values at grid points from input_file
-         open(unit=field_unit,file=trim(input_file),status='old')
+         ! Read field values at grid points from input_filename
+         open(unit=field_unit,file=trim(input_filename),status='old')
          ! Skip first 13 lines 
          do i=1,14
             read(field_unit,*)
@@ -922,7 +922,7 @@ program pscf_pd
                call kgrid_to_basis(k_grid(:,:,:,alpha),rho(alpha,:))
          end do
         
-         open(unit=field_unit,file=trim(output_file),status='replace')
+         open(unit=field_unit,file=trim(output_filename),status='replace')
          call output_field(rho,field_unit,group_name)
          close(field_unit)
 
@@ -951,10 +951,10 @@ program pscf_pd
 
          allocate( omega_basis(N_monomer,N_star) )
 
-         call input(input_file,'input_filename')
-         call input(output_file,'output_filename')
+         call input(input_filename,'input_filename')
+         call input(output_filename,'output_filename')
          
-         open(unit=field_unit,file=trim(input_file),status='old')
+         open(unit=field_unit,file=trim(input_filename),status='old')
          call input_field(rho,field_unit)
          close(field_unit) 
          
@@ -964,7 +964,7 @@ program pscf_pd
             end do
          end do
 
-         open(unit=field_unit,file=trim(output_file),status='replace')
+         open(unit=field_unit,file=trim(output_filename),status='replace')
          call output_field(omega_basis,field_unit,group_name)
          close(field_unit)
 

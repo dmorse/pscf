@@ -42,11 +42,14 @@ Features
 Documentation
 =============
 
-*  This users manual 
-*  API documentation. The package includes HTML documentation of all 
-   public module variables and procedures, which is extracted from 
-   comment blocks in the source code.
-*  Examples of converged solutions and input files are included.
+*  User manual (this file)
+*  Developer manual, generated from comments in the source code
+*  A library of examples, in a separate git repository
+
+   http://github.com/dmorse/pscf-examples.git
+
+See the file doc/README for instruction regarding how to regenerate the
+developer manual.
 
 Dependencies
 ============
@@ -62,7 +65,8 @@ Contributors
 
 * David Morse
 * Chris Tyler
-* Amit Ranjan
 * Jian Qin
+* Amit Ranjan
 * Raghuram Thiagarajan
+* Akash Arora
 
