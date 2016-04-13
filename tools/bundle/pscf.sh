@@ -22,10 +22,12 @@ mkdir -p $PSCF_TEMP
 
 export "DYLD_LIBRARY_PATH=$PSCF_RESOURCES/lib:$MAIN_EXEC:$TEST_EXEC:$GROUP_EXEC:$DYLD_LIBRARY_PATH"
 export "PATH=$PSCF_RESOURCES/bin:$MAIN_EXEC:$TEST_EXEC:$GROUP_EXEC:$PATH"
+export "PYTHONPATH=$PSCF_RESOURCES/lib/python2.7/site-packages:$PYTHONPATH"
 
 cat > $PSCF_TEMP/terminal <<EOM
 export DYLD_LIBRARY_PATH=$PSCF_RESOURCES/lib
 export PATH=$PSCF_RESOURCES/bin:$PATH
+export PYTHONPATH=$PSCF_RESOURCES/lib/python2.7/site-packages:$PYTHONPATH
 clear
 echo -e "\n\nHello $USER! The Polymer Self-Consistent Field theory (PSCF) code is on your PATH and ready to run. Start with command \"pscf < [your input file]\"\n\n"
 EOM

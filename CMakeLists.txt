@@ -13,6 +13,10 @@ project (PSCF)
 #### Based on https://cmake.org/Wiki/CMakeForFortranExamplea ####
 enable_language (Fortran)
 
+option(USE_FFT3 "Use the fft3_mod file (and FFT3.0). Otherwise, use fft2_mod (and FFTW2)" ON)
+option(USE_DEVEL "Use the -D DEVEL option with the Fortran preprocessor" ON)
+option(BUILD_DMG "Build a DMG based application for OSX clients" OFF)
+
 # Add our extra Find*.cmake modules
 LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/tools/cmake/")
 
@@ -76,11 +80,16 @@ set(CPACK_COMPONENTS_ALL Unspecified)
 # TODO: finish NSIS generator (http://www.vtk.org/Wiki/CMake:Component_Install_With_CPack)
 # TODO: test compile and package on Unix and Windows
 if (APPLE)
-	set(CPACK_GENERATOR 
-		Bundle 
-		TGZ
-		ZIP
-	)
+    if (BUILD_DMG)
+        set(CPACK_GENERATOR 
+            Bundle 
+        )
+    else (BUILD_DMG)
+        set(CPACK_GENERATOR 
+            TGZ
+            ZIP
+        )
+    endif (BUILD_DMG)
 else (APPLE)
 	if (UNIX)
         if (EXISTS /etc/redhat-release)

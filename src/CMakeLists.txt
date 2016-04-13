@@ -1,18 +1,21 @@
 # TODO: move these options to the top file
-option(UseFFT3 "Use the fft3_mod file (and FFT3.0). Otherwise, use fft2_mod (and FFTW2)" ON)
-option(UseDEVEL "Use the -D DEVEL option with the Fortran preprocessor" ON)
 
-if (UseFFT3)
+if (USE_FFT3)
     set (FFT_FILE fft3_mod.f)    
     find_package(FFTW)
-else (UseFFT3)
+else (USE_FFT3)
     set (FFT_FILE fft2_mod.f)    
     find_package(FFTW)
-endif (UseFFT3)
+endif (USE_FFT3)
 
-if (UseDEVEL)
+if (USE_DEVEL)
     set (DEVEL "-DDEVEL=1")
-endif (UseDEVEL)
+endif (USE_DEVEL)
+
+if (BUILD_DMG)
+    set (BUILD_MACOSX_BUNDLE "MACOSX_BUNDLE")
+    set (MACOSX_BUNDLE_EXT ".app")
+endif (BUILD_DMG)
 
 set(FORPEDO ${CMAKE_SOURCE_DIR}/tools/python/preprocess-0.6.1/preprocess.py)
 
@@ -48,15 +51,11 @@ add_custom_command(
 )
 
 add_executable(pscf 
-   MACOSX_BUNDLE WIN32
+   ${BUILD_MACOSX_BUNDLE} WIN32
    ${CMAKE_CURRENT_BINARY_DIR}/pscf_pd.f 
 )
 
-if (APPLE)
-  set(APPS ${CMAKE_CURRENT_BINARY_DIR}/pscf.app)
-else (APPLE)
-  set(APPS ${CMAKE_CURRENT_BINARY_DIR}/pscf)
-endif (APPLE) 
+set(APPS ${CMAKE_CURRENT_BINARY_DIR}/pscf${MACOSX_BUNDLE_EXT})
 set(DIRS "")
 
 # TODO: clean up these links
@@ -69,12 +68,14 @@ install(TARGETS pscf
         ARCHIVE DESTINATION lib/static COMPONENT Runtime
 )
 
+if (BUILD_DMG)
 # Copy libraries into the DMG
-INSTALL(CODE "
-   include(BundleUtilities)
-   set (BU_CHMOD_BUNDLE_ITEMS ON)
-   fixup_bundle(\"${APPS}\"   \"\"   \"${DIRS}\")
-" COMPONENT Runtime)
+    INSTALL(CODE "
+       include(BundleUtilities)
+       set (BU_CHMOD_BUNDLE_ITEMS ON)
+       fixup_bundle(\"${APPS}\"   \"\"   \"${DIRS}\")
+    " COMPONENT Runtime)
+endif (BUILD_DMG)
 
 #install(TARGETS pscf
 #        RUNTIME DESTINATION bin
