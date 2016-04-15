@@ -106,7 +106,7 @@ else (APPLE)
                     ZIP
                )
             # TODO: verify these versions
-            set(CPACK_DEBIAN_PACKAGE_DEPENDS "lapack (>= 3.0.0), libfft3 (>= 3.2.0)")
+            set(CPACK_DEBIAN_PACKAGE_DEPENDS "liblapack3 (>= 3.0.0), libfftw3-3 (>= 3.3.0)")
         endif()
 	else (UNIX)
 		set(CPACK_GENERATOR 

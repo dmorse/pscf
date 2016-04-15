@@ -70,12 +70,12 @@ Ubuntu:
   * Use the Ubuntu software center graphical installer or the apt-get
     command line utility to install the following packages:
    
-        - fftw3
+        - libfftw3-3
         - liblapack3
 
     To install these packages using apt-get, enter::
 
-        sudo apt-get fftw3
+        sudo apt-get libfftw3-3
         sudo apt-get liblapack3
 
   * Install the pscf package by running::
@@ -99,6 +99,17 @@ Instructions are similar to those for Ubuntu/Debian, except for the use
 of a different package file format and package manager. In this case:
 
   * Download the pscf<version>.rpm package from the PSCF home page
+
+  * Use the yum command line utility or the Fedora graphical package 
+    manager to install the following packages:
+   
+        - fftw
+        - lapack
+
+    To install these packages using apt-get, enter::
+
+        > sudo yum install lapack
+        > sudo yum install fftw
 
   * To install, enter::
 
@@ -257,7 +268,7 @@ utility to install the following packages:
    * git
    * cmake
    * gfortran
-   * fftw3-dev
+   * libfftw3-dev
    * liblapack3
 
 To obtain the PSCF source code from github, as for OS X, enter::
