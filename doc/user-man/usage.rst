@@ -7,18 +7,17 @@ Usage
 Input Files
 ===========
 
-A standard SCFT calculation requires two input files::
+A standard SCFT calculation requires two input files:
 
-   - A parameter file
-   - An input "omega" file  
+   * A parameter file
+   * An input "omega" file  
 
 The parameter file contains both parameters required to define a physical 
 system and instructions to execute a sequence of computations.  The input 
 omega file contains an initial guess for the monomer chemical potential 
 fields.  The parameter file is read by the main program from standard input. 
 The path for the omega file is specified in the parameter file.  The format 
-of the <a href="sec.php?section=Input Script&">parameter file </a> is 
-described in the next page of this manual.
+of the :ref:`param-page` is described in the next page of this manual.
 
 Command Line Usage 
 ==================

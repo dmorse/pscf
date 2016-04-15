@@ -18,37 +18,44 @@ figure out the locations of these libraries yourself if you use make.
 
 Compiling with cmake involves the following steps:
 
-    * Install other software on which PSCF depends
-    * Create an appropriate directory structure in which to build
+    * Install dependencies (other software on which PSCF depends)
     * Obtain the source code
     * Compile and install PSCF 
 
-Only the first step, of installing external dependencies, is substantially
-different for different operating systems. We thus give separate instructions 
-for this step separately for different operating systems at the end of this 
-page.
+Each of these steps is explained in greater detail below. 
 
-In order to obtain the source code, one can either:
+Only the first step, of installing external dependencies, is 
+substantially different for different operating systems, because
+different operating systems use different systems to manage external
+software packages and contain different software pre-installed. We 
+thus give separate instructions for Mac OS and different Linux 
+distributions for this process.
 
-    * Download a compressed archive (.tar) package
+In order to obtain the source code, on any operating system, one 
+can either:
+
+    * Download a zip file
     * Use the git version control software to clone the repository
 
-We recommend using git if possible, since this makes it simple to update 
-the code later, but both procedures are described in what follows.
+We recommend using git if possible, since this makes it simple to 
+update the code later, but both procedures are described below.
 
-The following software packages must be installed before using cmake to
-compile PSCF, if you plan on using git to obtain the source code:
+The following software packages must be installed before using cmake 
+to compile PSCF, if you plan on using git to obtain the source code:
 
    * git (in order to clone the source code)
    * cmake (to build a makefile)
-   * a fortran 90 compiler 
+   * a Fortran 90 compiler 
    * LAPACK linear algebra library
    * FFTW version 3.x fast fourier transform library
 
 You do not need to install git if you plan to simply download the 
-source code rather than using git. In what follows, we will assume
-that you plan to use free gfortran Fortran 90 compiler, which is 
-part of the Gnu Compiler Collection (gcc) suite of compilers. 
+source code rather than using git. On a Mac, some of thes packages
+come bundled with the XCode development environment, which must in
+any case be installed before you try to compile from source. In 
+what follows, we will assume that you plan to use free gfortran 
+Fortran compiler, which is part of the Gnu Compiler Collection 
+(gcc) suite of compilers. 
 
 Installing Dependencies
 -----------------------
@@ -64,21 +71,22 @@ XCode is available gratis from the app store, but is a large package that can
 take a long time to install (do it with a good internet connection).  The 
 XCode package contains git, so it is not necessary to install git separately
 The OXS operating system also appears to come with a version of LAPACK, and 
-the BLAS library upon which it depends.
+the BLAS library upon which it depends. It does not include cmake, gfortran,
+or FFTW.
 
 **Package Managers: HomeBrew vs. MacPorts**
 
-The remaining dependencies (cmake, gfortran and fftw) can be most easily 
+The remaining dependencies (cmake, gfortran and FFTW) can be most easily 
 installed using either the MacPorts or Homebrew package manager systems.  
 These are both systems for managing open-source unix software on the unix 
-subsystem of the Mac OSX.  The choice of package managers is up to you, 
-but you should avoid using both on the same machine.  If either Homebrew 
-or MacPorts is already installed and in use on your Mac, use the existing 
-system and do not install the alternative, because they do not play well 
-together.  If neither Homebrew or MacPorts is installed, we have slight 
-preference for Homebrew, which made it slightly easier to install the
-dependencies required by PSCF. We have succeeded in building PSCF using 
-both package managers on different machines that were running the latest
+subsystem of the Mac OSX.  The choice between these package managers is 
+up to you, but you should avoid using both on the same machine.  If either 
+Homebrew or MacPorts is already installed and in use on your Mac, use the 
+existing system and do not install the alternative, because they do not 
+play well together.  If neither Homebrew or MacPorts is installed, we have 
+slight preference for Homebrew, which made it slightly easier to install 
+the dependencies required by PSCF. We have succeeded in building PSCF using 
+both package managers on different machines that are running the latest
 version of Mac OS X (El Capitan, X 10.11) Instructions for both package
 managers are given separately below.
 
@@ -210,19 +218,19 @@ required command is thus::
 
    > cmake -DUSE_INTEL=1 -DCMAKE_INSTALL_PREFIX=/path/to/install ../pscf
 
-Creating a Directory Tree
+Obtaining the Source Code
 -------------------------
-We assume in what follows that you will use cmake to implement on "out-of-source" build, in which all of the files generated during compilation are placed in a different directory than the source code. To do this, we suggest that you create a directory named pscf/ with a subdirectory named build/, by entering::
+We assume in what follows that you will use cmake to implement on "out-of-source" build, in which all of the files generated during compilation are placed in a different directory than the source code. To begin, we suggest that you create a directory named pscf/ with a subdirectory named build/, by entering::
 
      mkdir pscf
      cd pscf
      mkdir build
 
-Obtaining the Source Code
--------------------------
+The source code will be placed in another subdirectory of pscf/ which we will call repo/ (for repository).
+
 The source code for pscf is stored in a repository on the github.com server, at:
 
-    https://github.com/dmorse/pscf
+      https://github.com/dmorse/pscf
 
 A copy of the source code may be obtained either, by:
 
@@ -231,14 +239,15 @@ A copy of the source code may be obtained either, by:
 
 To download a zip file:
 
-    * Point a browser at the pscf github repository
+    * Point your browser at the pscf github repository.
 
-    * Click the button labelled "Download ZIP" near the upper right corner. 
-      On Mac OS X and most linux systems, this will download a directory 
-      named pscf-master into the users Downloads directory.
+    * Click the button labelled "Download ZIP" near the upper right corner 
+      of that web page. On Mac OS X and most linux systems, this will 
+      create a subdirectory named pscf-master with your Downloads 
+      directory.
 
-    * Move the pscf-master/ directory into the pscf/ directory, making it
-      a subdirectory of pscf/
+    * Move the pscf-master/ directory into the pscf/ directory that you
+      just created.
 
     * Rename the pscf/pscf-master/ directory as repo/, by changing directory
       to pscf and then entering::
@@ -258,35 +267,36 @@ To use git to clone the repository, after git is installed on your machine:
       name to pscf/repo/, exactly as described above for the case of a 
       directory created from a zip file. 
 
-Compile and Install
--------------------
-
-Before attempting to compile, you must install all required dependencies, 
-by following instructions given below for each operating system, create
-a pscf/ directory tree with a build/ subdirectory, and obtain the source 
-code. At this point you should have a pscf/ directory structure::
+At this point, by either method, you should have pscf/ directory structure::
 
     pscf/
        build/
        repo/
 
 in which the build/ subdirectory is empty and the repo/ subdirectory 
-contains the pscf source code, as obtained from the github repository.
+contains the source code obtained from the github repository.
 
-To compile and install, cd to the build/ directory and, from there,
-enter::
+Compiling and Installing
+------------------------
+
+Before attempting to compile, you must follow the above instructions to
+create all dependencies, create an appropriate directory tree and obtain
+the source code. 
+
+
+To compile and install, change directory to the pscf/build/ directory 
+and, from there, enter::
 
    > cmake -DCMAKE_INSTALL_PREFIX=/path/to/install ../repo
    > make -j 4
    > make install 
 
-In the "cmake" command, the string "/path/to/install" is the root 
-of path used for installation.  The last argument "../pscf". If 
-you use "-DCMAKE_INSTALL_PREFIX=.", the executable and other files 
-that you generate will be installed in tree rooted at the build 
-directory (e.g., pscf-build). The final pscf executable is 
-self-contained and can be copied to wherever you want after it is 
-created.
+In the "cmake" command, the string "/path/to/install" is the root of 
+path used for installation.  The last argument "../pscf". If you use 
+"-DCMAKE_INSTALL_PREFIX=.", the executable and other files that you 
+generate will be installed in tree rooted at the build directory 
+(e.g., pscf-build). The final pscf executable is self-contained and 
+can be copied to wherever you want after it is created.
 
 Wherever you install the executable file, you will need to make sure that 
 directory containing the executable (or a symlink to the executable) is 
