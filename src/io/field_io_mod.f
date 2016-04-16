@@ -62,6 +62,7 @@ contains
    real(long)         :: swap(N_monomer)
    type(version_type) :: version
 
+   G = 0
    ! Input file format version (e.g., `format 1 0')
    call input_version(version, field_unit)
 
@@ -79,6 +80,7 @@ contains
          field(:,i_star) = swap * dsqrt( dble(N_arm) / dble(star_count(i_star)) )
       end if
    end do
+
 
    end subroutine input_field
    !==============================================================
@@ -121,6 +123,7 @@ contains
    call output(trim(group_name),'group_name',o=field_unit)
    call output(N_monomer,'N_monomer',o=field_unit)
    call output(N_output,'N_star',o=field_unit)
+
 
    fmt = '('//trim(int_string(N_monomer))//'ES20.12,4X,'
    fmt = trim(fmt)//trim(int_string(dim))//'I4,I6'//')'
