@@ -276,30 +276,118 @@ At this point, by either method, you should have pscf/ directory structure::
 in which the build/ subdirectory is empty and the repo/ subdirectory 
 contains the source code obtained from the github repository.
 
+Choosing an Install Directory
+-----------------------------
+
+After installing all dependencies and obtaining the source code, you are
+ready to compile PSCF. 
+
+Before compiling the code, you need to decide where you would like cmake
+to install the pscf executable, executable scripts, python modules, and
+matlab files. The build system created by cmake will install these files 
+in specific subdirectories of root directory that we will refer to as the 
+install directory.  Specifically, it will install the pscf executable and 
+other executable scripts in the bin/ subdirectory of the install directory, 
+install matlab scripts and python modules in different subdirectories of 
+the lib/ subdirectory, and install some other files in the share/ subdirectory. 
+After installation, the install directory, denoted below by install-dir/, 
+will thus contain three subdirectories::
+
+    install/
+       bin/
+       lib/
+       share/
+
+The build system will create these three subdirectories if they do not 
+already exist. The default choice for the install directory is the system
+/usr/local directory, which is a standard location on linux for a system 
+administrator to install 'local' software on linux that is not part of the 
+linux distribution.
+
+We suggest that you consider any of three possible locations for the
+install directory for pscf:
+
+   * The pscf/ directory, which also contains the source code. 
+
+   * A standard installation directory within your user directory.
+
+   * The system /usr/local directory (the default).
+
+The advantage of the first two options is that both of them install all 
+of the software within your user directory tree, and thus do not require
+adminstrative privileges. The further advantage of the first option 
+(installing within pscf/) is that it keeps all of the files in a single 
+directory tree within your user directory that only contains files 
+associated with pscf/, which makes it easy to erase everything and 
+start over if desired. 
+
+The disadvantage of the first and second options, which both install
+files within your user directory) is that both of them will require that,
+before you can conveniently use the installed software, you will need to 
+modify environment variables in order to allow the operating system and
+the python interpreter to find desired files when referrerd to by name. 
+Conversely, the advantage of installing in the /usr/local directory is
+that doing so causes executable files and python modules to be placed in
+standard locations where they will be found automatically.
+
+The advantage of the second option (installation in a standard location
+within your user directory tree) relative to the first is that, if you 
+install multiple software packages from source and install all of them 
+in this location, you can configure your enviroment to always look in 
+this private installation directory for software, and thus do not need 
+to further modify environment variables every time you add new private
+software. If you choose this option, we recommend installing software 
+in a hidden subdirectory of you home directory named ".local".  Note 
+the dot in the beginning of the name, which makes it a hidden directory 
+that will not show up when you use "ls" from your home directory unless 
+you invoke it with with the "-a" option, as "ls -a", to show hidden files
+and directories.  Installing in this location will cause the creation of 
+a tree of subdirectories of your private ${HOME}/.local directory that 
+is analogous to the structure of the /usr/local directory.
+
+
 Compiling and Installing
 ------------------------
 
-Before attempting to compile, you must follow the above instructions to
-create all dependencies, create an appropriate directory tree and obtain
-the source code. 
-
-
-To compile and install, change directory to the pscf/build/ directory 
-and, from there, enter::
+As the first step of compiling and installing, change directory to the 
+pscf/build/ directory, make sure the build/ directory is empty (removing 
+all contents if necessary), from there, enter::
 
    > cmake -DCMAKE_INSTALL_PREFIX=/path/to/install ../repo
+
+In the "cmake" command, the string "/path/to/install" is the path to
+the root of the install directory.  The last argument "../rep" is the
+relative path to your copy of the source code from the build directory. 
+To install in the pscf/ directory tree, you could enter::
+
+   > cmake -DCMAKE_INSTALL_PREFIX=..  ../repo
+
+This would cause the creation of bin/, lib/ and share/ subdirectories
+of the pscf/ directory, alongside build/ and repo/. To install in the
+.local subdirectory of your home directory, enter::
+
+   > cmake -DCMAKE_INSTALL_PREFIX=~/.local  ../repo
+
+in which the tilde (~) is linux shortand for the users home directory.
+To install in the /usr/local directory, you must have administrator 
+privileges on your machine, and would enter::
+
+   > sudo cmake ../repo
+
+In this case, you need to use the "sudo" command to apply the command
+as the "super-user" or administrator, and you will be prompted for your
+password. No -DCMAKE_INSTALL_PREFIX=" option is required in this case
+because installation in /usr/local is the default. 
+
+The step described above, should create several subdirectories of the 
+pscf/build/ directory that contain files with instructions for building 
+pscf. To finish compiling and installing, simply enter::
+
    > make -j 4
    > make install 
 
-In the "cmake" command, the string "/path/to/install" is the root of 
-path used for installation.  The last argument "../pscf". If you use 
-"-DCMAKE_INSTALL_PREFIX=.", the executable and other files that you 
-generate will be installed in tree rooted at the build directory 
-(e.g., pscf-build). The final pscf executable is self-contained and 
-can be copied to wherever you want after it is created.
-
-Wherever you install the executable file, you will need to make sure that 
-directory containing the executable (or a symlink to the executable) is 
-in the bash PATH variable, so that the operating system can find the 
-executable when it is invoked by name.
+from the pscf/build directory. After the "make install" finishes
+execution, you can check that your chosen install directory contains 
+subdirectories named bin/, lib/ and share/ and that bin/ subdirectory 
+contains an executable file named pscf.
 
