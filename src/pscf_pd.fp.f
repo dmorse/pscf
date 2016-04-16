@@ -957,7 +957,7 @@ program pscf_pd
          open(unit=field_unit,file=trim(input_file),status='old')
          call input_field(rho,field_unit)
          close(field_unit) 
-         
+        
          do alpha=1,N_monomer
             do i=1,N_star
                omega_basis(alpha,i) = sum(chi(:,alpha)*rho(:,i))
