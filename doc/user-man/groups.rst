@@ -5,8 +5,8 @@
 Space Groups
 *************
 
-The symbol for a space group may be entered as the value of "space_group"
-in the BASIS section of the input script. The tables below list the allowed 
+The symbol for a space group may be entered as the value of "space_group" in 
+the BASIS section of the parameter file. The tables below list the allowed 
 space group symbols. 
 
 ===============

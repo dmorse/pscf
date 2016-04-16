@@ -13,6 +13,10 @@ project (PSCF)
 #### Based on https://cmake.org/Wiki/CMakeForFortranExamplea ####
 enable_language (Fortran)
 
+option(USE_FFT3 "Use the fft3_mod file (and FFT3.0). Otherwise, use fft2_mod (and FFTW2)" ON)
+option(USE_DEVEL "Use the -D DEVEL option with the Fortran preprocessor" ON)
+option(BUILD_DMG "Build a DMG based application for OSX clients" OFF)
+
 # Add our extra Find*.cmake modules
 LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/tools/cmake/")
 
@@ -71,16 +75,21 @@ set(CPACK_PACKAGE_VERSION_PATCH "0")
 # TODO: build out components "applications libraries headers" (where headers are the .mod files)
 set(CPACK_COMPONENTS_ALL Unspecified)
 
-# TODO: finish Bundle 
-# TODO: finish DEB and RPM generators (http://www.vtk.org/Wiki/CMake:Component_Install_With_CPack)
+# DONE: finish Bundle 
+# DONE: finish DEB and RPM generators (http://www.vtk.org/Wiki/CMake:Component_Install_With_CPack)
 # TODO: finish NSIS generator (http://www.vtk.org/Wiki/CMake:Component_Install_With_CPack)
-# TODO: test compile and package on Unix and Windows
+# DONE: test compile and package on Unix and Windows
 if (APPLE)
-	set(CPACK_GENERATOR 
-		Bundle 
-		TGZ
-		ZIP
-	)
+    if (BUILD_DMG)
+        set(CPACK_GENERATOR 
+            Bundle 
+        )
+    else (BUILD_DMG)
+        set(CPACK_GENERATOR 
+            TGZ
+            ZIP
+        )
+    endif (BUILD_DMG)
 else (APPLE)
 	if (UNIX)
         if (EXISTS /etc/redhat-release)
@@ -89,12 +98,15 @@ else (APPLE)
                     TGZ
                     ZIP
                )
+             set(CPACK_RPM_PACKAGE_REQUIRES "lapack >= 3.0.0, libfft3 >= 3.2.0")
         else()
             set(CPACK_GENERATOR 
                     DEB
                     TGZ
                     ZIP
                )
+            # TODO: verify these versions
+            set(CPACK_DEBIAN_PACKAGE_DEPENDS "liblapack3 (>= 3.0.0), libfftw3-3 (>= 3.3.0)")
         endif()
 	else (UNIX)
 		set(CPACK_GENERATOR 
@@ -122,7 +134,7 @@ set(CPACK_BINARY_DRAGNDROP ON)
 # This gives us a nice prompt to accept the license on OSX.
 set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_SOURCE_DIR}/LICENSE)
 
-#TODO: havent quite figured out how to include the README in the .app
+#DONE: havent quite figured out how to include the README in the .app
 set(CPACK_RESOURCE_FILE_README ${CMAKE_SOURCE_DIR}/README)
 set(CPACK_RESOURCE_FILE_WELCOME ${CMAKE_SOURCE_DIR}/README)
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_SOURCE_DIR}/README)

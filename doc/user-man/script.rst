@@ -1,12 +1,12 @@
 
-.. _script-page:
+.. _param-page:
 
-*******************
-Input Script Format
-*******************
+**************
+Parameter File 
+**************
 
-The main program reads an input script containing the parameters and 
-instructions for a calculation. The script is divided into sections, 
+The main program reads an parameter file containing the parameters and 
+instructions for a calculation. This file  is divided into sections, 
 each of which contains a different type of information.  Each section
 is preceded by a blank line and starts with a line containing a
 section title in all capital letters (i.e., 'CHEMISTRY', 'UNIT_CELL', 
@@ -21,14 +21,14 @@ program stops when it encounters the block title 'FINISH'.
 Example
 =======
 
-An example of a complete script is shown below. This example is for 
-a system containing a triblock copolymer containing three chemically 
+An example of a complete parameter file is shown below. This example is 
+for a system containing a triblock copolymer containing three chemically 
 distinct blocks in a solvent that is chemically identical to one of 
 the blocks. The first line identifies the version of the file format 
-(in this case, version 1.0).  The remainder of the script is divided 
-into sections, each of which begins with a line containing a 
-capitalized label, such as MONOMERS, CHAINS, ec. The first several 
-sections in this example simply provide blocks input data. The 
+(in this case, version 1.0).  The remainder of the file is divided into 
+sections, each of which begins with a line containing a capitalized label, 
+such as MONOMERS, CHAINS, ec. The first few sections in this example 
+simply provide blocks input data. The 
 ITERATE and SWEEP sections instead contain the instructions required 
 to initiate a computation. Execution stops when a FINISH block is 
 encountered.
@@ -131,7 +131,7 @@ one-dimensional array named "kuhn".
 The CHAINS block describes the structure and composition of all polymer 
 chains, which must linear block polymers or hompolymers.
 
-.. _script-overview-sec:
+.. _param-overview-sec:
 
 Overview 
 ========
@@ -145,24 +145,24 @@ Subsequent sections describe each of the corresponding blocks of the input
 file in detail. To solve the SCF problem for a single set of parameters,
 leave out the penulimate SWEEP section.
 
-  ================================  ====================================================
-  Section                           Description
-  ================================  ====================================================
-  :ref:`script-monomers-sub`        # of monomers and kuhn lengths
-  :ref:`script-chains-sub`          Chain species, block sequences and lengths, etc.
-  :ref:`script-solvents-sub`        Solvent species, chemical identities, volumes
-  :ref:`script-solvents-sub`        Statistical ensemble and mixture composition
-  :ref:`script-unitcell-sub`        Dimensionality (1,2 or 3), lattice, 
+  ===============================  ====================================================
+  Section                          Description
+  ===============================  ====================================================
+  :ref:`param-monomers-sub`        # of monomers and kuhn lengths
+  :ref:`param-chains-sub`          Chain species, block sequences and lengths, etc.
+  :ref:`param-solvents-sub`        Solvent species, chemical identities, volumes
+  :ref:`param-solvents-sub`        Statistical ensemble and mixture composition
+  :ref:`param-unitcell-sub`        Dimensionality (1,2 or 3), lattice, 
                                     and unit cell parameters
-  :ref:`script-discretization-sub`  Numbers of spatial grid points and 'time' step ds.
-  :ref:`script-prefixes-sub`        Prefixes for paths to input and output files
-  :ref:`script-basis-sub`           Read space group and construct 
+  :ref:`param-discretization-sub`  Numbers of spatial grid points and 'time' step ds.
+  :ref:`param-prefixes-sub`        Prefixes for paths to input and output files
+  :ref:`param-basis-sub`           Read space group and construct 
                                     symmetry-adapted basis functions
-  :ref:`script-iterate-sub`         Solve SCFT for one set of parameters
-  :ref:`script-sweep-sub`           Solve SCFT for multiple sets of parameters
-  :ref:`script-response-sub`        Calculate linear susceptibility of an ordered phase
-  :ref:`script-finish-sub`          Stop program
-  ================================  ====================================================
+  :ref:`param-iterate-sub`         Solve SCFT for one set of parameters
+  :ref:`param-sweep-sub`           Solve SCFT for multiple sets of parameters
+  :ref:`param-response-sub`        Calculate linear susceptibility of an ordered phase
+  :ref:`param-finish-sub`          Stop program
+  ===============================  ====================================================
  
 Several standard types of computation are possible using the blocks listed above:
 
@@ -184,32 +184,29 @@ Miscellaneous Utilities
 The following sections are used to invoke a variety of data processing operations or
 transformations on fields or parameters, or to output additional information.
 
-  ==============================  ====================================================
-  Section                         Description
-  ==============================  ====================================================
-  :ref:`output_waves`             Output contents of symmetry adapted basis functions
-  :ref:`script-fieldtorgrid-sub`  Convert field from basis function expansion to 
-                                  values on a r-space coordinate grid
-  :ref:`script-rgridtofield-sub`  Convert field from basis function expansion to 
-                                  values on a r-space coordinate grid
-  :ref:`script-rgridtokgrid-sub`  Fourier transform field from a r-space to kspace
-  :ref:`script-kgridtorgrid-sub`  Inverse Fourier transform k-space to r-space grid
-  :ref:`script-rhotoomega-sub`    Compute and output omega field obtained from an
-                                  input rho field, assuming a vanishing Lagrange 
-                                  multiplier pressure field.
-  :ref:`script-rescale-sub`       Redefine monomer reference volume v by rescaling 
-                                  omega and all parameters whose values depend on v
-  ==============================  ====================================================
+  ============================== ====================================================
+  Section                        Description
+  ============================== ====================================================
+  :ref:`output_waves`            Output contents of symmetry adapted basis functions
+  :ref:`param-fieldtorgrid-sub`  Convert field from basis function expansion to 
+                                 values on a r-space coordinate grid
+  :ref:`param-rgridtofield-sub`  Convert field from basis function expansion to 
+                                 values on a r-space coordinate grid
+  :ref:`param-rgridtokgrid-sub`  Fourier transform field from a r-space to kspace
+  :ref:`param-kgridtorgrid-sub`  Inverse Fourier transform k-space to r-space grid
+  :ref:`param-rhotoomega-sub`    Compute and output omega field obtained from an
+                                 input rho field, assuming a vanishing Lagrange 
+                                 multiplier pressure field.
+  :ref:`param-rescale-sub`       Redefine monomer reference volume v by rescaling 
+                                 omega and all parameters whose values depend on v
+  ============================== ====================================================
 
 Further details about the contents and purpose of each section are given below.
 
-.. _script-conventions-sec:
+.. _param-conventions-sec:
 
- Units and Conventions
+Parameter Conventions
 ======================
-
-Length Units
-------------
 
 PSCF does not impose the use of a particular system of units
 for lengths. Any system of units can be used for entering values
@@ -219,8 +216,6 @@ relevant quantities.  One can use either a physical unit, such
 as nanometers or Angstroms, or dimensionless units in which one 
 or more of the statistical segment lengths is set to unity. 
 
-Dependence on Monomer Reference Volume
---------------------------------------
 
 SCFT also leaves the user some freedom to redefine what he or 
 she means by a ``monomer", which need not correspond to a chemical
@@ -238,14 +233,11 @@ the square root of the reference volume.  Note that PSCF does not
 require the user to input a value for the monomer reference volume 
 - the choice only effects the values required for other quantities.
 
-String Parameters
------------------
-
 All parameters that are represented internally as characters or
-character strings must be input with single quotes, e.g., 'chi' 
-or 'out.'. 
+character strings must appear in the parameter file with single 
+quotes, e.g., as 'chi' or 'out.'. 
 
-.. _script-array-sec:
+.. _param-array-sec:
 
 Array-Valued Parameters
 =======================
@@ -255,7 +247,7 @@ the dimension and format of these parameters is indicated in subsequent sections
 that describe the parameters required in different sections of the input 
 script.
 
-Below, the discussion of possible section of an input script contains a table
+Below, the discussion of possible section of an parameter file contains a table
 listing the required parameters and meaning. One or two-dimensional parameters
 are indicated in these tables by displaying the name of each array variable
 with an appropriate number of indices.  One dimensional parameters are thus 
@@ -283,7 +275,7 @@ Meaning of Array Indices:
   ========= =====================  ================
  
 For each array parameter, the elements of the array are expected to appear 
-in the input script in a specific format. Generally, arrays that contain 
+in the parameter file in a specific format. Generally, arrays that contain 
 a polymer or solvent molecular species index are input with the required 
 information about each molecule on a separate line, while values 
 associated with different monomer types or with different blocks within 
@@ -324,19 +316,19 @@ system with only two monomer types (e.g., a diblock copolymer melt
 or a binary homopolymer blend), only the single value chi(2,1) on 
 a single line is required. 
 
-.. _script-sections-sec:
+.. _param-sections-sec:
 
 Script Sections
 ===============
 
 Each of the following subsections describes the format of an allowed
-section of the input script. Array-valued parameters are indicated using
+section of the parameter file. Array-valued parameters are indicated using
 the conventions described above.  Some variables may be present or absent 
 depending on the value of a previous variable.  These conditions, if any, 
 are given in a column entitled 'Required if' or 'Absent if'.
 
 
-.. _script-monomers-sub:
+.. _param-monomers-sub:
 
 MONOMERS
 --------
@@ -350,7 +342,7 @@ Chemistry Parameters
   kuhn(im)     real      statistical segment length of monomer im    R
   ===========  ========  =========================================   ==========
 
-.. _script-interaction-sub:
+.. _param-interaction-sub:
 
 INTERACTION
 -----------
@@ -368,7 +360,7 @@ Interaction Parameters
   Temperature  real    Absolute temperature                        chi_flag='T'
   ============ ======= ==================================  ======  ============
 
-.. _script-chains-sub:
+.. _param-chains-sub:
 
 CHAINS
 ------
@@ -391,7 +383,7 @@ in chain species ic. The length of each block in an incompressible mixture is
 equal to the volume occupied by that block (computed using the density of the
 corresponding hompolymer) divided by the monomer reference volume.
 
-.. _script-solvents-sub:
+.. _param-solvents-sub:
 
 SOLVENTS
 --------
@@ -409,7 +401,7 @@ Solvent Parameters
 The parameter solvent_size is given by the ratio of the actual volume
 occupied by a particular solvent to the monomer reference volume.
 
-.. _script-composition-sub:
+.. _param-composition-sub:
 
 COMPOSITION
 -----------
@@ -426,7 +418,7 @@ Composition Parameters
   mu_solvent(ic)  real     chemical potential of solvent species ic  C       ensemble=1 and N_solvent > 0
   =============== ======== ========================================= ======= ============================
 
-.. _script-unitcell-sub:
+.. _param-unitcell-sub:
 
 UNIT_CELL
 ---------
@@ -451,7 +443,7 @@ the crystal_system string and the number and type of parameters required by each
 type of lattice is given in the :ref:`lattice-page`  page.
 
 
-.. _script-discretization-sub:
+.. _param-discretization-sub:
 
 DISCRETIZATION
 --------------
@@ -472,7 +464,7 @@ Parameters
 The integer array ngrid(id) is input in row format, with dim (i.e., 1,2 or 3) 
 values on a line, where dim is the dimensionality of space.  
 
-.. _script-prefixes-sub:
+.. _param-prefixes-sub:
 
 FILE_PREFIXES
 -------------
@@ -498,7 +490,7 @@ path to that directory, followed by a trailing '/' directory separator.
   out_prefix  character(60) prefix to .rho, .omega, and .out output files
   ==========  ============= ==============================================
 
-.. _script-basis-sub:
+.. _param-basis-sub:
 
 BASIS
 -----
@@ -523,7 +515,7 @@ The file format for a group file is determined by the input_group
 routine in module group_mod. Some simple 2D examples of the format
 are provided in src/tests/group.
 
-.. _script-iterate-sub:
+.. _param-iterate-sub:
 
 ITERATE
 -------
@@ -552,7 +544,7 @@ For now, the value of the 'itr_algo' variable must be 'NR', for Newton-Raphson
 or 'AM', for Anderson mixing. Other iteration algorithms may be added in the
 future.
 
-.. _script-sweep-sub:
+.. _param-sweep-sub:
 
 SWEEP
 -----
@@ -563,7 +555,7 @@ space (a 'sweep'). We define a sweep contour variable s that varies from 0
 up to a maximum value s_max, in increments of 1. For each integer step in the
 sweep parameter, each of the relevant parameters in CHEMISTRY section (i.e.,
 any parameter for which a floating point value or values are specified in the
-input script) may be incremented by a user specified amount. For simulations
+parameter file) may be incremented by a user specified amount. For simulations
 with a fixed unit cell (domain=1), the elements of the unit_cell_param array
 may also be incremented. The desired increment for any variable <;name&gt;
 is specified by the value or (for an array) values of a corresponding
@@ -582,7 +574,7 @@ the line 'end_increments'.
   end_increment none            indicates end of the list of increments
   ============= =============== =======================================
 
-.. _script-response-sub:
+.. _param-response-sub:
 
 RESPONSE
 --------
@@ -607,7 +599,7 @@ a user defined vector increment.
   nkstep    integer      # of k-vectors
   ========= ===========  =====================================
 
-.. _script-fieldtorgrid-sub:
+.. _param-fieldtorgrid-sub:
 
 FIELD_TO_RGRID
 --------------
@@ -627,7 +619,7 @@ or omega field.
                                   (coordinate grid format)
   ================  ============= ============================
   
-.. _script-rgridtofield-sub:
+.. _param-rgridtofield-sub:
 
 RGRID_TO_FIELD
 --------------
@@ -646,7 +638,7 @@ representationo as an symmetry-adapted Fourier expansion.
                                  (symmetry-adapted format)
   ================ ============= ========================================
   
-.. _script-rgridtokgrid-sub:
+.. _param-rgridtokgrid-sub:
 
 RGRID_TO_KGRID
 --------------
@@ -664,7 +656,7 @@ Fourier components for all wavevectors on a k-space grid.
                                   (wavevector grid)
   ================ =============  ===================================
   
-.. _script-kgridtorgrid-sub:
+.. _param-kgridtorgrid-sub:
 
 KGRID_TO_RGRID
 --------------
@@ -683,7 +675,7 @@ outputs values of the field on a coordinate r-space grid.
                                  (coordinate grid)
   ================ ============= ============================
   
-.. _script-rhotoomega-sub:
+.. _param-rhotoomega-sub:
 
 RHO_TO_OMEGA
 --------------
@@ -708,11 +700,11 @@ volume fraction fields in a particular structure.
                                   (symmetry-adapted)
   ================  ============= ============================
   
-.. _script-finish-sub:
+.. _param-finish-sub:
 
 FINISH
 ------
 
-The FINISH string is the last section of any input script, and
+The FINISH string is the last section of any parameter file, and
 causes program execution to terminate.
 

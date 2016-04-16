@@ -1,8 +1,8 @@
 .. _field-page:
 
-*****************
-Field File Format
-*****************
+***********
+Field Files
+***********
 
 Both the "omega" files and the "rho" files describe multicomponent
 fields, and both have the same format. 
@@ -51,7 +51,7 @@ lamellar phase for a diblock copolymer melt:
 
 
 This file format contains a header, which has a format similar to 
-that of the input script, followed by a section that contains 
+that of the parameter file, followed by a section that contains 
 coefficients of basis functions that are used to expand the field.
 
 
@@ -170,7 +170,7 @@ either values at grid points or coefficients of plane
 waves, with no explicitly imposed symmetry. 
  
 In order to visualize the fields, it is generally necessary
-to run the program using an input script with a section header 
+to run the program using a parameter file with a section header 
 FIELD_TO_GRID. This read in a field that is stored in the 
 above file format and outputs a file in which the field is 
 represented in terms of the values of the field at evenly 
