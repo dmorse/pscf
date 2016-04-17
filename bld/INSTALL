@@ -15,14 +15,14 @@
 
 -----------------------------------------------------------------------
 These are instructions for compiling the program uisng the simple
-Makefile that is provided in the src/build directory. Is it also 
+Makefile that is provided in the build directory. Is it also 
 possible to compile the program using cmake, as described in the
 web user manual, or in the file doc/user-man/install.rst.
 
 1. Install the open source LAPACK linear algebra library and the 
 FFTW fast fourier transform library. 
 
-2. Change directory (cd) to the src/build directory within the repository
+2. Change directory (cd) to the build directory within the repository
 directory tree, and copy the file Makefile_r to Makefile, by entering
 
 >  cp Makefile_r Makefile
@@ -32,7 +32,7 @@ that is stored in the git repository. We ask users to make a copy
 named Makefile so they can modify file Makefile while keeping the file
 Makefile_r unchanged.
 
-3. Edit the file src/build/Makefile as needed. You will need to 
+3. Edit the file build/Makefile as needed. You will need to 
 set the following variables to values appropriate to your operating
 system and preferences:
 
@@ -69,13 +69,13 @@ or 'fft2_mod' for version 2.
 
    > make pscf
 
-from within the src/build directory.  This will fill the src/build 
+from within the build directory.  This will fill the build 
 directory with *.o and *.mod files and create an executable file
 $(BIN)/$(EXE).
       
 5. If desired, to remove all of the generated *.o, *.mod and files 
-from the src/build directory, as well as any *~ files from src and 
-its subdirectories, enter the command
+from the build directory, as well as any *~ files from src and its 
+subdirectories, enter the command
 
    > make clean
 

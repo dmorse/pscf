@@ -1,17 +1,30 @@
 # ============ Root Directories ================================
 # SCF = Root directory for pscf project
 # SCF = $(SCF)/src = directory for source files
-SCF=../..
-SRC=..
+# BLD = $(SCF)/bld = build directory for building with make
+SCF=..
+SRC=$(SCF)/src
+BLD=$(SCF)/bld
 
-# ====== Executable - Directory and File Name ==================
+# ====== Executable Install Location ===========================
+
 # BIN = path to directory for executable file
+# Three possible install locations are suggested below:
+BIN=$(BLD)
+#BIN=${HOME}/.local/bin
+#BIN=/usr/local/bin
+
 # EXE = name of executable file
-BIN=$(SCF)
 EXE=pscf
 
 # ============ Compiler and Options ============================
-# Fortran compiler and settings for high and low optimization
+# Fortran compiler and settings for high and low optimization.
+
+# Note: High optimization setting (FAST) is used for every file 
+# except the space_groups_mod.f, which is compiled with no 
+# optimiztion (NOPT). This is because space_groups_mod.f is a
+# very long file that can take a long time to compile, but takes
+# that requires very little run time.
 
 # Gnu Compiler Collection (gcc) - gfortran
 F90=gfortran
@@ -37,11 +50,11 @@ FFT_FILE=fft3_mod
 # ============ LAPACK Linear Algebra Library ==================
 # LAPACKLIB = path(s) to directories containing lapack and blas
 
-# Fedora linux
+# Fedora linux (package installed by yum)
 LAPACKLIB= -llapack -lblas
 #LAPACKLIB= -llapack -lblas -latlas
 
-# On Ubunta (lapack installed by apt-get)
+# Ubuntu linux (lapack installed by apt-get)
 #LAPACKLIB=/usr/lib/liblapack.so.3gf /usr/lib/libf77blas.so.3gf /usr/lib/libatlas.so.3gf
    
 # ======  Forpedo Fortran preprocessor =========================
@@ -53,29 +66,7 @@ FORPEDO=$(SCF)/tools/python/preprocess-0.6.1/preprocess.py
 #DEVEL=-D DEVEL
 DEVEL=
 
-# ======   Dummy targets to clean up debris ===================
-
-.PHONY: clean
-
-clean:
-	rm -f  *.o  *.mod  *~\
-	$(SRC)/*~  $(SRC)/*/*~  $(SRC)/*/*/*~  $(SRC)/tests/*/exc
-
-very_clean:
-	rm -f  *.o  *.mod  *.f  *~\
-	$(SRC)/*~  $(SRC)/*/*~  $(SRC)/*/*/*~  $(SRC)/tests/*/exc\
-
 # ====== Main Program ==========================================
-
-pscf_pd.f: $(SRC)/pscf_pd.fp.f
-	$(FORPEDO) $(DEVEL) $(SRC)/pscf_pd.fp.f > pscf_pd.f
-
-pscf_pd.o: pscf_pd.f const_mod.o io_mod.o version_mod.o\
-	unit_cell_mod.o chemistry_mod.o field_io_mod.o\
-	sweep_mod.o iterate_mod.o scf_mod.o basis_mod.o\
-	spinodal_mod.o\
-	response_mod.o $(FFT_FILE).o response_step_mod.o extrapolate_mod.o
-	$(F90) $(FAST) -c pscf_pd.f
 
 pscf:	pscf_pd.o\
 	const_mod.o string_mod.o io_mod.o version_mod.o field_io_mod.o\
@@ -92,6 +83,16 @@ pscf:	pscf_pd.o\
 	response_pd_mod.o spinodal_mod.o \
 	response_mod.o response_step_mod.o extrapolate_mod.o \
 	$(FFTWLIB) $(LAPACKLIB)	-lm
+
+pscf_pd.o: pscf_pd.f const_mod.o io_mod.o version_mod.o\
+	unit_cell_mod.o chemistry_mod.o field_io_mod.o\
+	sweep_mod.o iterate_mod.o scf_mod.o basis_mod.o\
+	spinodal_mod.o\
+	response_mod.o $(FFT_FILE).o response_step_mod.o extrapolate_mod.o
+	$(F90) $(FAST) -c pscf_pd.f
+
+pscf_pd.f: $(SRC)/pscf_pd.fp.f
+	$(FORPEDO) $(DEVEL) $(SRC)/pscf_pd.fp.f > pscf_pd.f
 
 # ====== Modules =================================================
 
@@ -211,6 +212,18 @@ response_mod.o:	$(SRC)/response/response_mod.f\
 	grid_mod.o $(FFT_FILE).o group_mod.o response_step_mod.o\
 	extrapolate_mod.o field_io_mod.o spinodal_mod.o
 	$(F90) $(FAST) -c $(SRC)/response/response_mod.f
+
+# ====== Clean Targets =========================================
+
+.PHONY: clean
+clean:
+	rm -f  *.o  *.mod  *~\
+	$(SRC)/*~  $(SRC)/*/*~  $(SRC)/*/*/*~  $(SRC)/tests/*/exc
+
+.PHONY: veryclean
+veryclean:
+	make clean
+	rm -f  *.f 
 
 # ========================================================
 # tests subdirectory 
