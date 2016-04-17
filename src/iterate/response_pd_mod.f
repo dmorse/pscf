@@ -402,7 +402,6 @@ contains
    !===================================================================
 
 
-
    !-----------------------------------------------------------------
    !****p response_pd_mod/make_correlation
    ! SUBROUTINE
@@ -414,10 +413,10 @@ contains
    subroutine make_correlation(N, lambda)
    use chemistry_mod
    use group_mod
-   use basis_mod,     only : wave_of_star
-   use scf_mod,     only : mu_phi, density
+   use basis_mod, only : wave_of_star
+   use scf_mod, only : density
    use unit_cell_mod, only : G_basis
-   integer        :: N           ! # of stars
+   integer :: N  ! # of stars
    real(long), optional  :: lambda(:)   ! $k^2$
    !***
 

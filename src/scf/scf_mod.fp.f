@@ -34,8 +34,10 @@ module scf_mod
    public:: density_startup   ! allocates arrays needed by density
    public:: density           ! scf calculation of rho & q
    public:: scf_stress        ! calculates d(free energy)/d(cell_param)
-   public:: mu_phi            ! calculates mu from phi (canonical)
-                              !  or phi from mu (grand canonical)
+   public:: mu_phi_chain      ! calculates mu from phi (canonical)
+                              ! or phi from mu (grand) for chains
+   public:: mu_phi_solvent    ! calculates mu from phi (canonical)
+                              ! or phi from mu (grand) for solvents
    public:: free_energy       ! calculates helmholtz free energy 
                               ! (optionally calculates pressure)
    public:: free_energy_FH    ! Flory-Huggins helmholtz free energy
@@ -145,7 +147,7 @@ contains
        rho,            & ! (N_monomer,N) monomer density field
        qout,           & ! (N_chain) 1-chain partition functions
        q_solvent       & ! (N_solvent) solvent partition functions
-        )
+   )
    implicit none
 
    integer,    intent(IN)            :: N
@@ -192,13 +194,18 @@ contains
    rho_grid = 0.0_long
    do i=1, N_solvent
       alpha = solvent_monomer(i)
-      Ns  = solvent_size(i)        ! No. of reference volumes in a solvent molecular volume
+      Ns  = solvent_size(i)   ! = solvent volume / reference volume
       CALL solvent_density(alpha,Ns,omega_grid,rho_grid,bigQ_solvent)
       if(present(q_solvent)) q_solvent(i) = bigQ_solvent
    end do
-   
-   if ( present(qout) .AND. present(q_solvent) .AND. ensemble == 1 ) then
-      call mu_phi(mu_chain,phi_chain,qout,mu_solvent,phi_solvent,q_solvent)
+  
+   if (ensemble ==1) then 
+      if (present(qout)) then
+         call mu_phi_chain(mu_chain,phi_chain,qout)
+      end if
+      if (present(q_solvent)) then
+         call mu_phi_solvent(mu_solvent,phi_solvent,q_solvent)
+      end if
    end if
  
    ! calculate monomer densities
@@ -745,49 +752,72 @@ contains
 
 
    !-------------------------------------------------------------
-   !****p scf_mod/mu_phi
+   !****p scf_mod/mu_phi_chain
    ! SUBROUTINE
-   !    mu_phi(mu_chain,phi_chain,q,mu_solvent,phi_solvent,q_solvent)
+   !    mu_phi_chain(mu, phi, q)
    ! PURPOSE
    !    If ensemble = 0 (canonical), calculate mu from phi
-   !    If ensemble = 1 (grand can), calculate phi from mu
+   !    If ensemble = 1 (grand), calculate phi from mu
    ! ARGUMENTS
-   !    mu_chain(N_chain)     = chemical potentials of chain(units kT=1)
-   !    phi_chain(N_chain)    = molecular volume fractions of chain
-   !    q(N_chain)             = single chain partition functions
-   !    mu_solvent(N_solvent)  = chemical potentials of solvent species
-   !    phi_solvent(N_solvent) = molecular volume fractions of solvent species
-   !    q_solvent(N_solvent)   = partition functions of solvent species
+   !    mu(N_chain)  = chain chemical potentials (units kT=1)
+   !    phi(N_chain) = chain molecular volume fractions 
+   !    q(N_chain)   = single chain partition functions
    !
    ! SOURCE
    !-------------------------------------------------------------
-   subroutine mu_phi(mu_chain,phi_chain,q,mu_solvent,phi_solvent,q_solvent)
-   real(long), intent(INOUT) :: mu_chain(N_chain)
-   real(long), intent(INOUT) :: phi_chain(N_chain) 
+   subroutine mu_phi_chain(mu, phi, q)
+   real(long), intent(INOUT) :: mu(N_chain)
+   real(long), intent(INOUT) :: phi(N_chain) 
    real(long), intent(IN)    :: q(N_chain)
-   real(long), intent(INOUT) :: mu_solvent(N_solvent)
-   real(long), intent(INOUT) :: phi_solvent(N_solvent)
-   real(long), intent(IN)    :: q_solvent(N_solvent) 
    !***
 
    integer :: i
    select case(ensemble)
    case (0)
       do i = 1, N_chain
-         mu_chain(i) = log( phi_chain(i) / q(i) )
-      end do
-      do i = 1, N_solvent
-         mu_solvent(i) = log( phi_solvent(i) / q_solvent(i) )  
+         mu(i) = log( phi(i) / q(i) )
       end do
    case (1)
       do i = 1, N_chain
-         phi_chain(i) = q(i)*exp(mu_chain(i))
-      end do
-      do i = 1, N_solvent
-         phi_solvent(i) = q_solvent(i)*exp(mu_solvent(i))
+         phi(i) = q(i)*exp(mu(i))
       end do
    end select
-   end subroutine mu_phi
+   end subroutine mu_phi_chain
+   !================================================================
+
+
+   !-------------------------------------------------------------
+   !****p scf_mod/mu_phi_solvent
+   ! SUBROUTINE
+   !    mu_phi_solvent(mu, phi, q)
+   ! PURPOSE
+   !    If ensemble = 0 (canonical), calculate mu from phi
+   !    If ensemble = 1 (grand can), calculate phi from mu
+   ! ARGUMENTS
+   !    mu(N_solvent)  = solvent chemical potentials 
+   !    phi(N_solvent) = solvent volume fractions
+   !    q(N_solvent)   = solvent partition functions
+   !
+   ! SOURCE
+   !-------------------------------------------------------------
+   subroutine mu_phi_solvent(mu, phi, q)
+   real(long), intent(INOUT) :: mu(N_solvent)
+   real(long), intent(INOUT) :: phi(N_solvent)
+   real(long), intent(IN)    :: q(N_solvent) 
+   !***
+
+   integer :: i
+   select case(ensemble)
+   case (0)
+      do i = 1, N_solvent
+         mu(i) = log(phi(i) / q(i))  
+      end do
+   case (1)
+      do i = 1, N_solvent
+         phi(i) = q(i)*exp(mu(i))
+      end do
+   end select
+   end subroutine mu_phi_solvent
    !================================================================
 
 
