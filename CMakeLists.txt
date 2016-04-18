@@ -107,6 +107,8 @@ else (APPLE)
                )
             # TODO: verify these versions
             set(CPACK_DEBIAN_PACKAGE_DEPENDS "liblapack3 (>= 3.0.0), libfftw3-3 (>= 3.3.0)")
+            # Default installation to /usr/local/bin on Ubuntu
+            set(CPACK_PACKAGING_INSTALL_PREFIX "/usr/local")
         endif()
 	else (UNIX)
 		set(CPACK_GENERATOR 
@@ -139,18 +141,18 @@ set(CPACK_RESOURCE_FILE_README ${CMAKE_SOURCE_DIR}/README)
 set(CPACK_RESOURCE_FILE_WELCOME ${CMAKE_SOURCE_DIR}/README)
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_SOURCE_DIR}/README)
 
-if (APPLE)
+if (APPLE AND BUILD_DMG)
 # Force the README up to the DMG root 
 INSTALL(FILES ${CMAKE_SOURCE_DIR}/README DESTINATION ../../../Extra RENAME README.txt)
 INSTALL(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION ../../../Extra RENAME LICENSE.txt)
 INSTALL(FILES ${CMAKE_SOURCE_DIR}/tools/bundle/HOWTO_INSTALL_OSX.txt DESTINATION ../../../. RENAME HOWTO_INSTALL_OSX.txt)
-else (APPLE)
+else (APPLE AND BUILD_DMG)
 INSTALL(FILES ${CMAKE_SOURCE_DIR}/README DESTINATION share/pscf RENAME README.txt)
 INSTALL(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION share/pscf RENAME LICENSE.txt)
-endif (APPLE)
+endif (APPLE AND BUILD_DMG)
 
 install(PROGRAMS 
-        tools/bin/pscf-read-outfile tools/bin/pscf-read-sweep
+        tools/bin/pscf-read-outfile tools/bin/pscf-read-sweep tools/bin/pscf-env
         DESTINATION bin)
 
 #INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/tools/bin DESTINATION .)
