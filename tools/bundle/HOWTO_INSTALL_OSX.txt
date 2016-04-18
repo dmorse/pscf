@@ -25,3 +25,22 @@ https://support.apple.com/kb/PH18657?locale=en_US:
 
 The app is saved as an exception to your security settings, and you can open it
 in the future by double-clicking it just as you can any registered app.
+
+
+Install the Command Line Tools
+===============================
+Users who wish to run `pscf` from any Terminal (i.e., outside of the
+pscf_terminal.app) can append the following snippet to their $HOME/.bashrc:
+
+#### Enable PSCF CLI #####
+source /Applications/pscf_terminal.app/Contents/Resources/bin/pscf-env
+#### END ####
+
+New Terminal windows will then have the right environment to run `pscf` and the
+python helper applications. Confirm the CLI functions properly by running
+"which pscf" in a fresh terminal: 
+
+Last login: Mon Apr 18 13:31:28 on ttys011
+• [habushu:~] evan $ which pscf
+/Applications/pscf_terminal.app/Contents/Resources/pscf.app/Contents/MacOS/pscf
+• [habushu:~] evan $ 
