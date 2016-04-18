@@ -56,6 +56,7 @@
  tools/                        - Tools for processing output and source
  tools/matlab                  - - matlab scripts for visualization
  tools/python                  - - python modules
+ make/                         - build directory for make
 
  An annotated list of source files is provided in the file src/SRC_FILES. 
  Before modifying any fortran files, also see the note at the end of that
