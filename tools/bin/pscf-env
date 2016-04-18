@@ -9,7 +9,7 @@ export PYTHONPATH=$base_dir/lib/python2.7/site-packages:$PYTHONPATH
 
 PLATFORM=$( uname -s )
 if [[ "$PLATFORM" -eq "Darwin" ]]; then 
-    if [ -f $base_dir/pscf.app ]; then 
+    if [ -d $base_dir/pscf.app ]; then 
         export PATH=$base_dir/pscf.app/Contents/MacOS:$PATH
     fi
     export DYLD_LIBRARY_PATH=$base_dir/lib:$DYLD_LIBRARY_PATH
