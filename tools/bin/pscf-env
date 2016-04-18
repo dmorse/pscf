@@ -8,7 +8,7 @@ export PATH=$script_dir:$PATH
 export PYTHONPATH=$base_dir/lib/python2.7/site-packages:$PYTHONPATH
 
 PLATFORM=$( uname -s )
-if [[ "$PLATFORM" -eq "Darwin" ]]; then 
+if [ $PLATFORM -eq "Darwin" ]; then 
     if [ -d $base_dir/pscf.app ]; then 
         export PATH=$base_dir/pscf.app/Contents/MacOS:$PATH
     fi
