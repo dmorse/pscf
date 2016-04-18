@@ -14,7 +14,7 @@ project (PSCF)
 enable_language (Fortran)
 
 option(USE_FFT3 "Use the fft3_mod file (and FFT3.0). Otherwise, use fft2_mod (and FFTW2)" ON)
-option(USE_DEVEL "Use the -D DEVEL option with the Fortran preprocessor" ON)
+option(USE_DEVEL "Use the -D DEVEL option with the Fortran preprocessor" OFF)
 option(BUILD_DMG "Build a DMG based application for OSX clients" OFF)
 
 # Add our extra Find*.cmake modules

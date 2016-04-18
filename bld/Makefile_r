@@ -38,6 +38,15 @@ LINK=-O3 -ffree-form -lgfortran
 # NOPT=-free
 # LINK=-O3 -free
 
+# ============ Directories for Libraries =======================
+# LIBDIRS= nonstandard directories containing libraries
+
+# Empty by default
+LIBDIRS=
+
+# MacIntosh, if using MacPorts package management system
+#LIBDIRS= -L /opt/local/lib
+
 # ============ FFTW Fast Fourier Transform Library =============
 # FFTWLIB  = path(s) to directory(ies) containing FFTW library
 # FFT_FILE = fft2_mod for FFTW version 2 
@@ -82,7 +91,7 @@ pscf:	pscf_pd.o\
 	step_mod.o grid_mod.o chain_mod.o $(FFT_FILE).o grid_basis_mod.o \
 	response_pd_mod.o spinodal_mod.o \
 	response_mod.o response_step_mod.o extrapolate_mod.o \
-	$(FFTWLIB) $(LAPACKLIB)	-lm
+	$(LIBDIRS) $(FFTWLIB) $(LAPACKLIB) -lm
 
 pscf_pd.o: pscf_pd.f const_mod.o io_mod.o version_mod.o\
 	unit_cell_mod.o chemistry_mod.o field_io_mod.o\
