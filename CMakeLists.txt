@@ -107,6 +107,8 @@ else (APPLE)
                )
             # TODO: verify these versions
             set(CPACK_DEBIAN_PACKAGE_DEPENDS "lapack (>= 3.0.0), libfft3 (>= 3.2.0)")
+            # Default installation to /usr/local/bin on Ubuntu
+            set(CPACK_PACKAGING_INSTALL_PREFIX "/usr/local")
         endif()
 	else (UNIX)
 		set(CPACK_GENERATOR 
