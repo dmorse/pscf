@@ -1098,12 +1098,14 @@ contains
    do i=1, N_star
       i_star = i_star + star_count(i)
       if (star_count(i) /= star_end(i) - star_begin(i) + 1) then
-         write(6,*) 'Error in make_stars: Invalid star_count for i=',i
+         write(6,*) 'Error in make_stars: Invalid star_count, i=',i
          stop
       endif
-      if ( (i > 1).and.( star_begin(i) /= star_end(i-1) +1 )) then
-         write(6,*) 'Error in make_stars: begin(i) /= end(i-1) + 1'
-         stop
+      if (i > 1) then
+         if (star_begin(i) /= star_end(i-1) + 1) then
+            write(6,*) 'Error in make_stars: begin(i) /= end(i-1)+1'
+            stop
+         endif
       endif
    enddo
    if (i_star /= N_wave) then
