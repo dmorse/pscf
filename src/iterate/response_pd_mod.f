@@ -287,10 +287,15 @@ contains
    real(long), intent(OUT)   :: dstress_dcell(:,:)
    !***
 
+   ! Preconditions
+   ! if (N_cell_param <= 0) then
+   !   write(6, *) 'In response_pd_cell: N_cell_param <= 0'
+   ! end if
+
    ! Local variables
    real(long), parameter :: increment = 1.0d-8
    real(long), parameter :: x = 1.0_long / increment
-   real(long), dimension(N_monomer,N)     :: p, rho
+   real(long), dimension(N_monomer, N)    :: p, rho
    real(long), dimension(N_cell_param)    :: old_param
    real(long), dimension(N_cell_param)    :: stress,new_stress
    real(long), dimension(N, N_cell_param) :: dGsq
@@ -305,9 +310,10 @@ contains
    end do
    stress = scf_stress(N, N_cell_param, dGsq )
 
-   old_param = cell_param
+   old_param = cell_param(1:N_cell_param)
    do i = 1, N_cell_param
-      cell_param    = old_param
+
+      cell_param(1:N_cell_param) = old_param
       cell_param(i) = old_param(i) + increment
 
       call make_unit_cell
@@ -326,7 +332,7 @@ contains
       dstress_dcell(:,i) = x * ( new_stress - stress )
    end do
 
-   cell_param = old_param
+   cell_param(1:N_cell_param) = old_param
    call make_unit_cell
    call make_ksq(G_basis)
 
@@ -339,7 +345,7 @@ contains
    ! SUBROUTINE
    !    response_dstress_dcell(N,omega,drho_dcell,dstress_dcell)
    ! PURPOSE
-   !    dstress_dcell(i,j)    = d stress(i) / d cell_param(j)
+   !    dstress_dcell(i,j) = d stress(i) / d cell_param(j)
    ! SOURCE
    !--------------------------------------------------------------
    subroutine response_dstress_dcell(N,omega,dstress_dcell)
@@ -350,9 +356,9 @@ contains
    use unit_cell_mod, only : N_cell_param, cell_param, &!
                              G_basis, dGG_basis, make_unit_cell
 
-   integer, intent(IN)       :: N
-   real(long), intent(IN)    :: omega(:,:)
-   real(long), intent(OUT)   :: dstress_dcell(:,:)
+   integer, intent(IN)      :: N
+   real(long), intent(IN)   :: omega(:,:)
+   real(long), intent(OUT)  :: dstress_dcell(:,:)
    !***
 
    ! Local variables
