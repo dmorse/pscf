@@ -1152,8 +1152,8 @@ contains
     dev_2   = 0.0
     omega_2 = 0.0
     do alpha = 1,N_monomer
-       dev_2 = dev_2 + norm2(dev(itr,:,alpha))**2.0
-       omega_2 = omega_2 + norm2(omega(alpha,2:))**2.0
+       dev_2 = dev_2 + norm_2(dev(itr,:,alpha))**2.0
+       omega_2 = omega_2 + norm_2(omega(alpha,2:))**2.0
     end do
     error   = (dev_2/omega_2)**0.5
    
@@ -1301,8 +1301,8 @@ contains
                end do
             endif
             omega_hist(itr+1,:,alpha) = omega(alpha,2:) 
-            dev_2 = dev_2 + norm2(dev(itr+1,:,alpha))**2.0
-            omega_2 = omega_2 + norm2(omega(alpha,2:))**2.0
+            dev_2 = dev_2 + norm_2(dev(itr+1,:,alpha))**2.0
+            omega_2 = omega_2 + norm_2(omega(alpha,2:))**2.0
 
          end do
          error   = (dev_2/omega_2)**0.5
@@ -1330,8 +1330,8 @@ contains
                end do
             endif
             omega_hist(N_hist+1,:,alpha) = omega(alpha,2:)
-            dev_2 = dev_2 + norm2(dev(N_hist+1,:,alpha))**2.0
-            omega_2 = omega_2 + norm2(omega(alpha,2:))**2.0
+            dev_2 = dev_2 + norm_2(dev(N_hist+1,:,alpha))**2.0
+            omega_2 = omega_2 + norm_2(omega(alpha,2:))**2.0
 
          end do
          error = (dev_2/omega_2)**0.5
@@ -1373,13 +1373,6 @@ contains
       endif
 
       write(6,*)'Stress relaxation iteration  = ',itr_stress
-!!      itr_relax = 0
-!!      stress_relax: do
-
-!!          if(maxval(abs(stress)*stress_rescale) < error_max) exit stress_relax
-          
-!!          itr_relax = itr_relax + 1
-!!          write(6,*)'Stress relaxation for fixed omega  = ',itr_relax
       
           call response_dstress_dcell(N,omega,dstress_dcell )
     
@@ -1449,8 +1442,8 @@ contains
                end do
             endif
             omega_hist(3,:,alpha) = omega(alpha,2:)
-            dev_2 = dev_2 + norm2(dev(3,:,alpha))**2.0
-            omega_2 = omega_2 + norm2(omega(alpha,2:))**2.0
+            dev_2 = dev_2 + norm_2(dev(3,:,alpha))**2.0
+            omega_2 = omega_2 + norm_2(omega(alpha,2:))**2.0
 
          end do
          error   = (dev_2/omega_2)**0.5
@@ -1482,8 +1475,8 @@ contains
                end do
             endif
             omega_hist(N_hist+1,:,alpha) = omega(alpha,2:)
-            dev_2 = dev_2 + norm2(dev(N_hist+1,:,alpha))**2.0
-            omega_2 = omega_2 + norm2(omega(alpha,2:))**2.0
+            dev_2 = dev_2 + norm_2(dev(N_hist+1,:,alpha))**2.0
+            omega_2 = omega_2 + norm_2(omega(alpha,2:))**2.0
 
          end do
          error   = (dev_2/omega_2)**0.5
@@ -1517,6 +1510,21 @@ contains
    deallocate(omega_hist)
    ! If fixed unit cell, calculate residual stress before output
    if (.not.domain) stress = scf_stress(N, N_cell_param, dGsq)
+
+contains
+
+      function norm_2(x)
+          
+         implicit none
+         
+         intrinsic              :: dot_product, sqrt
+         real(long)             :: norm_2
+         real(long), intent(IN) :: x(:)
+   
+         norm_2 = sqrt(dot_product(x,x))
+   
+      end function norm_2
+        
 
    end subroutine iterate_AM
 
