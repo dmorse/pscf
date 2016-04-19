@@ -1,8 +1,8 @@
 ! fortran_dialect=elf
 !-----------------------------------------------------------------------
 ! PSCF - Polymer Self-Consistent Field Theory
-! Copyright (2007) David C. Morse
-! email: morse@cems.umn.edu
+! Copyright (2002-2016) Regents of the University of Minnesota
+! contact: David Morse, morse012@umn.edu
 !
 ! This program is free software; you can redistribute it and/or modify
 ! it under the terms of the GNU General Public License as published by
