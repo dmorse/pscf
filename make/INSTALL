@@ -1,0 +1,57 @@
+-----------------------------------------------------------------------
+ PSCF - Polymer Self-Consistent Field Theory
+ Copyright (2007) David C. Morse
+ email: morse@cems.umn.edu
+
+ PSCF is a Fortran 90 program for numerically solving the polymer 
+ self-consistent field theory for periodic microstructures formed 
+ by incompressible melts or mixtures of linear block copolymers, 
+ linear homopolymers, and small molecule solvents. 
+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation. A copy of this license is included in
+ the LICENSE file in the top-level PSCF directory. 
+
+-----------------------------------------------------------------------
+PSCF can be compiled either using the unix make utility, using the
+Makefile that is provided in this directory, or using cmake to build
+a more complex makefile. 
+
+See the file doc/user-man/compile.rst, or the corresponding page in
+the web user manual, for instructions for compiling using make, and
+doc/user-man/compile-cmake.rst for instructions to compile using 
+cmake. For the impatient, brief instructions are:
+
+1. Install the open source LAPACK linear algebra library and the 
+FFTW fast fourier transform library. 
+
+2. Change directory (cd) to the pscf/make directory (i.e., this 
+directory) and copy the file Makefile_r to Makefile, by entering
+
+>  cp Makefile_r Makefile
+
+Explanation: The file Makefile_r is a default version of the Makefile
+that is stored in the git repository. Users can modify the copy named
+Makefile, but should generally avoid modifying Makefile_r.
+
+3. Edit the Makefile as needed, following comments given in the Makefile
+and in the user manual.
+
+4. To compile, issue the command:
+
+   > make pscf
+
+from within the build directory.  This will fill the build 
+directory with *.o and *.mod files and install an executable file
+at $(BIN)/$(EXE).
+      
+5. If desired, to remove all of the generated *.o and *.mod files
+from the build directory and the executable file, enter:
+
+   > make clean
+
+6. NOTE: Before modifying any of the source files, read the 
+discussion at the end of the src/SRC_FILES file regarding the use 
+of a python preprocessor script (FORPEDO) to automatically generate 
+some fortran files from preprocessor input files. 

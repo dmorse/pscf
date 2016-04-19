@@ -1,10 +1,10 @@
 # ============ Root Directories ================================
 # SCF = Root directory for pscf project
 # SCF = $(SCF)/src = directory for source files
-# BLD = $(SCF)/bld = build directory for building with make
+# BLD = $(SCF)/make = build directory for building with make
 SCF=..
 SRC=$(SCF)/src
-BLD=$(SCF)/bld
+BLD=$(SCF)/make
 
 # ====== Executable Install Location ===========================
 
@@ -226,12 +226,7 @@ response_mod.o:	$(SRC)/response/response_mod.f\
 
 .PHONY: clean
 clean:
-	rm -f  *.o  *.mod  $(BIN)/$(EXE)
-
-.PHONY: veryclean
-veryclean:
-	make clean
-	rm -f  *.f 
+	rm -f  *.o  *.mod  *.f $(BIN)/$(EXE)
 
 # ========================================================
 # tests subdirectory 
