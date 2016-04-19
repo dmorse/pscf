@@ -152,7 +152,7 @@ INSTALL(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION share/pscf RENAME LICENSE.
 endif (APPLE AND BUILD_DMG)
 
 install(PROGRAMS 
-        tools/bin/pscf-read-outfile tools/bin/pscf-read-sweep
+        tools/bin/pscf-read-outfile tools/bin/pscf-read-sweep tools/bin/pscf-env
         DESTINATION bin)
 
 #INSTALL(DIRECTORY ${CMAKE_SOURCE_DIR}/tools/bin DESTINATION .)
