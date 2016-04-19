@@ -226,12 +226,7 @@ response_mod.o:	$(SRC)/response/response_mod.f\
 
 .PHONY: clean
 clean:
-	rm -f  *.o  *.mod  $(BIN)/$(EXE)
-
-.PHONY: veryclean
-veryclean:
-	make clean
-	rm -f  *.f 
+	rm -f  *.o  *.mod  *.f $(BIN)/$(EXE)
 
 # ========================================================
 # tests subdirectory 
