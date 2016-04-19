@@ -1373,13 +1373,6 @@ contains
       endif
 
       write(6,*)'Stress relaxation iteration  = ',itr_stress
-!!      itr_relax = 0
-!!      stress_relax: do
-
-!!          if(maxval(abs(stress)*stress_rescale) < error_max) exit stress_relax
-          
-!!          itr_relax = itr_relax + 1
-!!          write(6,*)'Stress relaxation for fixed omega  = ',itr_relax
       
           call response_dstress_dcell(N,omega,dstress_dcell )
     
@@ -1517,6 +1510,21 @@ contains
    deallocate(omega_hist)
    ! If fixed unit cell, calculate residual stress before output
    if (.not.domain) stress = scf_stress(N, N_cell_param, dGsq)
+
+contains
+
+      function norm2(x)
+          
+         implicit none
+         
+         intrinsic              :: dot_product, sqrt
+         real(long)             :: norm2
+         real(long), intent(IN) :: x(:)
+   
+         norm2 = sqrt(dot_product(x,x))
+   
+      end function norm2
+        
 
    end subroutine iterate_AM
 
