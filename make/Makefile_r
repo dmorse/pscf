@@ -9,8 +9,11 @@ BLD=$(SCF)/make
 # ====== Executable Install Location ===========================
 
 # BIN = path to directory for executable file
-# Three possible install locations are suggested below:
-BIN=$(BLD)
+# Several possible install locations are suggested below. If you
+# ~/.local/bin or ${SCF}/bin, make sure the directory exists first.
+
+BIN=${BLD}
+#BIN=${SCF}/bin
 #BIN=${HOME}/.local/bin
 #BIN=/usr/local/bin
 
@@ -52,18 +55,18 @@ LIBDIRS=
 # FFT_FILE = fft2_mod for FFTW version 2 
 #          = fft3_mod for FFTW version 3
 
-# Linux 
+# Linux and Mac
 FFTWLIB= -lfftw3
 FFT_FILE=fft3_mod
 
 # ============ LAPACK Linear Algebra Library ==================
 # LAPACKLIB = path(s) to directories containing lapack and blas
 
-# Fedora linux (package installed by yum)
+# Fedora linux (as installed by yum) and Mac OS X
 LAPACKLIB= -llapack -lblas
 #LAPACKLIB= -llapack -lblas -latlas
 
-# Ubuntu linux (lapack installed by apt-get)
+# Ubuntu linux (as installed by apt-get)
 #LAPACKLIB=/usr/lib/liblapack.so.3gf /usr/lib/libf77blas.so.3gf /usr/lib/libatlas.so.3gf
    
 # ======  Forpedo Fortran preprocessor =========================
