@@ -125,12 +125,12 @@ contains
    d_kuhn = 0.0_long
    select case(interaction_type)
    case('chi')
-      allocate(d_chi(N_monomer,N_monomer))
+      allocate(d_chi(N_monomer, N_monomer))
       d_chi = 0.0_long
    case('chi_T')
       d_temperature = 0.0_long
    end select
-   allocate(d_block_length(N_blk_max,N_chain))
+   allocate(d_block_length(N_blk_max, N_chain))
    d_block_length = 0.0_long
    if (ensemble == 0) then
       allocate(d_phi_chain(N_chain))
@@ -148,30 +148,30 @@ contains
    d_solvent_size = 0.0_long  
 
    select case(fmt_flag)
-   case('F','f')
+   case('F', 'f')
 
       call set_io_units(i=i_unit)
-      call input(d_kuhn,N_monomer,'d_kuhn',s='R')
+      call input(d_kuhn, N_monomer, 'd_kuhn', s='R')
       select case(interaction_type)
       case('chi')
-         call input(d_chi,N_monomer,N_monomer,'d_chi',s='L')
+         call input(d_chi, N_monomer, N_monomer, 'd_chi', s='L')
       case('chi_T')
-         call input(d_temperature,'d_temperature')
+         call input(d_temperature, 'd_temperature')
       end select
       read(i_unit,*)comment_line
       call output(trim(comment_line),f='N',j='L')
       do j = 1, N_chain
-         call input(d_block_length(:,j),N_block(j),f='N')
+         call input(d_block_length(:,j), N_block(j),f='N')
       enddo
       select case (ensemble)
       case (0)
-         call input(d_phi_chain,N_chain,'d_phi_chain',s='C')
-         call input(d_phi_solvent,N_solvent,'d_phi_solvent',s='C')
+         call input(d_phi_chain, N_chain, 'd_phi_chain', s='C')
+         call input(d_phi_solvent, N_solvent, 'd_phi_solvent', s='C')
       case (1)  ! Grand canonical ensemble 
-         call input(d_mu_chain, N_chain,'d_mu_chain', s='C')
-         call input(d_mu_solvent, N_solvent,'d_mu_solvent',s='C')
+         call input(d_mu_chain, N_chain, 'd_mu_chain', s='C')
+         call input(d_mu_solvent, N_solvent, 'd_mu_solvent', s='C')
       end select
-      call input(d_solvent_size,N_solvent,'d_solvent_size',s='C')
+      call input(d_solvent_size, N_solvent, 'd_solvent_size', s='C')
       if (.not.domain) then
          call input(d_cell_param, N_cell_param, 'd_cell_param', s='R')
          sweep_cell_param   = .true.
@@ -185,7 +185,7 @@ contains
       sweep_composition  = .true.
       sweep_solvent_size = .true.
 
-   case('N','n')
+   case('N', 'n')
 
       sweep_kuhn         = .false.
       sweep_chi          = .false.
@@ -203,11 +203,11 @@ contains
 
          select case(trim(comment_line))
          case('d_kuhn')
-            call input(d_kuhn,N_monomer,'d_kuhn',s='R',f='N')
+            call input(d_kuhn, N_monomer, 'd_kuhn', s='R',f='N')
             sweep_kuhn = .true.
          case('d_chi')
             if (interaction_type=='chi') then
-               call input(d_chi,N_monomer,N_monomer,'d_chi',s='L',f='N')
+               call input(d_chi, N_monomer, N_monomer, 'd_chi', s='L',f='N')
                sweep_chi = .true.
             else
                write(6,*) &
@@ -216,7 +216,7 @@ contains
             endif 
          case('d_temperature')
             if (interaction_type=='chi_T') then
-               call input(d_temperature,'d_temperature',f='N')
+               call input(d_temperature, 'd_temperature',f='N')
                sweep_chi = .true.
             else
                write(6,*) &
@@ -225,12 +225,12 @@ contains
             endif 
          case('d_block_length')
             do j = 1, N_chain
-               call input(d_block_length(:,j),N_block(j),f='N')
+               call input(d_block_length(:,j), N_block(j),f='N')
             enddo
             sweep_block_length = .true.
          case('d_phi_chain')
             if (ensemble == 0) then 
-               call input(d_phi_chain,N_chain,'d_phi_chain',s='C',f='N')
+               call input(d_phi_chain, N_chain, 'd_phi_chain', s='C',f='N')
                sweep_composition = .true.
             else
                write(6,*) 'Error: Increment phi_chain when ensemble /= 0'
@@ -238,7 +238,7 @@ contains
             endif 
          case('d_phi_solvent')
             if (ensemble == 0) then
-               call input(d_phi_solvent,N_solvent,'d_phi_solvent',s='C',f='N')
+               call input(d_phi_solvent, N_solvent, 'd_phi_solvent', s='C',f='N')
                sweep_composition = .true.
             else
                write(6,*) 'Error: Increment phi_solvent when ensemble /=0'
@@ -246,7 +246,7 @@ contains
             endif
          case('d_mu_chain')
             if (ensemble == 1) then 
-               call input(d_mu_chain,N_chain,'d_mu_chain',s='C',f='N')
+               call input(d_mu_chain, N_chain, 'd_mu_chain', s='C',f='N')
                sweep_composition = .true.
             else
                write(6,*) 'Error: Increment mu_chain when ensemble neq 1'
@@ -254,19 +254,19 @@ contains
             endif 
          case('d_mu_solvent')
             if (ensemble == 1) then
-               call input(d_mu_solvent,N_solvent,'d_mu_solvent',s='C',f='N')
+               call input(d_mu_solvent, N_solvent, 'd_mu_solvent', s='C',f='N')
                sweep_composition = .true.
             else
                write(6,*) 'Error: Increment mu_solvent when ensemble neq 1'
                stop
             endif
          case('d_solvent_size')
-            call input(d_solvent_size,N_solvent,'d_solvent_size',s='C',f='N')
+            call input(d_solvent_size, N_solvent, 'd_solvent_size', s='C',f='N')
             sweep_solvent_size = .true.
          case('d_cell_param')
             if (.not.domain) then
                call input &
-                  (d_cell_param,N_cell_param,'d_cell_param',s='R',f='N')
+                  (d_cell_param, N_cell_param, 'd_cell_param', s='R', f='N')
                sweep_cell_param = .true.
             else
                write(6,*) 'Error: Increment cell_param when domain == T'
@@ -317,63 +317,63 @@ contains
    call set_io_units(o=o_unit)
 
    select case(fmt_flag)
-   case('F','f') ! Old format - all increments
+   case('F', 'f') ! Old format - all increments
 
-      call output(d_kuhn,N_monomer,'d_kuhn',s='R')
+      call output(d_kuhn, N_monomer, 'd_kuhn', s='R')
       select case(interaction_type)
       case('chi')
-         call output(d_chi,N_monomer,N_monomer,'d_chi',s='L')
+         call output(d_chi, N_monomer, N_monomer, 'd_chi', s='L')
       case('chi_T')
-         call output(d_temperature,'d_temperature')
+         call output(d_temperature, 'd_temperature')
       end select
       call output('d_block_length',f='N',j='L')
       do j = 1, N_chain
-         call output(d_block_length(:,j),N_block(j),f='N')
+         call output(d_block_length(:,j), N_block(j),f='N')
       enddo
       select case (ensemble)
       case (0)
-         call output(d_phi_chain,N_chain,'d_phi_chain',s='C')
-         call output(d_phi_solvent,N_solvent,'d_phi_solvent',s='C') 
+         call output(d_phi_chain, N_chain, 'd_phi_chain', s='C')
+         call output(d_phi_solvent, N_solvent, 'd_phi_solvent', s='C') 
       case (1)  ! Grand canonical ensemble 
-         call output(d_mu_chain,N_chain,'d_mu_chain', s='C')
-         call output(d_mu_solvent,N_solvent,'d_mu_solvent',s='C')
+         call output(d_mu_chain, N_chain, 'd_mu_chain', s='C')
+         call output(d_mu_solvent, N_solvent, 'd_mu_solvent', s='C')
       end select
-      call output(d_solvent_size,N_solvent,'d_solvent_size',s='C')
+      call output(d_solvent_size, N_solvent, 'd_solvent_size', s='C')
       if (sweep_cell_param) then
          call output(d_cell_param, N_cell_param, 'd_cell_param', s='R')
       endif
 
-   case('N','n') ! New format - selected increments
+   case('N', 'n') ! New format - selected increments
 
       if (sweep_kuhn) then
-         call output(d_kuhn,N_monomer,'d_kuhn',s='R')
+         call output(d_kuhn, N_monomer, 'd_kuhn', s='R')
       endif
       if (sweep_chi) then
          select case(interaction_type)
          case('chi')
-            call output(d_chi,N_monomer,N_monomer,'d_chi',s='L')
+            call output(d_chi, N_monomer, N_monomer, 'd_chi', s='L')
          case('chi_T')
-            call output(d_temperature,'d_temperature')
+            call output(d_temperature, 'd_temperature')
          end select
       endif
       if (sweep_block_length) then
          call output('d_block_length',f='N',j='L')
          do j = 1, N_chain
-            call output(d_block_length(:,j),N_block(j),f='N')
+            call output(d_block_length(:,j), N_block(j),f='N')
          enddo
       endif
       if (sweep_composition) then
          select case (ensemble)
          case (0)
-            call output(d_phi_chain,N_chain,'d_phi_chain',s='C')
-            call output(d_phi_solvent,N_solvent,'d_phi_solvent',s='C')
+            call output(d_phi_chain, N_chain, 'd_phi_chain', s='C')
+            call output(d_phi_solvent, N_solvent, 'd_phi_solvent', s='C')
          case (1)  ! Grand canonical ensemble 
-            call output(d_mu_chain, N_chain,'d_mu_chain', s='C')
-            call output(d_mu_solvent, N_solvent,'d_mu_solvent', s='C')
+            call output(d_mu_chain, N_chain, 'd_mu_chain', s='C')
+            call output(d_mu_solvent, N_solvent, 'd_mu_solvent', s='C')
          end select
       endif
       if (sweep_solvent_size) then
-         call output(d_solvent_size,N_solvent,'d_solvent_size',s='C')
+         call output(d_solvent_size, N_solvent, 'd_solvent_size', s='C')
       endif
       if (sweep_cell_param) then
          call output(d_cell_param, N_cell_param, 'd_cell_param', s='R')
@@ -439,7 +439,8 @@ contains
    end select
    if( N_solvent > 0 ) solvent_size = solvent_size + step*d_solvent_size
    if (.not.domain) then
-      cell_param = cell_param + step*d_cell_param
+      cell_param(1:N_cell_param) = cell_param(1:N_cell_param) &
+                                 + step*d_cell_param(1:N_cell_param)
    endif
 
    end subroutine increment_parameters
@@ -454,15 +455,15 @@ contains
    !    Allocates private history stack module variables:
    !       s_hist(N_hist)                      = prior values of s
    !       omega_hist(N_monomer,N_star,N_hist) = prior omega fields
-   !       cell_param_hist(6,N_hist)           = prior cell parameters
+   !       cell_param_hist(6, N_hist)          = prior cell parameters
    ! SOURCE
    !-----------------------------------------------------------------
    subroutine history_setup
    use basis_mod, only : N_star
    !***
    allocate(s_hist(N_hist))
-   allocate(omega_hist(N_monomer,N_star,N_hist))
-   allocate(cell_param_hist(6,N_hist))
+   allocate(omega_hist(N_monomer, N_star, N_hist))
+   allocate(cell_param_hist(6, N_hist))
    depth_hist      = 0
    omega_hist      = 0.0_long
    cell_param_hist = 0.0_long
@@ -496,7 +497,7 @@ contains
    integer :: i
 
    ! Calculate new depth for stack
-   depth_hist = min(depth_hist+1,N_hist) 
+   depth_hist = min(depth_hist+1, N_hist) 
 
    ! Shift current stack 
    if (depth_hist > 1) then

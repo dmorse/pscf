@@ -286,8 +286,8 @@ contains
                              phi_solvent, phi_chain, N_chain, N_solvent 
    !# ifdef DEVEL
    use scf_mod, only       : density, scf_stress, set_omega_uniform, &
-                             mu_phi_chain, mu_phi_solvent, 
-                             free_energy, divide_energy
+                             mu_phi_chain, mu_phi_solvent, free_energy, &
+                             divide_energy
    !# else
    use scf_mod, only       : density, scf_stress, set_omega_uniform, &
                              mu_phi_chain, mu_phi_solvent, free_energy
@@ -340,9 +340,9 @@ contains
 
    M = N - 1 + ensemble 
 
-   !  Initiallization
+   !  Initialization
    call density(N, omega, rho, q, q_solvent)
-   ! call mu_phi_chain(mu_chain, phi_chain, q)
+   call mu_phi_chain(mu_chain, phi_chain, q)
    if (N_solvent > 0) then
       call mu_phi_solvent(mu_solvent, phi_solvent, q_solvent)
    endif
@@ -457,7 +457,6 @@ contains
       ! call update_without_linesearch
 
       ! Calculate thermodynamic properties
-      ! call mu_phi(mu_chain,phi_chain,q,mu_solvent,phi_solvent,q_solvent)
       call mu_phi_chain(mu_chain, phi_chain, q)
       if (N_solvent > 0) then
          call mu_phi_solvent(mu_solvent, phi_solvent, q_solvent)
@@ -1335,17 +1334,17 @@ contains
             omega_2 = omega_2 + norm2(omega(alpha,2:))**2.0
 
          end do
-         error   = (dev_2/omega_2)**0.5
+         error = (dev_2/omega_2)**0.5
 
       endif
 
       ! Calculate thermodynamic properties
-      ! call mu_phi(mu_chain,phi_chain,q,mu_solvent,phi_solvent,q_solvent)
       call mu_phi_chain(mu_chain, phi_chain, q)
       if (N_solvent > 0) then
          call mu_phi_solvent(mu_solvent, phi_solvent, q_solvent)
       endif
-      call free_energy(N,rho,omega,phi_chain,mu_chain,phi_solvent,mu_solvent,f_Helmholtz,pressure)
+      call free_energy(N, rho, omega, phi_chain, mu_chain, &
+                       phi_solvent, mu_solvent, f_Helmholtz, pressure)
       !# ifdef DEVEL
       call divide_energy(rho,omega,phi_chain,phi_solvent,Q,f_Helmholtz,f_component,overlap)
       !# endif

@@ -213,10 +213,12 @@ contains
    real(long), dimension(6) :: standard_cell_param
    !***
 
-   real(long) :: a,b,c,alpha,beta,gamma
-   
+   real(long) :: a, b, c, alpha, beta, gamma
+  
+   standard_cell_param = 0.0_long
+ 
    if ( dim .ne. 3 ) then
-      standard_cell_param = cell_param
+      standard_cell_param = cell_param(1:N_cell_param)
       return
    endif
 

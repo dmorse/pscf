@@ -379,9 +379,9 @@ contains
    end do
    stress = scf_stress(N, N_cell_param, dGsq )
 
-   old_param = cell_param
+   old_param = cell_param(1:N_cell_param)
    do i = 1, N_cell_param
-      cell_param    = old_param
+      cell_param(1:N_cell_param) = old_param
       cell_param(i) = old_param(i) + increment
 
       call make_unit_cell
@@ -400,7 +400,7 @@ contains
       dstress_dcell(:,i) = x * ( new_stress - stress )
    end do
 
-   cell_param = old_param
+   cell_param(1:N_cell_param) = old_param
    call make_unit_cell
    call make_ksq(G_basis)
 
