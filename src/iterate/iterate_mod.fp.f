@@ -1152,8 +1152,8 @@ contains
     dev_2   = 0.0
     omega_2 = 0.0
     do alpha = 1,N_monomer
-       dev_2 = dev_2 + norm2(dev(itr,:,alpha))**2.0
-       omega_2 = omega_2 + norm2(omega(alpha,2:))**2.0
+       dev_2 = dev_2 + norm_2(dev(itr,:,alpha))**2.0
+       omega_2 = omega_2 + norm_2(omega(alpha,2:))**2.0
     end do
     error   = (dev_2/omega_2)**0.5
    
@@ -1301,8 +1301,8 @@ contains
                end do
             endif
             omega_hist(itr+1,:,alpha) = omega(alpha,2:) 
-            dev_2 = dev_2 + norm2(dev(itr+1,:,alpha))**2.0
-            omega_2 = omega_2 + norm2(omega(alpha,2:))**2.0
+            dev_2 = dev_2 + norm_2(dev(itr+1,:,alpha))**2.0
+            omega_2 = omega_2 + norm_2(omega(alpha,2:))**2.0
 
          end do
          error   = (dev_2/omega_2)**0.5
@@ -1330,8 +1330,8 @@ contains
                end do
             endif
             omega_hist(N_hist+1,:,alpha) = omega(alpha,2:)
-            dev_2 = dev_2 + norm2(dev(N_hist+1,:,alpha))**2.0
-            omega_2 = omega_2 + norm2(omega(alpha,2:))**2.0
+            dev_2 = dev_2 + norm_2(dev(N_hist+1,:,alpha))**2.0
+            omega_2 = omega_2 + norm_2(omega(alpha,2:))**2.0
 
          end do
          error = (dev_2/omega_2)**0.5
@@ -1442,8 +1442,8 @@ contains
                end do
             endif
             omega_hist(3,:,alpha) = omega(alpha,2:)
-            dev_2 = dev_2 + norm2(dev(3,:,alpha))**2.0
-            omega_2 = omega_2 + norm2(omega(alpha,2:))**2.0
+            dev_2 = dev_2 + norm_2(dev(3,:,alpha))**2.0
+            omega_2 = omega_2 + norm_2(omega(alpha,2:))**2.0
 
          end do
          error   = (dev_2/omega_2)**0.5
@@ -1475,8 +1475,8 @@ contains
                end do
             endif
             omega_hist(N_hist+1,:,alpha) = omega(alpha,2:)
-            dev_2 = dev_2 + norm2(dev(N_hist+1,:,alpha))**2.0
-            omega_2 = omega_2 + norm2(omega(alpha,2:))**2.0
+            dev_2 = dev_2 + norm_2(dev(N_hist+1,:,alpha))**2.0
+            omega_2 = omega_2 + norm_2(omega(alpha,2:))**2.0
 
          end do
          error   = (dev_2/omega_2)**0.5
@@ -1513,17 +1513,17 @@ contains
 
 contains
 
-      function norm2(x)
+      function norm_2(x)
           
          implicit none
          
          intrinsic              :: dot_product, sqrt
-         real(long)             :: norm2
+         real(long)             :: norm_2
          real(long), intent(IN) :: x(:)
    
-         norm2 = sqrt(dot_product(x,x))
+         norm_2 = sqrt(dot_product(x,x))
    
-      end function norm2
+      end function norm_2
         
 
    end subroutine iterate_AM
