@@ -1,0 +1,27 @@
+#!/bin/bash 
+
+# Directory form which script is run
+run_from_dir=$( pwd )
+
+# Directory containing this script (i.e., bin directory in installation)
+script_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+# Installation base directory (parent directory of script_dir)
+base_dir=$( cd "$( dirname "${script_dir}" )" && pwd )
+
+# Set unix command search path 
+export PATH=$PATH:$script_dir
+
+# Set search path for python modules
+export PYTHONPATH=$PYTHONPATH:$base_dir/lib/python2.7/site-packages
+
+# Set search path for linking libraries
+PLATFORM=$( uname -s )
+if [ $PLATFORM == "Darwin" ]; then 
+    if [ -d $base_dir/pscf.app ]; then 
+        export PATH=$base_dir/pscf.app/Contents/MacOS:$PATH
+    fi
+    export DYLD_LIBRARY_PATH=$base_dir/lib:$DYLD_LIBRARY_PATH
+else 
+    export LD_LIBRARY_PATH=$base_dir/lib:$LD_LIBRARY_PATH
+fi

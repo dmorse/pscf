@@ -611,14 +611,13 @@ contains
    else
       ounit = default_ounit   
    endif
+   echo = default_echo
    if (present(e)) then
       if ((e==0).or.(e==1)) then
          echo = e
       else
          write(6,*) 'Error: Illegal value of e=',e
       endif
-   else
-      echo = default_echo
    endif
    if (present(f)) then
       if ((f=='N').or.(f=='A').or.(f=='L').or.(f=='R')) then
@@ -694,14 +693,13 @@ contains
    else
       ounit = default_ounit    
    endif
+   echo = default_echo
    if (present(e)) then
       if ((e==0).or.(e==1)) then
          echo = e
       else
          write(6,*) 'Error: Illegal value of e=',e
       endif
-   else
-      echo = default_echo
    endif
    if (present(f)) then
       if ((f=='N').or.(f=='A').or.(f=='L').or.(f=='R')) then
@@ -776,14 +774,13 @@ contains
    else
       ounit = default_ounit    
    endif
+   echo = default_echo
    if (present(e)) then
       if ((e==0).or.(e==1)) then
          echo = e
       else
          write(6,*) 'Error: Illegal value of e=',e
       endif
-   else
-      echo = default_echo
    endif
    if (present(f)) then
       if ((f=='N').or.(f=='A').or.(f=='L').or.(f=='R')) then
@@ -859,14 +856,13 @@ contains
    else
       ounit = default_ounit   
    endif
+   echo = default_echo
    if (present(e)) then
       if ((e==0).or.(e==1)) then
          echo = e
       else
          write(6,*) 'Error: Illegal value of e=',e
       endif
-   else
-      echo = default_echo
    endif
    if (present(f)) then
       if ((f=='N').or.(f=='A').or.(f=='L').or.(f=='R')) then
@@ -954,14 +950,13 @@ contains
    else
       ounit = default_ounit    
    endif
+   echo = default_echo
    if (present(e)) then
       if ((e==0).or.(e==1)) then
          echo = e
       else
          write(6,*) 'Error: Illegal value of e=',e
       endif
-   else
-      echo = default_echo
    endif
    if (present(f)) then
       if ((f=='N').or.(f=='A').or.(f=='L').or.(f=='R')) then
@@ -1049,14 +1044,13 @@ contains
    else
       ounit = default_ounit    
    endif
+   echo = default_echo
    if (present(e)) then
       if ((e==0).or.(e==1)) then
          echo = e
       else
          write(6,*) 'Error: Illegal value of e=',e
       endif
-   else
-      echo = default_echo
    endif
    if (present(f)) then
       if ((f=='N').or.(f=='A').or.(f=='L').or.(f=='R')) then
@@ -1144,14 +1138,13 @@ contains
    else
       ounit = default_ounit    
    endif
+   echo = default_echo
    if (present(e)) then
       if ((e==0).or.(e==1)) then
          echo = e
       else
          write(6,*) 'Error: Illegal value of e=',e
       endif
-   else
-      echo = default_echo
    endif
    if (present(f)) then
       if ((f=='N').or.(f=='A').or.(f=='L').or.(f=='R')) then
@@ -1238,14 +1231,13 @@ contains
    else
       ounit = default_ounit    
    endif
+   echo = default_echo
    if (present(e)) then
       if ((e==0).or.(e==1)) then
          echo = e
       else
          write(6,*) 'Error: Illegal value of e=',e
       endif
-   else
-      echo = default_echo
    endif
    if (present(f)) then
       if ((f=='N').or.(f=='A')) then
@@ -1364,14 +1356,13 @@ contains
    else
       ounit = default_ounit    
    endif
+   echo = default_echo
    if (present(e)) then
       if ((e==0).or.(e==1)) then
          echo = e
       else
          write(6,*) 'Error: Illegal value of e=',e
       endif
-   else
-      echo = default_echo
    endif
    if (present(f)) then
       if ((f=='N').or.(f=='A')) then

@@ -1,2 +1,4 @@
 Makefile
 *.f
+*.o
+*.mod

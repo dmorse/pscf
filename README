@@ -2,7 +2,6 @@
 -----------------------------------------------------------------------
  PSCF - Polymer Self-Consistent Field Theory
  Copyright (2007-2016) Regents of the University of Minnesota
- Contact: David Morse, morse012@umn.edu
 
  PSCF is a Fortran 90 program for numerically solving the polymer 
  self-consistent field theory for periodic microstructures formed 
@@ -57,6 +56,7 @@
  tools/                        - Tools for processing output and source
  tools/matlab                  - - matlab scripts for visualization
  tools/python                  - - python modules
+ make/                         - build directory for make
 
  An annotated list of source files is provided in the file src/SRC_FILES. 
  Before modifying any fortran files, also see the note at the end of that
