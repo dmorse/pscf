@@ -4,11 +4,36 @@
 Field Files
 ***********
 
-Both the "omega" files and the "rho" files describe multicomponent
-fields, and both have the same format. 
+THIS FILE IS A WORK IN PROGRESS
 
-Here is an example of a "rho" file output from a simulation of a 
-lamellar phase for a diblock copolymer melt:
+Overview
+=========
+
+PSCF uses the same set of file formats to describe "omega" and "rho" 
+fields. In each of the allowed file formats, a single file contains 
+a description of set of "omega" and "rho" fields, each of which is 
+associated with a particular monomer type. We refer to such a set of
+fields in what follows as a multi-component field. 
+
+PSCF canr read, write and intercovert three different file formats 
+for multi-component fields. Each of these file formats which is based 
+on a different mathematical representation of a field, as:
+
+    * Symmetry-adapted Fourier expansion
+    * Coordinate space grid 
+    * Fourier space grid
+
+Each of these file formats and mathematical representations is discussed
+in more detail below.
+
+Symmetry Adapted Field Format
+=============================
+
+The file format that is used by the ITERATE command for both input
+and output fields contains the coefficients of an expansion of each
+field in terms of basis functions that have the symmetry of the 
+space group.  Here is an example of a "rho" file output from a 
+simulation of a lamellar phase for a diblock copolymer melt:
 
 ::
 
@@ -53,7 +78,6 @@ lamellar phase for a diblock copolymer melt:
 This file format contains a header, which has a format similar to 
 that of the parameter file, followed by a section that contains 
 coefficients of basis functions that are used to expand the field.
-
 
 The first line in the header simply specifies a number for the file 
 format being used (file format v1.0). The remaining several lines of 
@@ -176,3 +200,20 @@ above file format and outputs a file in which the field is
 represented in terms of the values of the field at evenly 
 spaced grid points. 
  
+Coordinate Space Grid
+=====================
+
+PSCF can also output the values of set of fields (one per 
+monomer type) evaluated on all of the grid points of the FFT 
+grid that is used to solve the modified diffusion equation.
+
+TODO: Add description of this format
+
+Fourier Space Grid
+===================
+
+Finally, PSCF can read and write the unsymmetrized discrete 
+Fourier transform of a multi-component field, which is related
+to the values on a grid a by discrete Fourier transform.
+
+TODO: Add description of this format

@@ -18,6 +18,8 @@ Contents:
    field
    lattice
    groups
+   memory
+   package
 
 
 Indices and tables

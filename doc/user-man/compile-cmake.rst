@@ -141,25 +141,12 @@ install the following packages:
    * libfftw3-dev
    * liblapack3
 
-To use the apt-get utility from the command line, enter:
+To use the apt-get utility from the command line, enter::
 
    > sudo apt-get cmake
    > sudo apt-get gfortran
    > sudo apt-get libfftw3-dev
    > sudo apt-get liblapack3
-
-Developers: To build .deb package for installation of binary executables 
-on other Ubuntu and debian systems, as well as .tar and .zip source code 
-archives, after installing on your machine, simply enter::
-
-   > make package
-
-To check the .deb file for semi-detailed information::
-
-    # This extracts multiple files
-    ar -vx pscf-1.0.0-Linux.deb
-    # See the files that would be installed
-    tar tvfz data.tar.gz 
 
 Fedora Linux
 ~~~~~~~~~~~~
@@ -184,25 +171,14 @@ To install these packages from the command line, enter::
 Instructions for obtaining source code, compiling and installing are the same 
 as for Max OSX and Ubuntu.
 
-Developers: On a Fedora machine, you can build a .rpm package and .tar 
-and .zip archives by entering::
+Using Linux Modules
+~~~~~~~~~~~~~~~~~~~~
 
-   > make package
-
-from within the build directory.
-
-To check the RPM for detailed information (Metadata, Dependencies, and 
-File Contents), enter::
-
-   > rpm --info -qpR -qlvp pscf-1.0.0-Linux.rpm 
-
-Systems with Linux Modules
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The following instructions describe how to build PSCF in a user directory 
-at the Minnesota Computer Institute (MSI) Mesabi computer, using linux 
-modules and the Intel compiler.  Similar instructions should apply to 
-other large supercomputer clusters that use linux modules.
+The following instructions describe how to build PSCF in a user 
+directory at the Minnesota Computer Institute (MSI) Mesabi computer, 
+using linux modules and the Intel compiler.  Similar instructions 
+should apply to other large supercomputer clusters that use linux 
+modules to manage software.
 
 To load the required modules, enter::
 
@@ -210,25 +186,32 @@ To load the required modules, enter::
    > module load intel mkl
    > module load fftw
 
-The remaining instruction for how to obtain and compile the source code 
-are generally similar to thos given for OSX or Linux. The only difference 
-is that, to use the Intel compiler, one must tell cmake to use the Intel 
-compiler by adding the option "-DUSE_INTEL=1" to the cmake command. The 
-required command is thus::
+The remaining instruction for how to obtain and compile the source 
+code are generally similar to thos given for OSX or Linux. The only 
+difference is that, to use the Intel compiler, one must tell cmake 
+to use the Intel compiler by adding the option "-DUSE_INTEL=1" to 
+the cmake command. The required command is thus::
 
    > cmake -DUSE_INTEL=1 -DCMAKE_INSTALL_PREFIX=/path/to/install ../pscf
 
 Obtaining the Source Code
 -------------------------
-We assume in what follows that you will use cmake to implement on "out-of-source" build, in which all of the files generated during compilation are placed in a different directory than the source code. To begin, we suggest that you create a directory named pscf/ with a subdirectory named cmake/, by entering::
+We assume in what follows that you will use cmake to implement on 
+"out-of-source" build, in which all of the files generated during 
+compilation are placed in a different directory than the source 
+code. To begin, we recommend that you create a directory named pscf/ 
+with a subdirectory named cmake/, by entering::
 
      mkdir pscf
      cd pscf
      mkdir build
 
-The source code will be placed in another subdirectory of pscf/ which we will call git/ (for repository).
+The cmake/ directory will be used as the build directory. The source 
+code will be placed in another subdirectory of pscf/, which we will 
+call git/, since it contains the contents of the git repository.
 
-The source code for pscf is stored in a repository on the github.com server, at:
+The source code for pscf is stored in a repository on the github.com 
+server, at: 
 
       https://github.com/dmorse/pscf
 
@@ -241,7 +224,7 @@ To download a zip file:
 
     * Point your browser at the pscf github repository.
 
-    * Click the button labelled "Download ZIP" near the upper right corner 
+    * Click the "Download ZIP" button near the upper right corner 
       of that web page. On Mac OS X and most linux systems, this will 
       create a subdirectory named pscf-master with your Downloads 
       directory.
