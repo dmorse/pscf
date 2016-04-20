@@ -31,6 +31,7 @@ import os
 extensions = [
     'sphinx.ext.mathjax',
 ]
+mathjax_path = 'http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -48,7 +49,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'PSCF'
-copyright = u'2016, David Morse'
+copyright = u'2016, Regents of the University of Minnesota'
 author = u'David Morse'
 
 # The version info for the project you're documenting, acts as replacement for

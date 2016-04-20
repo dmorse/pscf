@@ -9,31 +9,67 @@ THIS FILE IS A WORK IN PROGRESS
 Overview
 =========
 
-PSCF uses the same set of file formats to describe "omega" and "rho" 
-fields. In each of the allowed file formats, a single file contains 
-a description of set of "omega" and "rho" fields, each of which is 
-associated with a particular monomer type. We refer to such a set of
-fields in what follows as a multi-component field. 
+PSCF uses several file formats to describe fields, but uses the same 
+set of formats for both "omega" and "rho" fields. In each of the
+available file formats, for a system with with N_monomer monomer types, 
+a single file contains a description of N_monomer "omega" or "rho" 
+fields, each of which is associated with a monomer type. We refer 
+to such a set of N_monomer fields in what follows as a multi-component 
+field. 
 
-PSCF canr read, write and intercovert three different file formats 
-for multi-component fields. Each of these file formats which is based 
-on a different mathematical representation of a field, as:
+PSCF can read, write and intercovert three different file formats for 
+multi-component fields. These formats are based on different mathematical 
+representations of a field as, respectively:
 
     * Symmetry-adapted Fourier expansion
     * Coordinate space grid 
-    * Fourier space grid
+    * Fourier space grid (discrete Fourier transform)
 
-Each of these file formats and mathematical representations is discussed
-in more detail below.
+The symmetry-adaped Fourier expansion format is the default format that
+is used for the input omega field and the output omega and rho fields 
+by the ITERATE command. PSCF also provides a set of parameter file commands
+that can interconvert between any of these formats, by reading a file in 
+one format and writing an equivalent representation in another.  The 
+coordinate space grid format, which contains the values of all fields
+on regular grid of points within a unit cell, is useful as an input to
+external programs that can visualize a structure. 
 
-Symmetry Adapted Field Format
-=============================
+All three file formats
 
-The file format that is used by the ITERATE command for both input
-and output fields contains the coefficients of an expansion of each
-field in terms of basis functions that have the symmetry of the 
-space group.  Here is an example of a "rho" file output from a 
-simulation of a lamellar phase for a diblock copolymer melt:
+Symmetry Adapted Fourier Expansion
+==================================
+
+This default file format used by the ITERATE command is based on an
+expansion of each field as an expansion in terms of basis functions
+that exhibit the space group symmetry of the crystal.  
+Consider a system with N_monomer monomer types indexed by an integer 
+:math:`\alpha = 1, \ldots,` N_monomer. Let :math:`\phi_{\alpha}(\textbf{r})` 
+denote a field (e.g., a volume fraction) associated with monomer type 
+math:`\alpha` . We approximate the field :math:`\phi_{\alpha}` as an 
+expansion of the form
+
+.. math::
+
+    \phi_{\alpha}(\textbf{r}) = 
+    \sum_{i=1}^{\texttt{N_star}} c_{i\alpha} f_{i}(\textbf{r})
+
+in which :math:`\texttt{N_star}` is the number of basis functions used 
+in the expansion, and in which each function :math:`f_{i}(\textbf{r})` 
+is a basis function. In the symmetry-adapated Fourier expansion for
+fields with a specified space group symmetry, every basis function 
+is a real function that is invariant under all elements of the chosen 
+space group, and is also an eigenfunction of the Laplacian, such that
+
+.. math::
+
+   -\nabla^{2}f_{i}(\textbf{r}) = \lambda_{i} f_{i}(\textbf{r})
+
+for some $\lambda_{i} \geq 0$.
+
+The corresponding file format for multicomponent fields contains
+contains the coefficients of the above expansion.  Here is an 
+example of a "rho" file output from a simulation of a lamellar 
+phase for a diblock copolymer melt:
 
 ::
 
@@ -75,9 +111,10 @@ simulation of a lamellar phase for a diblock copolymer melt:
     -1.475930488937E-13 -4.916067553040E-14      20     1
 
 
-This file format contains a header, which has a format similar to 
-that of the parameter file, followed by a section that contains 
-coefficients of basis functions that are used to expand the field.
+This first part of the field is a header is header with a format 
+similar to that of the parameter file. This is followed by a 
+section that contains N_star coefficients of basis functions that are 
+used to expand the field.
 
 The first line in the header simply specifies a number for the file 
 format being used (file format v1.0). The remaining several lines of 
