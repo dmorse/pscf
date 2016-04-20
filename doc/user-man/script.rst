@@ -218,7 +218,7 @@ or more of the statistical segment lengths is set to unity.
 
 
 SCFT also leaves the user some freedom to redefine what he or 
-she means by a ``monomer", which need not correspond to a chemical
+she means by a "monomer", which need not correspond to a chemical
 repeat unit.  The choice of values of the parameters block_length, 
 solvent_size, kuhn, and chi to represent a particular experimental
 system all depend on the choice of a value for a reference volume 
@@ -523,7 +523,7 @@ ITERATE
 The ITERATE command causes the program to read in an input omega file
 and attempts to iteratively solve the SCFT equations for one set of 
 input parameters. The name of the input file is given by concatenating
-the input_prefix and the string `omega'. This section must precede any
+the input_prefix and the string 'omega'. This section must precede any
 SWEEP or RESPONSE section.
 
   ========= ============= =====================================================

@@ -10,7 +10,7 @@ X and a .deb or .rpm package for different variants of linux.  This information
 is not relevant to most users, and is provided primarily for core developers. 
 
 The first step in creating a package, for any operating system, is to follow the 
-instruction given on the page about :ref:`compile-cmake-sec` for installing 
+instruction given on the page about :ref:`install-compile-cmake-sec` for installing 
 dependencies and obtaining the source code. The remaining instructions given 
 here assume that the dependencies are already installed, and that a copy of the
 source code has been installed within the directory structure described in the
@@ -32,9 +32,12 @@ source code in a repository named git/, one must:
 
           > make -j 4
           > make package
+          > make package
 
-This should create an installer file named pscf<version>.dmg in the pscf/cmake 
-directory.
+The instruction to run "make package" twice is not a type: This appears to be 
+necessary to get the packaging utility to install all of the shared libraries
+correctly.  This procedure should create an installer file with a name of the
+form pscf<version>-Darwin.dmg in the pscf/cmake directory.
 
 Linux (Fedora or Ubuntu)
 ------------------------
@@ -53,12 +56,14 @@ On a linux system, one must:
           > make install
           > make package
 
-The above sequence of commands installs the software in subdirectories of 
-the root pscf/ directory named bin/, lib/ and share/. The "make package"
+The "make install" command will install the software in the users pscf/
+directory, in subdirectories named bin/, lib/ and share/. The "make package"
 command should then create either a file named pscf<version>-linux.rpm, 
-if pscf is built on a system such as Fedora that uses redhat packaging 
-manager (rpm) package files, or a file named pscf<version>-linux.deb if 
-built on a system such as Ubuntu that uses .deb files.
+if the procedure is performed on a system such as Fedora that uses redhat 
+package manager (rpm) files, or a file named pscf<version>-linux.deb if 
+built on a system such as Ubuntu that uses .deb files. RPM packages can
+only be built on systems that use .rpm and .deb packages on systems that
+use .deb files.
 
 On a system that uses .rpm files, to check the RPM for detailed 
 information (Metadata, Dependencies, and File Contents), enter::

@@ -45,7 +45,7 @@ that exhibit the space group symmetry of the crystal.
 Consider a system with N_monomer monomer types indexed by an integer 
 :math:`\alpha = 1, \ldots,` N_monomer. Let :math:`\phi_{\alpha}(\textbf{r})` 
 denote a field (e.g., a volume fraction) associated with monomer type 
-math:`\alpha` . We approximate the field :math:`\phi_{\alpha}` as an 
+:math:`\alpha` . We approximate the field :math:`\phi_{\alpha}` as an 
 expansion of the form
 
 .. math::
@@ -53,18 +53,28 @@ expansion of the form
     \phi_{\alpha}(\textbf{r}) = 
     \sum_{i=1}^{\texttt{N_star}} c_{i\alpha} f_{i}(\textbf{r})
 
-in which :math:`\texttt{N_star}` is the number of basis functions used 
-in the expansion, and in which each function :math:`f_{i}(\textbf{r})` 
-is a basis function. In the symmetry-adapated Fourier expansion for
-fields with a specified space group symmetry, every basis function 
-is a real function that is invariant under all elements of the chosen 
-space group, and is also an eigenfunction of the Laplacian, such that
+in which each function :math:`f_{i}(\textbf{r})` is a basis function,
+and :math:`\texttt{N_star}` is the number of basis functions used to
+approximate the field. In a symmetry-adapted Fourier expansion of a
+a real field with a specified space group symmetry, every basis 
+function :math:`f_{i}(\textbf{r})` is a real function that is 
+invariant under every symmetry element of the chosen space group, 
+and is also an eigenfunction of the Laplacian, such that
 
 .. math::
 
    -\nabla^{2}f_{i}(\textbf{r}) = \lambda_{i} f_{i}(\textbf{r})
 
-for some $\lambda_{i} \geq 0$.
+for some :math:`\lambda_{i} \geq 0`. The basis functions form 
+an orthogonal basis, which are normalized such that
+
+.. math::
+
+   \frac{1}{V} \int \! d^{D}r \; f_{i}(\textbf{r}) f_{j}(\textbf{r}) = \delta_{ij}
+
+where the integral is taken over one unit cell of a periodic
+structure in D-dimensional space and :math:`V` is the generalized
+volume (length, area or volume) of the unit cell.
 
 The corresponding file format for multicomponent fields contains
 contains the coefficients of the above expansion.  Here is an 
@@ -111,30 +121,28 @@ phase for a diblock copolymer melt:
     -1.475930488937E-13 -4.916067553040E-14      20     1
 
 
-This first part of the field is a header is header with a format 
-similar to that of the parameter file. This is followed by a 
-section that contains N_star coefficients of basis functions that are 
-used to expand the field.
+This first part of the field is a header is header that ends with the
+parameter N_star, which is the number of basis functions. This is 
+followed by a data section that contains the coefficients of the 
+symmetry-adapted Fourier expansion described above.
 
-The first line in the header simply specifies a number for the file 
-format being used (file format v1.0). The remaining several lines of 
-the header contain information about the crystal structure that is 
-required to interpret the field file (i.e., the dimensionality of 
-the periodicity, the crystal system, the unit cell parameters, and 
-the space group). The above example is for a lamellar structure with 
-inversion symmetry (space group -1). This followed by the number 
-N_monomer of different monomer types, and the number N_star of basis 
+The structure of the header is similar to that of the parameter file.
+The first line specifies a file format version number (file format v1.0). 
+The rest of the header contains information that is required to interpret 
+the field file, including the dimensionality of the structure, the 
+crystal system, the unit cell parameters, the space group, the number
+of monomer types, and the number of basis functions, denoted here by
+N_star. The above example is for a lamellar structure with inversion 
+symmetry (space group -1). This followed by the number N_monomer of 
+different monomer types, and the number N_star of basis 
 functions (or "stars") used to expand the solution.
 
-The actually fields are specified after this header in N_monomer
-columns of coefficients of symmetry-adapted basis functions. 
-Each of the first N_monomer columns in the remainder of the file
-contains the coefficients of symmetry adapted basis functions in
-the expansion of a field component (in this case, a volume fraction 
-field) for one monomer type. The first column is thus a list of
-coefficients of basis functions for the volume fraction of monomer
-type 1, and the second column a corresponding list for monomer 
-type 2. 
+The data section contains N_star rows, each of which contains the
+coefficients associated with one basis function. The first N_monomer
+columns of row i contain the coefficients associated with different
+monomer types. The coefficient :math:`c_{i\alpha}` associated with
+basis function :math`i` and monomer type :math:`\alpha` is thus given
+in column :math`\alpha` of row i of this data section.
 
 Each symmetry adapted basis function is a real function with the 
 space group symmetry specified in the file header, and is constructed 
@@ -216,19 +224,6 @@ construction by constructing two different superpositions
 of "stars" that are related to one another by inversion. Our
 conventions used for doing this are described best in the 
 comments in the source code. 
- 
-The fact that this file format makes use of an expansion
-in symmetry-adapted basis functions does not imply that 
-this is how fields are represented throughout the program. 
-The representation in terms of symmetry-adapted basis
-functions is used only for file IO, and for iteration of
-the solutions, in order to construct field updates that 
-preserve the imposed symmetry by construction.  Within 
-the inner loop of the pseudospectral algorithm that is
-used to solve the modified diffusion equation, however, 
-fields are stored on an regular FFT grid, in terms of 
-either values at grid points or coefficients of plane 
-waves, with no explicitly imposed symmetry. 
  
 In order to visualize the fields, it is generally necessary
 to run the program using a parameter file with a section header 
