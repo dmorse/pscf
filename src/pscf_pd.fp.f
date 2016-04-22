@@ -207,7 +207,19 @@ program pscf_pd
       ! Echo to stdout
       write(6,*)
       call output(trim(op_string),f="N",j="L",o=6)
- 
+
+      // Print any deferred output from preceding ITERATE command
+      if (output_flag)
+         if (trim(op_string) == "SWEEP") then
+            call output_summary(trim(output_prefix)//'0.')
+            call output_fields(trim(output_prefix)//'0.')
+         else 
+            call output_summary(output_prefix)
+            call output_fields(output_prefix)
+         endif
+         output_flag = .FALSE.
+      endif
+
       select case(trim(op_string))
  
       case ("CHEMISTRY")
@@ -523,8 +535,8 @@ program pscf_pd
 
          endif        
 
-         ! Defer output to SWEEP, RESPONSE, or FINISH operation
-         ! If output by SWEEP, '0.' will be added to output_prefix
+         ! Defer output to beginning of next operation 
+         ! If next operation is SWEEP, '0.' will be added to output_prefix
          output_flag = .TRUE.
       
          call cpu_time(scf_time)
@@ -551,11 +563,11 @@ program pscf_pd
          call input_increments(5,'N',domain) ! see sweep_mod
         
          ! Output from first iteration, add '0.' to output_prefix
-         if (output_flag) then
-            call output_summary(trim(output_prefix)//'0.')
-            call output_fields(trim(output_prefix)//'0.')
-            output_flag = .FALSE.
-         endif
+         !if (output_flag) then
+         !   call output_summary(trim(output_prefix)//'0.')
+         !   call output_fields(trim(output_prefix)//'0.')
+         !   output_flag = .FALSE.
+         !endif
  
          ! Initialize contour variable s = 0.0 -> s_max
          s = 0.0_long
@@ -660,7 +672,7 @@ program pscf_pd
    
             else if (step_unit > ( (1.0/16.0) + 0.001 ) ) then
    
-               ! Backtrack to previous chemistry
+               ! Backtrack to previous state point
                s = s - step
                call increment_parameters(-step,domain,cell_param)
     
@@ -700,11 +712,11 @@ program pscf_pd
          end if
 
          ! Deferred output from ITERATE, if necessary
-         if (output_flag) then
-            call output_summary(output_prefix)
-            call output_fields(output_prefix)
-            output_flag = .FALSE.
-         endif
+         !if (output_flag) then
+         !   call output_summary(output_prefix)
+         !   call output_fields(output_prefix)
+         !   output_flag = .FALSE.
+         !endif
 
          call response_startup(Ngrid, chain_step, order=1)
          call response_sweep(Ngrid, output_prefix)
@@ -757,11 +769,11 @@ program pscf_pd
          end if
  
          ! Deferred output from ITERATE, if necessary
-         if (output_flag) then
-            call output_summary(output_prefix)
-            call output_fields(output_prefix)
-            output_flag = .FALSE.
-         endif
+         !if (output_flag) then
+         !   call output_summary(output_prefix)
+         !   call output_fields(output_prefix)
+         !   output_flag = .FALSE.
+         !endif
 
          ! Read input and output file names from input script
          call input(input_filename,'input_filename')
@@ -973,11 +985,11 @@ program pscf_pd
       case ('FINISH')
 
          ! Deferred output of ITERATE, if necessary
-         if (output_flag) then
-            call output_summary(output_prefix)
-            call output_fields(output_prefix)
-            output_flag = .FALSE.
-         endif
+         !if (output_flag) then
+         !   call output_summary(output_prefix)
+         !   call output_fields(output_prefix)
+         !   output_flag = .FALSE.
+         !endif
 
          ! Stop execution
          exit op_loop
@@ -1024,7 +1036,7 @@ contains ! internal subroutines of program pscf_pd
    use scf_mod, only       : free_energy_FH
    character(*) :: prefix
 
-   real(long)   :: f_homo  ! FH free energy, kT / monomer
+   real(long) :: f_homo  ! FH free energy, kT / monomer
 
    open(file=trim(prefix)//'out',unit=out_unit,status='replace')
    call set_io_units(o=out_unit)
@@ -1085,19 +1097,21 @@ contains ! internal subroutines of program pscf_pd
    end if
    if (iterate_flag) then
       write(out_unit,*)
+      call output(trim(input_filename), 'input_filename')
+      call output(trim(output_prefix),'output_prefix')
       call output('ITERATE',f='N',j='L')
       call output_iterate_param
    end if
-   if (sweep_flag) then
-      write(out_unit,*)
-      call output('SWEEP',f='N',j='L')
-      call output(s_max,'s_max')
-      call output_increments(out_unit,'N',domain)
-   end if
+   ! if (sweep_flag) then
+   !    write(out_unit,*)
+   !    call output('SWEEP',f='N',j='L')
+   !    call output(s_max,'s_max')
+   !    call output_increments(out_unit,'N',domain)
+   ! end if
    write(out_unit,*)
    call output('FINISH',f='N',j='L')
 
-   ! End output of input script, begin additional information
+   ! End input script section, begin additional information
 
    ! Thermodynamics 
    write(out_unit,*)
