@@ -22,7 +22,7 @@ To compile the code in this way, proceed as follows:
 
    * To compile, enter::
 
-        > make pscf
+        > make all
 
      from within src/make.
 

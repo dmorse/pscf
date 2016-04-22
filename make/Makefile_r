@@ -26,8 +26,8 @@ EXE=pscf
 # Note: High optimization setting (FAST) is used for every file 
 # except the space_groups_mod.f, which is compiled with no 
 # optimiztion (NOPT). This is because space_groups_mod.f is a
-# very long file that can take a long time to compile, but takes
-# that requires very little run time.
+# very long file that can take a long time to compile, but that
+# requires very little run time.
 
 # Gnu Compiler Collection (gcc) - gfortran
 F90=gfortran
@@ -80,7 +80,10 @@ DEVEL=
 
 # ====== Main Program ==========================================
 
-pscf:	pscf_pd.o\
+all:
+	make $(BIN)/$(EXE)
+
+$(BIN)/$(EXE):	pscf_pd.o\
 	const_mod.o string_mod.o io_mod.o version_mod.o field_io_mod.o\
 	unit_cell_mod.o group_mod.o space_groups_mod.o basis_mod.o\
 	chemistry_mod.o scf_mod.o iterate_mod.o sweep_mod.o\

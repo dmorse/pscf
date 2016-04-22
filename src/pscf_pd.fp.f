@@ -7,39 +7,39 @@
 ! This program is free software; you can redistribute it and/or modify
 ! it under the terms of the GNU General Public License as published by
 ! the Free Software Foundation. A copy of this license is included in
-! the LICENSE file in the top-level PSCF directory. 
+! the LICENSE file in the top-level PSCF directory.
 !----------------------------------------------------------------------
 !****e scf/pscf_pd
 ! PROGRAM
 !   pscf_pd
 ! PURPOSE
-!   Main program for polymer self-consistent field theory (PSCF) for 
-!   spatially periodic (PD) microstructures. The program can treat 
-!   incompressible mixtures of any number of linear multiblock 
+!   Main program for polymer self-consistent field theory (PSCF) for
+!   spatially periodic (PD) microstructures. The program can treat
+!   incompressible mixtures of any number of linear multiblock
 !   copolymers, linear homopolymers, and small molecule solvents.
 !
 !   This program contains a main loop that reads an input script from
 !   standard input. The loop, and the operation of the program, ends
-!   when a line containing the word FINISH is encountered. The manual 
+!   when a line containing the word FINISH is encountered. The manual
 !   contains detailed description of the format of this script, but a
 !   brief description is also given here:
-!   
+!
 !   Input Script Format:
-!   The first line of the input script must be of the "format i j", in 
-!   which i and j are major and minor version numbers for the input 
-!   script file format (e.g., "format 1 0" for v1.0). The rest of the 
+!   The first line of the input script must be of the "format i j", in
+!   which i and j are major and minor version numbers for the input
+!   script file format (e.g., "format 1 0" for v1.0). The rest of the
 !   input script consists of a series of blocks of input data. Each
-!   block begins with a blank line followed by a line containing a 
-!   capitalized operation flag (op_flag) string, such as 'CHEMISTRY', 
-!   'UNIT_CELL', 'DISCRETIZATION', 'ITERATION', etc.  The remainder 
-!   of each block (if any) is a series of variable values. Each 
-!   variable is preceded by a comment line containing the name of 
+!   block begins with a blank line followed by a line containing a
+!   capitalized operation flag (op_flag) string, such as 'CHEMISTRY',
+!   'UNIT_CELL', 'DISCRETIZATION', 'ITERATION', etc.  The remainder
+!   of each block (if any) is a series of variable values. Each
+!   variable is preceded by a comment line containing the name of
 !   the variable, as used in the program. One and two-dimensional
 !   array variables may be input in any of several formats (e.g., all
 !   values on a single line, or on multiple lines). See the manual
-!   for the format of such variables.  Some operation flags, such 
-!   as 'ITERATE' and 'SWEEP', trigger an action, beyond reading in 
-!   variables. Reading of the script, and the program, ends when the 
+!   for the format of such variables.  Some operation flags, such
+!   as 'ITERATE' and 'SWEEP', trigger an action, beyond reading in
+!   variables. Reading of the script, and the program, ends when the
 !   'FINISH' flag is encountered.
 !
 !   Within each block, input variables are read using the input()
@@ -48,13 +48,13 @@
 !   character, or boolean data. The main program uses the comment
 !   style 'A' (for 'Above') of io_mod, in which the value of each
 !   input variable is preceded by a line containing the name of
-!   the variable. Within each block, variables must appear in a 
+!   the variable. Within each block, variables must appear in a
 !   predetetermined format.  The required format is documented in
 !   the manual, and in example scripts provided with the program.
 !   All data is read using the fortran read(5,*) format, so that
-!   the data format and use of white space is flexible, as long 
-!   as each data value is of the expected data type. 
-!     
+!   the data format and use of white space is flexible, as long
+!   as each data value is of the expected data type.
+!
 ! SOURCE
 !----------------------------------------------------------------------
 program pscf_pd
@@ -76,7 +76,7 @@ program pscf_pd
    use grid_mod,      only : ngrid, input_grid, allocate_grid, make_ksq
    use basis_mod,     only : N_wave, N_star, group, &
                              make_basis, output_waves, release_basis
-   
+
    use fft_mod,        only : fft_plan, create_fft_plan, fft, ifft
 
    use grid_basis_mod
@@ -84,7 +84,7 @@ program pscf_pd
    use scf_mod,       only : density_startup, density
    use iterate_mod,   only : input_iterate_param, output_iterate_param, itr_algo, &
                              iterate_NR_startup, iterate_AM_startup, iterate_NR, iterate_AM, domain
-   use sweep_mod 
+   use sweep_mod
    use response_mod,  only : response_startup, response_sweep
    !# ifdef COMMENTS
    use spinodal_mod
@@ -96,12 +96,12 @@ program pscf_pd
    type(fft_plan)  :: plan
 
    ! SCFT variables
-   real(long)      :: omega(:,:)      ! chemical potential field 
+   real(long)      :: omega(:,:)      ! chemical potential field
                                       ! omega(monomer,basis function)
    real(long)      :: rho(:,:)        ! monomer density field
                                       ! rho(monomer,basis function)
-   real(long)      :: f_Helmholtz     ! free energy, units kT / monomer 
-   real(long)      :: pressure        ! pressure * V_monomer / kT 
+   real(long)      :: f_Helmholtz     ! free energy, units kT / monomer
+   real(long)      :: pressure        ! pressure * V_monomer / kT
    real(long)      :: stress(:)       ! d(f_Helmholtz)/d(cell_param)
    !# ifdef DEVEL
    real(long)      :: f_component(4)  !
@@ -150,7 +150,7 @@ program pscf_pd
    real(long)      :: s_max           ! maximum value of variable s
    real(long)      :: s               ! continuation variable
    real(long)      :: step            ! actual step size
-   real(long)      :: step_unit       ! unit step size 
+   real(long)      :: step_unit       ! unit step size
 
    ! Operation selection string from input script
    character(60)   :: op_string      ! Operation selection string
@@ -198,61 +198,56 @@ program pscf_pd
    call output_version(version, 6)
 
    ! Main operation loop - infinite loop
-   op_loop : do 
- 
-      ! Read operation string from stdin 
+   op_loop : do
+
+      ! Read operation string from stdin
       read(5,*)
       read(5,*) op_string
- 
+
       ! Echo to stdout
       write(6,*)
       call output(trim(op_string),f="N",j="L",o=6)
 
-      // Print any deferred output from preceding ITERATE command
-      if (output_flag)
+      ! Print any deferred output from preceding ITERATE command
+      if (output_flag) then
          if (trim(op_string) == "SWEEP") then
             call output_summary(trim(output_prefix)//'0.')
             call output_fields(trim(output_prefix)//'0.')
-         else 
+         else
             call output_summary(output_prefix)
             call output_fields(output_prefix)
-         endif
+         end if
          output_flag = .FALSE.
       endif
 
       select case(trim(op_string))
- 
-      case ("CHEMISTRY")
-
-         ! Input old format for chemistry, in which information about
-         ! monomers, chains, solvents, composition, and interaction 
-         ! are in one large block. Included temporarily for backwards 
-         ! compatability. 
-         monomer_flag     = .TRUE.
-         chain_flag       = .TRUE.
-         solvent_flag     = .TRUE.
-         composition_flag = .TRUE.
-         interaction_flag = .TRUE.
- 
-         ! Read chemistry data from stdin ( see chemistry_mod )
-         call input_chemistry(5,'F')  
 
       case ("MONOMERS")
 
         ! Input N_monomer and kuhn array
         ! See chemistry_mod and users manual
- 
+
+         ! Preconditions
+         if (monomer_flag) then
+            write(6,*) "Error: MONOMERS can only be read once"
+            exit op_loop
+         end if
+
          monomer_flag = .TRUE.
          call input_monomers(5,'F')
 
       case ("CHAINS")
- 
+
         ! Input N_chains, block_monomer, block_length
         ! See chemistry_mod and users manual
- 
+
          ! Check preconditions (must know N_monomer first)
+         if (chain_flag) then
+            write(6,*) "Error: CHAINS can only be read once"
+            exit op_loop
+         end if
          if (.not.monomer_flag) then
-            write(6,*) "Error: Must read MONOMERS before CHAINS" 
+            write(6,*) "Error: Must read MONOMERS before CHAINS"
             exit op_loop
          end if
 
@@ -260,46 +255,57 @@ program pscf_pd
          call input_chains(5,'F')
 
       case ("SOLVENTS")
- 
+
         ! Input N_solvents, solvent_monomer, solvent_size
         ! See chemistry_mod and users manual
- 
+
          ! Check preconditions (must know N_monomer first)
+         if (solvent_flag) then
+            write(6,*) "Error: SOLVENTS can only be read once"
+            exit op_loop
+         end if
          if (.not.monomer_flag) then
             write(6,*) "Error: Must read MONOMERS before SOLVENTS"
             exit op_loop
          end if
+         if (composition_flag) then
+            write(6,*) "Error: Cannot read SOLVENTS after COMPOSITION"
+            exit op_loop
+         end if
          solvent_flag  = .TRUE.
+
          call input_solvents(5,'F')
 
       case ("COMPOSITION")
- 
+
         ! Input ensemble, phi_chain and phi_solvent, or mu_chain and mu_solvent
         ! See chemistry_mod and users manual
 
          ! Check preconditions (must know N_chain and N_solvent first)
-         if ( .not. (chain_flag .OR. solvent_flag) ) then
+         if ( .not. chain_flag ) then
             write(6,*) &
-            "Error: Must read CHAINS and/or SOLVENTS before COMPOSITION"
+            "Error: Must read CHAINS before COMPOSITION"
             exit op_loop
          end if
+         iterate_flag = .FALSE.
          composition_flag = .TRUE.
 
          call input_composition(5,'F')
 
       case ("INTERACTION")
 
-        ! Input Flory-Huggins chi interaction parameters.
-        ! Input interaction_type and:
-        !    chi (if interaction_type = 'chi'), or
-        !    chi_a, chi_b, & temperature (if interaction_type = 'chi_T')
-        ! See chemistry_mod and users manual
+         ! Input Flory-Huggins chi interaction parameters.
+         ! Input interaction_type and:
+         !    chi (if interaction_type = 'chi'), or
+         !    chi_a, chi_b, & temperature (if interaction_type = 'chi_T')
+         ! See chemistry_mod and users manual
 
          ! Check preconditions (must know N_monomer first)
          if (.not.monomer_flag) then
             write(6,*) "Error: Must read MONOMERS before INTERACTION"
             exit op_loop
          end if
+         iterate_flag = .FALSE.
          interaction_flag = .TRUE.
 
          call input_interaction(5,'F')
@@ -323,28 +329,37 @@ program pscf_pd
       !   rpa_time = rpa_time - start_time
       !   call output(rpa_time,'rpa_time',o=6)
       !# endif
- 
+
       case ('UNIT_CELL')
- 
+
+         ! Check preconditions
+         if (unit_cell_flag) then
+            write(6,*) "Error: UNIT_CELL can only be read once"
+            exit op_loop
+         end if
          unit_cell_flag = .TRUE.
- 
+
          ! Read unit cell parameters (see unit_cell_mod)
-         call input_unit_cell(5,'F')       
-         allocate(grid_size(dim)) 
+         call input_unit_cell(5,'F')
+         allocate(grid_size(dim))
 
          ! Construct initial unit cell (see unit_cell_mod)
-         call make_unit_cell 
- 
+         call make_unit_cell
+
       case ('DISCRETIZATION')
 
          ! Read spatial and contour length discretization of PDE
 
          ! Check preconditions (Needs N_monomer and unit_cell parameters)
+         if (discretize_flag) then
+            write(6,*) "Error: DISCRETIZATION can only be read once"
+            exit op_loop
+         end if
          if (.not.monomer_flag) then
             write(6,*) "Error: Must read MONOMERS before DISCRETIZATION"
             exit op_loop
          else if ( .not. unit_cell_flag ) then
-            write(6,*) "Error: Must make UNIT_CELL before DISCRETIZATION"
+            write(6,*) "Error: Must read UNIT_CELL before DISCRETIZATION"
             exit op_loop
          end if
          discretize_flag = .TRUE.
@@ -352,121 +367,118 @@ program pscf_pd
          ! Input ngrid = number of points in FFT grid in each direction
          call input_grid
          call allocate_grid(N_monomer)
- 
+
          !call input(extr_order,'extr_order')
          extr_order = 1
          call input(chain_step,'chain_step')
- 
-!!      case ('FILE_PREFIXES')
-!!
-!!         ! Input prefixes used to contruct input and output file names.
-!!         ! Prefixes can include directories paths, if they end with a
-!!         ! trailing directory separator '/'. The input omega file name 
-!!         ! is constructed by appending 'omega' to input_prefix. Output
-!!         ! file names are constructed by appending 'out', 'rho' and
-!!         ! 'omega' to output_prefix. 
-!!
-!!         prefix_flag = .TRUE.
-!!         call input(input_prefix, 'input_prefix')  ! input  file prefix
-!!         call input(output_prefix,'output_prefix') ! output file prefix
- 
+
       case ('BASIS')
 
          ! Construct symmetry-adapated basis functions. See basis_mod
 
          ! Check preconditions (needs unit cell and grid)
-         if ( .not. unit_cell_flag ) then
-            write(6,*) "Error: Must make UNIT_CELL before BASIS"
+         if (basis_flag) then
+            write(6,*) "Error: BASIS can only be read once"
+            exit op_loop
+         end if
+         if (.not. unit_cell_flag) then
+            write(6,*) "Error: Must read UNIT_CELL before BASIS"
             exit op_loop
          else if (.not.discretize_flag) then
-            write(6,*) "Error: Must make DISCRETIZATION before BASIS"
+            write(6,*) "Error: Must read DISCRETIZATION before BASIS"
             exit op_loop
          end if
          basis_flag = .TRUE.
- 
+
          ! Read name of space group used to construct basis functions.
-         ! The string group_name can be a space group symbol, a space 
-         ! group number, or the name of a file containing the elements 
+         ! The string group_name can be a space group symbol, a space
+         ! group number, or the name of a file containing the elements
          ! of the group. See space_groups in module space_group_mod.
          call input(group_name,'group_name')
- 
+
          ! Construct basis functions (see basis_mod)
          call make_basis(R_basis,G_basis,group_name,ngrid,grid_flag=.TRUE.)
- 
+
          ! Output N_star (# of symmetrized basis functions) to stdout
          call output(N_star,'N_star',o=6)
-      
+
          ! Allocate omega, rho, stress (internal routine)
-         call allocate_scf_arrays             
-      
+         call allocate_scf_arrays
+
       case ('RESCALE')
- 
-         ! Rescale monomer reference volume. Change values of kuhn, 
+
+         ! Rescale monomer reference volume. Change values of kuhn,
          ! chi, block_length, and solvent_size parameter arrays, and
-         ! the omega field, to obtain an equivalent set of parameters 
+         ! the omega field, to obtain an equivalent set of parameters
          ! and fields.
- 
+
+         ! Check preconditions
+         if (.not.composition_flag) then
+            write(6,*) "Error: Must read COMPOSITION before RESCALE"
+            exit op_loop
+         else if (.not.interaction_flag) then
+            write(6,*) "Error: Must read INTERACTION before RESCALE"
+            exit op_loop
+         else if (.not.unit_cell_flag) then
+            write(6,*) "Error: Must read UNIT_CELL before RESCALE"
+            exit op_loop
+         else if (.not.discretize_flag) then
+            write(6,*) "Error: Must read DISCRETIZATION before RESCALE"
+            exit op_loop
+         else if (.not.basis_flag) then
+            write(6,*) "Error: Must read BASIS before RESCALE"
+            exit op_loop
+         end if
+
          ! If omega field has not been read previously, read it now
          if (.not.omega_flag) then
 
-            ! Check preconditions for reading omega
-            if (.not.basis_flag) then
-               write(6,*) "Error: Must make BASIS before RESCALE"
-               exit op_loop
-            else if ( .not.prefix_flag ) then
-               write(6,*) &
-                  "Error: Must provide FILE_PREFIXES before RESCALE"
-               exit op_loop
-            end if
-
             ! Read omega
-            open(unit=field_unit,file=trim(input_prefix)//'omega',&
-                              status='old',iostat=ierr)
+            call input(input_filename, 'input_filename')  ! input  file prefix
+            open(unit=field_unit,file=trim(input_filename), status='old', iostat=ierr)
             if (ierr/=0) stop "Error while opening omega file"
-            call input_field(omega,field_unit)
+            call input_field(omega, field_unit)
             close(field_unit)
             omega_flag = .TRUE.
+            iterate_flag = .FALSE.
 
          end if
- 
+
          ! Read in scale factor: vref -> vref/vref_scale
          call input(vref_scale,'vref_scale')
 
-         ! Rescale kuhn, chi, block_length, solvent_size 
+         ! Rescale kuhn, chi, block_length, solvent_size
          ! See chemistry_mod
          call rescale_vref(vref_scale)
 
          ! Rescale omega field
          omega = omega/vref_scale
- 
+
       case ('ITERATE')
 
          ! Iterate to convergence for one set of parameters
          ! See iterate_mod
          ! Check preconditions
          if (.not.composition_flag) then
-            write(6,*) "Error: Must read COMPOSITION before ITERATION"
+            write(6,*) "Error: Must read COMPOSITION before ITERATE"
             exit op_loop
          else if (.not.interaction_flag) then
-            write(6,*) "Error: Must read INTERACTION before ITERATION"
+            write(6,*) "Error: Must read INTERACTION before ITERATE"
             exit op_loop
          else if (.not.unit_cell_flag) then
-            write(6,*) "Error: Must make UNIT_CELL before ITERATION"
+            write(6,*) "Error: Must read UNIT_CELL before ITERATE"
             exit op_loop
          else if (.not.discretize_flag) then
-            write(6,*) "Error: Must make DISCRETIZATION before ITERATION"
+            write(6,*) "Error: Must read DISCRETIZATION before ITERATE"
             exit op_loop
          else if (.not.basis_flag) then
-            write(6,*) "Error: Must make BASIS before ITERATION"
+            write(6,*) "Error: Must read BASIS before ITERATE"
             exit op_loop
          end if
 
-         ! Read input filename and output file prefix
-         call input(input_filename, 'input_filename')  ! input  file prefix
-         call input(output_prefix,'output_prefix') ! output file prefix
-
          ! Read omega file, if not read previously
          if (.not.omega_flag) then
+            call input(input_filename, 'input_filename')  ! input  file prefix
             open(unit=field_unit,file=trim(input_filename),&
                               status='old',iostat=ierr)
             if (ierr/=0) stop "Error while opening omega source file."
@@ -474,16 +486,17 @@ program pscf_pd
             close(field_unit)
             omega_flag = .TRUE.
          end if
-        
+         call input(output_prefix,'output_prefix') ! output file prefix
+
          iterate_flag = .TRUE.
- 
+
          call cpu_time(basis_time)
          basis_time = basis_time - start_time
          call cpu_time(start_time)
- 
+
          ! Read parameters for iteration
          call input_iterate_param
- 
+
          ! Allocate and initialize chain objects used in scf_mod
          ! Create fft_plan, which is saved in scf_mod as public variable
          call density_startup(ngrid,extr_order,chain_step,&
@@ -493,7 +506,7 @@ program pscf_pd
 
              ! Allocate private arrays for Newton-Raphson iteration
              call iterate_NR_startup(N_star)
-    
+
              write(6,FMT = "( / '************************************' / )" )
              ! Main Newton-Raphson iteration loop
              call iterate_NR(      &
@@ -516,7 +529,7 @@ program pscf_pd
 
              ! Allocate private arrays for Anderson-Mixing iteration
              call iterate_AM_startup(N_star)
-    
+
              call iterate_AM(      &
                       N_star,      &! # of basis functions
                       omega,       &! chemical potential field (IN/OUT)
@@ -533,20 +546,20 @@ program pscf_pd
                       stress       &! d(free energy)/d(cell parameters)
                            )
 
-         endif        
+         endif
 
-         ! Defer output to beginning of next operation 
+         ! Defer output to beginning of next operation
          ! If next operation is SWEEP, '0.' will be added to output_prefix
          output_flag = .TRUE.
-      
+
          call cpu_time(scf_time)
          scf_time = scf_time - start_time
- 
+
       case ('SWEEP')
 
          ! Iterate to convergences for a sequence of sets of parameters.
          ! See sweep_mod.
- 
+
          ! Must be preceded by successful ITERATE for first solution.
          if (.not.iterate_flag) then
                  write(6,*) &
@@ -557,64 +570,57 @@ program pscf_pd
             exit op_loop
          end if
          sweep_flag = .TRUE.
- 
+
          ! Read parameters needed by sweep
-         call input(s_max,'s_max')           ! max(contour variable s)  
+         call input(s_max,'s_max')           ! max(contour variable s)
          call input_increments(5,'N',domain) ! see sweep_mod
-        
-         ! Output from first iteration, add '0.' to output_prefix
-         !if (output_flag) then
-         !   call output_summary(trim(output_prefix)//'0.')
-         !   call output_fields(trim(output_prefix)//'0.')
-         !   output_flag = .FALSE.
-         !endif
- 
+
          ! Initialize contour variable s = 0.0 -> s_max
          s = 0.0_long
-   
+
          ! Initialize history arrays
          call history_setup
          call update_history(s,omega,cell_param,domain)
-   
+
          ! Loop over sweep through parameters
          i         = 0
          step_unit = 1.0_long
-         sweep_loop : do 
-    
+         sweep_loop : do
+
             if (i == 0) then
                step = 0.1*step_unit
             else if (i == 1) then
                if (converge) then
                   step = 0.9*step_unit
-               else 
-                  step = step_unit - s 
+               else
+                  step = step_unit - s
                end if
             else if (i > 1) then
                step = step_unit
             end if
-   
+
             s = s + step
             call increment_parameters(step,domain,cell_param)
-   
+
             write(6, FMT = "('************************************'/ )" )
             write(6, FMT = "('s =',f10.4)" ) s
             call cpu_time(start_time)
-         
+
             ! 1st order continuation of omega and cell_param
             call continuation(step,domain,omega,cell_param)
-   
+
             ! Reconstruct unit cell
             ! if (domain) then
-               call make_unit_cell 
+               call make_unit_cell
                call make_ksq(G_basis)
             ! end if
- 
+
             ! Rebuild chains
             call density_startup(ngrid,extr_order,chain_step,&
                                  update_chain=.TRUE.)
- 
+
             ! Main iteration routine
-            if(itr_algo=='NR')then
+            if (itr_algo=='NR')then
 
                call iterate_NR( &
                    N_star,      &! # of basis functions
@@ -631,35 +637,36 @@ program pscf_pd
                    pressure,    &! pressure * monomer volume/kT
                    stress       &! d(free energy)/d(cell parameters)
                    )
-               
-           elseif(itr_algo=='AM')then
-    
-             call iterate_AM(      &
-                      N_star,      &! # of basis functions
-                      omega,       &! chemical potential field (IN/OUT)
-                      itr,         &! actual number of interations
-                      converge,    &! = .TRUE. if converged
-                      error,       &! final error = max(residuals)
-                      rho,         &! monomer density field
-                      f_Helmholtz, &! Helmholtz free energy per monomer/kT
-                      !# ifdef DEVEL
-                      f_component, &! free energy components
-                      overlap,     &! overlap integrals
-                      !# endif
-                      pressure,    &! pressure * monomer volume / kT
-                      stress       &! d(free energy)/d(cell parameters)
-                           )
-           endif
+
+            else if(itr_algo=='AM')then
+
+               call iterate_AM(      &
+                        N_star,      &! # of basis functions
+                        omega,       &! chemical potential field (IN/OUT)
+                        itr,         &! actual number of interations
+                        converge,    &! = .TRUE. if converged
+                        error,       &! final error = max(residuals)
+                        rho,         &! monomer density field
+                        f_Helmholtz, &! Helmholtz free energy per monomer/kT
+                        !# ifdef DEVEL
+                        f_component, &! free energy components
+                        overlap,     &! overlap integrals
+                        !# endif
+                        pressure,    &! pressure * monomer volume / kT
+                        stress       &! d(free energy)/d(cell parameters)
+                             )
+
+            end if
 
             if (converge) then
-   
+
                i = i + 1
                call update_history(s,omega,cell_param,domain)
-   
+
                call cpu_time(scf_time)
                scf_time = scf_time - start_time
-  
-               ! Output out, rho, and omega files if s is an integer 
+
+               ! Output out, rho, and omega files if s is an integer
                if ( abs(s-float(nint(s))) < 0.001_long ) then
                   j = nint(s)
                   ! Appending 'j.' to output_prefix in file names
@@ -669,32 +676,32 @@ program pscf_pd
                       trim(output_prefix)//trim(int_string(j))//'.' )
                end if
                write(6,*)
-   
+
             else if (step_unit > ( (1.0/16.0) + 0.001 ) ) then
-   
+
                ! Backtrack to previous state point
                s = s - step
                call increment_parameters(-step,domain,cell_param)
-    
+
                ! Halve step size
                step_unit = 0.5*step_unit
-    
+
                write(6, FMT="( / 'Backtrack and halve step_unit' / )" )
                cycle
-     
+
             else ! If not.converge and step_unit <= 1/16, stop.
-     
+
                write(6,*)
                write(6,*) 'Failed to converge - stop program'
                stop
-   
+
             end if
-   
+
             if ( (s + 0.001) >= s_max ) exit sweep_loop
-   
-         end do sweep_loop 
+
+         end do sweep_loop
          ! end loop over sweep through parameters
- 
+
       !# ifdef COMMENTS
       !case ('REPRESENTATION')
       !   call group_rep('rep.input')
@@ -710,17 +717,11 @@ program pscf_pd
             write(6,*) "Error: Must ITERATE before calculating RESPONSE"
             exit op_loop
          end if
-
-         ! Deferred output from ITERATE, if necessary
-         !if (output_flag) then
-         !   call output_summary(output_prefix)
-         !   call output_fields(output_prefix)
-         !   output_flag = .FALSE.
-         !endif
+         iterate_flag = .FALSE.
 
          call response_startup(Ngrid, chain_step, order=1)
          call response_sweep(Ngrid, output_prefix)
- 
+
          call release_basis()
          call make_basis(R_basis,G_basis,group_name,Ngrid,grid_flag=.TRUE.)
 
@@ -728,9 +729,12 @@ program pscf_pd
 
          ! Check preconditions (Needs group created in BASIS block)
          if (.not. basis_flag) then
-            write(6,*) "Error: Must make BASIS before OUTPUT GROUP"
+            write(6,*) "Error: Must read BASIS before OUTPUT_GROUP"
             exit op_loop
          end if
+         iterate_flag = .FALSE.
+         omega_flag = .FALSE.
+
          open(unit=field_unit, &
               file=trim(output_prefix)//'group',status='replace')
          call output_group(group,field_unit)
@@ -740,7 +744,7 @@ program pscf_pd
 
          ! Check preconditions (Needs BASIS)
          if (.not. basis_flag) then
-            write(6,*) "Error: Must make BASIS before OUTPUT WAVES"
+            write(6,*) "Error: Must read BASIS before OUTPUT_WAVES"
             exit op_loop
          end if
 
@@ -757,38 +761,32 @@ program pscf_pd
 
          ! Check preconditions for FIELD_TO_RGRID
          if ( .not. unit_cell_flag ) then
-            write(6,*) "Error: Must make UNIT_CELL before FIELD_TO_GRID"
+            write(6,*) "Error: Must read UNIT_CELL before FIELD_TO_GRID"
             exit op_loop
          else if (.not.discretize_flag) then
             write(6,*) &
-                  "Error: Must make DISCRETIZATION before FIELD_TO_GRID"
+                  "Error: Must read DISCRETIZATION before FIELD_TO_GRID"
             exit op_loop
          else if (.not.basis_flag) then
-            write(6,*) "Error: Must make BASIS before FIELD_TO_GRID"
+            write(6,*) "Error: Must read BASIS before FIELD_TO_GRID"
             exit op_loop
          end if
- 
-         ! Deferred output from ITERATE, if necessary
-         !if (output_flag) then
-         !   call output_summary(output_prefix)
-         !   call output_fields(output_prefix)
-         !   output_flag = .FALSE.
-         !endif
+         iterate_flag = .FALSE.
+         omega_flag = .FALSE.
 
          ! Read input and output file names from input script
          call input(input_filename,'input_filename')
          call input(output_filename,'output_filename')
-        
+
          ! Read field (coefficients of basis functions) from input_filename
          open(unit=field_unit,file=trim(input_filename),status='old')
          call input_field(rho,field_unit)
          close(field_unit)
- 
-         ! Write values of field on a grid to output_filename 
+
+         ! Write values of field on a grid to output_filename
          open(unit=field_unit,file=trim(output_filename),status='replace')
          call output_field_grid(rho,field_unit,group_name,ngrid)
          close(field_unit)
-
 
       case ('KGRID_TO_RGRID')
 
@@ -798,63 +796,64 @@ program pscf_pd
 
          ! Check preconditions for KGRID_TO_RGRID
          if ( .not. unit_cell_flag ) then
-            write(6,*) "Error: Must make UNIT_CELL before KGRID_TO_RGRID"
+            write(6,*) "Error: Must read UNIT_CELL before KGRID_TO_RGRID"
             exit op_loop
          else if (.not.discretize_flag) then
             write(6,*) &
-                  "Error: Must make DISCRETIZATION before KGRID_TO_RGRID"
+                  "Error: Must read DISCRETIZATION before KGRID_TO_RGRID"
             exit op_loop
          else if (.not.basis_flag) then
-            write(6,*) "Error: Must make BASIS before KGRID_TO_RGRID"
+            write(6,*) "Error: Must read BASIS before KGRID_TO_RGRID"
             exit op_loop
          end if
- 
+         iterate_flag = .FALSE.
+         omega_flag = .FALSE.
 
          ! Read input and output file names from input script
          call input(input_filename,'input_filename')
          call input(output_filename,'output_filename')
-       
+
          allocate( k_grid(0:ngrid(1)/2, 0:ngrid(2)-1, 0:ngrid(3)-1, N_monomer) )
 
          ! Read field (coefficients of basis functions) from input_filename
          open(unit=field_unit,file=trim(input_filename),status='old')
 
-         ! Skip first 13 lines 
+         ! Skip first 13 lines
          do i=1,14
             read(field_unit,*)
          end do
 
-         read(field_unit,*)grid_size
-         if(dim==1)then
-            if(grid_size(1)/=ngrid(1))then
-               write(6,*) "Error: Grid size in rho_kgrid file is not equal to the one in input file"
+         read(field_unit,*) grid_size
+         if (dim == 1) then
+            if(grid_size(1) /= ngrid(1))then
+               write(6,*) "Error: Inconsistent grid in input kgrid file"
                exit op_loop
             end if
-         elseif(dim==2)then
-            if(grid_size(1)/=ngrid(1).or.grid_size(2)/=ngrid(2))then
-               write(6,*) "Error: Grid size in rho_kgrid file is not equal to the one in input file"
+         else if (dim == 2) then
+            if (grid_size(1)/=ngrid(1).or.grid_size(2)/=ngrid(2)) then
+               write(6,*) "Error: Inconsistent grid in input kgrid file"
                exit op_loop
             end if
-         elseif(dim==3)then 
-            if(grid_size(1)/=ngrid(1).or.grid_size(2)/=ngrid(2).or.grid_size(3)/=ngrid(3))then
-               write(6,*) "Error: Grid size in rho_kgrid file is not equal to the one in input file"
+         else if (dim==3) then
+            if (grid_size(1)/=ngrid(1).or.grid_size(2)/=ngrid(2).or.grid_size(3)/=ngrid(3))then
+               write(6,*) "Error: Inconsistent grid in input kgrid file"
                exit op_loop
             end if
          endif
 
-         k_grid=0.0         
-         do i1=0,ngrid(1)/2
-            do i2=0,ngrid(2)-1
-               do i3=0,ngrid(3)-1
-                     read(field_unit,*)k_grid(i1,i2,i3,:)
-               end do 
+         k_grid = 0.0
+         do i1=0, ngrid(1)/2
+            do i2=0, ngrid(2)-1
+               do i3=0, ngrid(3)-1
+                  read(field_unit,*)k_grid(i1,i2,i3,:)
+               end do
             end do
          end do
          close(field_unit)
 
          call create_fft_plan(ngrid,plan)
          do alpha=1,N_monomer
-               call kgrid_to_basis(k_grid(:,:,:,alpha),rho(alpha,:))
+            call kgrid_to_basis(k_grid(:,:,:,alpha),rho(alpha,:))
          end do
 
          open(unit=field_unit,file=trim(output_filename),status='replace')
@@ -862,7 +861,6 @@ program pscf_pd
          close(field_unit)
 
          deallocate(k_grid)
-
 
       case ('RGRID_TO_FIELD')
 
@@ -872,31 +870,33 @@ program pscf_pd
 
          ! Check preconditions for RGRID_TO_FIELD
          if ( .not. unit_cell_flag ) then
-            write(6,*) "Error: Must make UNIT_CELL before RGRID_TO_FIELD"
+            write(6,*) "Error: Must read UNIT_CELL before RGRID_TO_FIELD"
             exit op_loop
          else if (.not.discretize_flag) then
             write(6,*) &
-                  "Error: Must make DISCRETIZATION before RGRID_TO_FIELD"
+                  "Error: Must read DISCRETIZATION before RGRID_TO_FIELD"
             exit op_loop
          else if (.not.basis_flag) then
-            write(6,*) "Error: Must make BASIS before RGRID_TO_FIELD"
+            write(6,*) "Error: Must read BASIS before RGRID_TO_FIELD"
             exit op_loop
          end if
- 
+         iterate_flag = .FALSE.
+         omega_flag = .FALSE.
+
          ! Read input and output file names from input script
          call input(input_filename,'input_filename')
          call input(output_filename,'output_filename')
-       
+
          allocate( r_grid(0:ngrid(1)-1, 0:ngrid(2)-1, 0:ngrid(3)-1, N_monomer) )
          allocate( k_grid(0:ngrid(1)/2, 0:ngrid(2)-1, 0:ngrid(3)-1, N_monomer) )
 
          ! Read field values at grid points from input_filename
          open(unit=field_unit,file=trim(input_filename),status='old')
-         ! Skip first 13 lines 
+         ! Skip first 13 lines
          do i=1,14
             read(field_unit,*)
          end do
-          
+
          read(field_unit,*)grid_size
          if(dim==1)then
             if(grid_size(1)/=ngrid(1))then
@@ -908,7 +908,7 @@ program pscf_pd
                write(6,*) "Error: Grid size in rho_kgrid file is not equal to the one in input file"
                exit op_loop
             end if
-         elseif(dim==3)then 
+         elseif(dim==3)then
             if(grid_size(1)/=ngrid(1).or.grid_size(2)/=ngrid(2).or.grid_size(3)/=ngrid(3))then
                write(6,*) "Error: Grid size in rho_kgrid file is not equal to the one in input file"
                exit op_loop
@@ -920,58 +920,59 @@ program pscf_pd
             do i2=0,ngrid(2)-1
                do i1=0,ngrid(1)-1
                    read(field_unit,*)r_grid(i1,i2,i3,:)
-               end do 
+               end do
             end do
          end do
          close(field_unit)
 
          call create_fft_plan(ngrid,plan)
          rnodes=dble( plan%n(1) * plan%n(2) * plan%n(3) )
-       
+
          do alpha=1,N_monomer
                call fft(plan,r_grid(:,:,:,alpha),k_grid(:,:,:,alpha))
                k_grid(:,:,:,alpha)=k_grid(:,:,:,alpha)/rnodes
                call kgrid_to_basis(k_grid(:,:,:,alpha),rho(alpha,:))
          end do
-        
+
          open(unit=field_unit,file=trim(output_filename),status='replace')
          call output_field(rho,field_unit,group_name)
          close(field_unit)
 
          deallocate(r_grid)
          deallocate(k_grid)
-        
+
 
       case('RHO_TO_OMEGA')
 
          ! Transform rho field to omega field by assuming Lagrange mulitplier
-         ! field (pressure field) to be zero. Both rho and omega are in terms 
-         ! of symmetry-adapted basis functions. 
+         ! field (pressure field) to be zero. Both rho and omega are in terms
+         ! of symmetry-adapted basis functions.
 
          ! Check preconditions for RGRID_TO_FIELD
          if ( .not. unit_cell_flag ) then
-            write(6,*) "Error: Must make UNIT_CELL before RHO_TO_OMEGA"
+            write(6,*) "Error: Must read UNIT_CELL before RHO_TO_OMEGA"
             exit op_loop
          else if (.not.discretize_flag) then
             write(6,*) &
-                  "Error: Must make DISCRETIZATION before RHO_TO_OMEGA"
+                  "Error: Must read DISCRETIZATION before RHO_TO_OMEGA"
             exit op_loop
          else if (.not.basis_flag) then
-            write(6,*) "Error: Must make BASIS before RHO_TO_OMEGA"
+            write(6,*) "Error: Must read BASIS before RHO_TO_OMEGA"
             exit op_loop
          end if
-
-         allocate( omega_basis(N_monomer,N_star) )
+         iterate_flag = .FALSE.
+         omega_flag = .FALSE.
 
          call input(input_filename,'input_filename')
          call input(output_filename,'output_filename')
-         
+
          open(unit=field_unit,file=trim(input_filename),status='old')
          call input_field(rho,field_unit)
-         close(field_unit) 
-        
-         do alpha=1,N_monomer
-            do i=1,N_star
+         close(field_unit)
+
+         allocate(omega_basis(N_monomer,N_star))
+         do alpha=1, N_monomer
+            do i=1, N_star
                omega_basis(alpha,i) = sum(chi(:,alpha)*rho(:,i))
             end do
          end do
@@ -984,21 +985,14 @@ program pscf_pd
 
       case ('FINISH')
 
-         ! Deferred output of ITERATE, if necessary
-         !if (output_flag) then
-         !   call output_summary(output_prefix)
-         !   call output_fields(output_prefix)
-         !   output_flag = .FALSE.
-         !endif
-
          ! Stop execution
          exit op_loop
- 
+
       case default
-    
+
          write(6,*) 'Error: Invalid op_string'
          exit op_loop
-         
+
       end select
 
    end do op_loop
@@ -1046,7 +1040,7 @@ contains ! internal subroutines of program pscf_pd
    version%minor = 0
    call output_version(version, out_unit)
 
-   ! Output in format of input driver file 
+   ! Output in format of input driver file
    if (monomer_flag) then
       write(out_unit,*)
       call output('MONOMERS',f='N',j='L')
@@ -1084,12 +1078,6 @@ contains ! internal subroutines of program pscf_pd
       call output(chain_step,'chain_step')
       !call output(extr_order,'extr_order')
    end if
-   if (prefix_flag) then
-      write(out_unit,*)
-      call output('FILE_PREFIXES',f='N',j='L')
-      call output(trim(input_prefix), 'input_prefix')
-      call output(trim(output_prefix),'output_prefix')
-   end if
    if (basis_flag) then
       write(out_unit,*)
       call output('BASIS',f='N',j='L')
@@ -1097,23 +1085,17 @@ contains ! internal subroutines of program pscf_pd
    end if
    if (iterate_flag) then
       write(out_unit,*)
+      call output('ITERATE',f='N',j='L')
       call output(trim(input_filename), 'input_filename')
       call output(trim(output_prefix),'output_prefix')
-      call output('ITERATE',f='N',j='L')
       call output_iterate_param
    end if
-   ! if (sweep_flag) then
-   !    write(out_unit,*)
-   !    call output('SWEEP',f='N',j='L')
-   !    call output(s_max,'s_max')
-   !    call output_increments(out_unit,'N',domain)
-   ! end if
    write(out_unit,*)
    call output('FINISH',f='N',j='L')
 
    ! End input script section, begin additional information
 
-   ! Thermodynamics 
+   ! Thermodynamics
    write(out_unit,*)
    call output('THERMO',f='N',j='L')
    call output(f_Helmholtz,'f_Helmholtz')
@@ -1134,7 +1116,7 @@ contains ! internal subroutines of program pscf_pd
       end if
       if ( N_solvent > 0) then
          call output(phi_solvent,N_solvent,'phi_solvent',s='C')
-      end if 
+      end if
    end select
    call output(stress,N_cell_param,'stress')
 
@@ -1142,7 +1124,7 @@ contains ! internal subroutines of program pscf_pd
    if (interaction_type =='chi_T') then
       call output(chi,N_monomer,N_monomer,'chi',s='L')
    end if
- 
+
    !# ifdef DEVEL
    ! Decomposition of free energy
    write(out_unit,*)
@@ -1162,10 +1144,10 @@ contains ! internal subroutines of program pscf_pd
    write(out_unit,*)
    call output('STATISTICS',f='N',j='L')
    call output(N_star,'N_star')
-   call output(error,'Final Error') 
-   call output(itr,'Iterations') 
-   call output(basis_time,'Basis Time') 
-   call output(scf_time,'SCF Time') 
+   call output(error,'Final Error')
+   call output(itr,'Iterations')
+   call output(basis_time,'Basis Time')
+   call output(scf_time,'SCF Time')
 
    close(out_unit)             ! close output_prefix//'out' file
    call set_io_units(o=6)      ! reset default echo unit to stdout
@@ -1183,7 +1165,7 @@ contains ! internal subroutines of program pscf_pd
    open(file=trim(prefix)//'omega', unit=field_unit,status='replace')
    call output_field(omega,field_unit,group_name)
    close(field_unit)
- 
+
    open(file=trim(prefix)//'rho',unit=field_unit,status='replace')
    call output_field(rho,field_unit,group_name)
    close(field_unit)
