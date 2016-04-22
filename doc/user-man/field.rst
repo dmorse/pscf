@@ -103,7 +103,7 @@ set of vectors that are related to one another by the point group
 symmetries of the crystal.  For non-centrosymmetric groups, the 
 wavevectors associated with a real basis function are related by 
 point group symmetries or by inversion (i.e., by the relation 
-:math:`\texbf{k} \rightarrow - \textbf{k}`).  A group of reciprocal lattice 
+:math:`\textbf{k} \rightarrow - \textbf{k}`).  A group of reciprocal lattice 
 wavevectors that are related by symmetries of the crystal is referred 
 to here and in the PSCF source code as a "star".  The number of stars,
 denoted by N_star in the corresponding file format, is equal to the
@@ -114,16 +114,16 @@ by permutations and/or sign changes. For example, the basis function
 associated with the {321} star has 48 associated wavevectors that 
 include wavevectors with integer indices (1,2,3), (3,2,1), (-3,2,1),
 etc, whereas the {200} star in a cubic crystal has only six wavevectors 
-:math:`(\pm2,0,0), (0,\pm 2, 0) and (0, 0, \pm 2)`.
+:math:`(\pm2,0,0), (0,\pm 2, 0), (0, 0, \pm 2)`.
 
 Each basis function for d-dimensional crystal is uniquely identified 
-in the symmetry-adapted file format by a label consisting d integer 
-indices that correspond to the Miller indices for one of the wavevectors 
-associated with the basis function.  Thus for example, we identity the 
-basis function associated with the {321} family of wavevectors in a 
-cubic crystal by a label "3 1 1".  The conventions for choosing which 
-plane wave to use to identify the basis function is discussed in the 
-comments provided in the source code of crystal_mod (See the html
+in the symmetry-adapted file format by a label consisting of d integer 
+indices. These indices correspond to the Miller indices for one of the 
+wavevectors associated with the basis function.  Thus for example, we 
+identity the basis function associated with the {321} family of wavevectors 
+in a cubic crystal by a label "3 1 1".  The conventions for choosing 
+which plane wave to use to identify the basis function is discussed 
+in the comments provided in the source code of crystal_mod (See the html
 developers manual for browseable version of this. The set of Miller 
 indices output to file corresponds to the value of the variable 
 wave_of_star.) 
