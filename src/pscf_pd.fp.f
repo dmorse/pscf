@@ -823,28 +823,29 @@ program pscf_pd
             read(field_unit,*)
          end do
 
-         read(field_unit,*) grid_size
-         if (dim == 1) then
-            if(grid_size(1) /= ngrid(1))then
+         read (field_unit,*) grid_size
+         if (grid_size(1) /= ngrid(1)) then
+            write(6,*) "Error: Inconsistent grid in input kgrid file"
+            exit op_loop
+         end if
+         if (dim > 1) then
+            if (grid_size(2) /= ngrid(2)) then
                write(6,*) "Error: Inconsistent grid in input kgrid file"
                exit op_loop
             end if
-         else if (dim == 2) then
-            if (grid_size(1)/=ngrid(1).or.grid_size(2)/=ngrid(2)) then
-               write(6,*) "Error: Inconsistent grid in input kgrid file"
-               exit op_loop
+            if (dim > 2) then
+               if (grid_size(3) /= ngrid(3)) then
+                  write(6,*) "Error: Inconsistent grid in input kgrid file"
+                  exit op_loop
+               end if
             end if
-         else if (dim==3) then
-            if (grid_size(1)/=ngrid(1).or.grid_size(2)/=ngrid(2).or.grid_size(3)/=ngrid(3))then
-               write(6,*) "Error: Inconsistent grid in input kgrid file"
-               exit op_loop
-            end if
-         endif
+         end if
 
+         ! Read Fourier coeffficients
          k_grid = 0.0
-         do i1=0, ngrid(1)/2
-            do i2=0, ngrid(2)-1
-               do i3=0, ngrid(3)-1
+         do i1 = 0, ngrid(1)/2
+            do i2 = 0, ngrid(2) - 1
+               do i3 = 0, ngrid(3) - 1
                   read(field_unit,*)k_grid(i1,i2,i3,:)
                end do
             end do
@@ -894,32 +895,32 @@ program pscf_pd
          open(unit=field_unit,file=trim(input_filename),status='old')
          ! Skip first 13 lines
          do i=1,14
-            read(field_unit,*)
+            read(field_unit, *)
          end do
 
-         read(field_unit,*)grid_size
-         if(dim==1)then
-            if(grid_size(1)/=ngrid(1))then
-               write(6,*) "Error: Grid size in rho_kgrid file is not equal to the one in input file"
-               exit op_loop
-            end if
-         elseif(dim==2)then
-            if(grid_size(1)/=ngrid(1).or.grid_size(2)/=ngrid(2))then
-               write(6,*) "Error: Grid size in rho_kgrid file is not equal to the one in input file"
-               exit op_loop
-            end if
-         elseif(dim==3)then
-            if(grid_size(1)/=ngrid(1).or.grid_size(2)/=ngrid(2).or.grid_size(3)/=ngrid(3))then
-               write(6,*) "Error: Grid size in rho_kgrid file is not equal to the one in input file"
-               exit op_loop
-            end if
+         read(field_unit,*) grid_size
+         if (grid_size(1) /= ngrid(1)) then
+            write(6,*) "Error: inconsistent grid size in kgrid input file"
+            exit op_loop
          endif
+         if (dim > 1) then
+            if (grid_size(2) /= ngrid(2)) then
+               write(6,*) "Error: Inconsistent grid size in rho_kgrid file"
+               exit op_loop
+            end if
+            if (dim > 2) then
+               if (grid_size(3) /= ngrid(3)) then
+                  write(6,*) "Error: Inconsistent grid size in kgrid file"
+                  exit op_loop
+               end if
+            end if
+         end if
 
          r_grid=0.0
-         do i3=0,ngrid(3)-1
-            do i2=0,ngrid(2)-1
-               do i1=0,ngrid(1)-1
-                   read(field_unit,*)r_grid(i1,i2,i3,:)
+         do i3 = 0, ngrid(3) - 1
+            do i2 = 0, ngrid(2) - 1
+               do i1 = 0, ngrid(1) - 1
+                   read(field_unit,*) r_grid(i1,i2,i3,:)
                end do
             end do
          end do
@@ -928,19 +929,18 @@ program pscf_pd
          call create_fft_plan(ngrid,plan)
          rnodes=dble( plan%n(1) * plan%n(2) * plan%n(3) )
 
-         do alpha=1,N_monomer
-               call fft(plan,r_grid(:,:,:,alpha),k_grid(:,:,:,alpha))
-               k_grid(:,:,:,alpha)=k_grid(:,:,:,alpha)/rnodes
-               call kgrid_to_basis(k_grid(:,:,:,alpha),rho(alpha,:))
+         do alpha = 1, N_monomer
+            call fft(plan,r_grid(:,:,:,alpha),k_grid(:,:,:,alpha))
+            k_grid(:,:,:,alpha) = k_grid(:,:,:,alpha)/rnodes
+            call kgrid_to_basis(k_grid(:,:,:,alpha), rho(alpha,:))
          end do
 
-         open(unit=field_unit,file=trim(output_filename),status='replace')
-         call output_field(rho,field_unit,group_name)
+         open(unit=field_unit, file=trim(output_filename), status='replace')
+         call output_field(rho, field_unit, group_name)
          close(field_unit)
 
          deallocate(r_grid)
          deallocate(k_grid)
-
 
       case('RHO_TO_OMEGA')
 
