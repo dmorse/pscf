@@ -6,8 +6,8 @@ Appendix: Creating Binary Installers
 =====================================
 
 This page for how to use cmake to create a binary .dmg installer file for Mac OS
-X and a .deb or .rpm package for different variants of linux.  This information 
-is not relevant to most users, and is provided primarily for core developers. 
+X and a .deb or .rpm package for different variants of linux.  This information is 
+not relevant to most users, and is provided only as reference for core developers. 
 
 The first step in creating a package, for any operating system, is to follow the 
 instruction given on the page about :ref:`install-compile-cmake-sec` for installing 
@@ -30,14 +30,16 @@ source code in a repository named git/, one must:
 
     * Then enter::
 
-          > make -j 4
+          > make -j4
           > make package
           > make package
 
-The instruction to run "make package" twice is not a type: This appears to be 
+The instruction to run "make package" twice is not a typo: This appears to be 
 necessary to get the packaging utility to install all of the shared libraries
-correctly.  This procedure should create an installer file with a name of the
-form pscf<version>-Darwin.dmg in the pscf/cmake directory.
+correctly.  The absence of an "make install" command is also intentional - 
+the install target is not supported when BUILD_DMG is defined.  This procedure 
+creates a standard Mac .dmg installer file with a name of the form 
+pscf<version>-Darwin.dmg in the pscf/cmake directory.
 
 Linux (Fedora or Ubuntu)
 ------------------------
@@ -52,7 +54,7 @@ On a linux system, one must:
 
     * Then enter::
 
-          > make -j 4
+          > make -j4
           > make install
           > make package
 
@@ -62,8 +64,8 @@ command should then create either a file named pscf<version>-linux.rpm,
 if the procedure is performed on a system such as Fedora that uses redhat 
 package manager (rpm) files, or a file named pscf<version>-linux.deb if 
 built on a system such as Ubuntu that uses .deb files. RPM packages can
-only be built on systems that use .rpm and .deb packages on systems that
-use .deb files.
+only be built on a system that use .rpm packages and .deb packages can 
+only be built on a system that use .deb files.
 
 On a system that uses .rpm files, to check the RPM for detailed 
 information (Metadata, Dependencies, and File Contents), enter::

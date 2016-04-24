@@ -82,8 +82,10 @@ program pscf_pd
    use grid_basis_mod
    use chain_mod
    use scf_mod,       only : density_startup, density
-   use iterate_mod,   only : input_iterate_param, output_iterate_param, itr_algo, &
-                             iterate_NR_startup, iterate_AM_startup, iterate_NR, iterate_AM, domain
+   use iterate_mod,   only : input_iterate_param, output_iterate_param, &
+                             itr_algo, domain, &
+                             iterate_NR_startup, iterate_NR, &
+                             iterate_AM_startup, iterate_AM
    use sweep_mod
    use response_mod,  only : response_startup, response_sweep
    !# ifdef COMMENTS
@@ -103,12 +105,14 @@ program pscf_pd
    real(long)      :: f_Helmholtz     ! free energy, units kT / monomer
    real(long)      :: pressure        ! pressure * V_monomer / kT
    real(long)      :: stress(:)       ! d(f_Helmholtz)/d(cell_param)
+   allocatable     :: omega, rho, stress
+
+
    !# ifdef DEVEL
+   ! Variables for free energy decomposition
    real(long)      :: f_component(4)  !
    real(long)      :: overlap(:,:)    ! overlap integrals
-   allocatable     :: omega, rho, stress, overlap
-   !# else
-   allocatable     :: omega, rho, stress
+   allocatable     :: overlap
    !# endif
 
    ! Input parameters (all others declared in modules)
@@ -119,16 +123,16 @@ program pscf_pd
    ! Input and output file names
    character(60)   :: input_prefix    ! prefix for input omega file:
                                       !   input_prefix//omega
-   character(60)   :: output_prefix   ! prefix for output files:
+   character(60)   :: output_prefix   ! prefix for output files after iteration:
                                       !   output_prefix//out
                                       !   output_prefix//omega
                                       !   output_prefix//rho
                                       !   output_prefix//group
                                       !   output_prefix//waves
-   character(60)   :: input_filename      ! input file for FIELD_TO_GRID
-   character(60)   :: output_filename     ! output file for FIELD_TO_GRID
+   character(60)   :: input_filename  ! name of input field file
+   character(60)   :: output_filename ! name of output field file
 
-   !  Variable for Kgrid to Rgrid transformation
+   !  Variable for field transformations
    integer                     :: i1, i2, i3, alpha
    integer, allocatable        :: grid_size(:)
    complex(long), allocatable  :: k_grid(:,:,:,:)
@@ -139,11 +143,11 @@ program pscf_pd
    character(25)               :: fmt
 
    ! Variables for iteration (fixed chemistry)
-   integer         :: extr_order      ! extrapolation order
+   integer         :: extr_order      ! extrapolation order = 1
    integer         :: itr             ! iteration index
    real(long)      :: error           ! error = max(residual)
    logical         :: converge        ! true if converged
-   character(10)   :: algo
+   ! character(10)   :: algo
 
    ! Variables for sweep (sequence of parameters)
    integer         :: i, j            ! step indices
@@ -430,6 +434,9 @@ program pscf_pd
             exit op_loop
          end if
 
+         ! Read in scale factor: vref -> vref/vref_scale
+         call input(vref_scale, 'vref_scale')
+
          ! If omega field has not been read previously, read it now
          if (.not.omega_flag) then
 
@@ -443,9 +450,6 @@ program pscf_pd
             iterate_flag = .FALSE.
 
          end if
-
-         ! Read in scale factor: vref -> vref/vref_scale
-         call input(vref_scale,'vref_scale')
 
          ! Rescale kuhn, chi, block_length, solvent_size
          ! See chemistry_mod
@@ -499,10 +503,10 @@ program pscf_pd
 
          ! Allocate and initialize chain objects used in scf_mod
          ! Create fft_plan, which is saved in scf_mod as public variable
-         call density_startup(ngrid,extr_order,chain_step,&
+         call density_startup(ngrid, extr_order, chain_step,&
                                   update_chain=.false.)
 
-         if(itr_algo=='NR')then
+         if (itr_algo=='NR') then
 
              ! Allocate private arrays for Newton-Raphson iteration
              call iterate_NR_startup(N_star)
@@ -525,7 +529,7 @@ program pscf_pd
                       stress       &! d(free energy)/d(cell parameters)
                            )
 
-         elseif(itr_algo=='AM')then
+         else if(itr_algo=='AM') then
 
              ! Allocate private arrays for Anderson-Mixing iteration
              call iterate_AM_startup(N_star)
@@ -562,8 +566,8 @@ program pscf_pd
 
          ! Must be preceded by successful ITERATE for first solution.
          if (.not.iterate_flag) then
-                 write(6,*) &
-                  "Error: Must call ITERATE (1st iteration) before SWEEP"
+             write(6,*) &
+                "Error: Must call ITERATE (1st iteration) before SWEEP"
             exit op_loop
          else if (.not.converge) then
             write(6,*) "Error: 1st iteration failed to converge"
@@ -583,7 +587,7 @@ program pscf_pd
          call update_history(s,omega,cell_param,domain)
 
          ! Loop over sweep through parameters
-         i         = 0
+         i = 0
          step_unit = 1.0_long
          sweep_loop : do
 
@@ -600,23 +604,21 @@ program pscf_pd
             end if
 
             s = s + step
-            call increment_parameters(step,domain,cell_param)
+            call increment_parameters(step, domain, cell_param)
 
             write(6, FMT = "('************************************'/ )" )
             write(6, FMT = "('s =',f10.4)" ) s
             call cpu_time(start_time)
 
             ! 1st order continuation of omega and cell_param
-            call continuation(step,domain,omega,cell_param)
+            call continuation(step, domain, omega, cell_param)
 
-            ! Reconstruct unit cell
-            ! if (domain) then
-               call make_unit_cell
-               call make_ksq(G_basis)
-            ! end if
+            ! Reconstruct unit cell and all values of |k|^2
+            call make_unit_cell
+            call make_ksq(G_basis)
 
             ! Rebuild chains
-            call density_startup(ngrid,extr_order,chain_step,&
+            call density_startup(ngrid, extr_order, chain_step, &
                                  update_chain=.TRUE.)
 
             ! Main iteration routine
@@ -638,7 +640,7 @@ program pscf_pd
                    stress       &! d(free energy)/d(cell parameters)
                    )
 
-            else if(itr_algo=='AM')then
+            else if (itr_algo=='AM')then
 
                call iterate_AM(      &
                         N_star,      &! # of basis functions
@@ -661,7 +663,7 @@ program pscf_pd
             if (converge) then
 
                i = i + 1
-               call update_history(s,omega,cell_param,domain)
+               call update_history(s, omega, cell_param, domain)
 
                call cpu_time(scf_time)
                scf_time = scf_time - start_time
@@ -681,7 +683,7 @@ program pscf_pd
 
                ! Backtrack to previous state point
                s = s - step
-               call increment_parameters(-step,domain,cell_param)
+               call increment_parameters(-step, domain, cell_param)
 
                ! Halve step size
                step_unit = 0.5*step_unit
@@ -813,16 +815,16 @@ program pscf_pd
          call input(input_filename,'input_filename')
          call input(output_filename,'output_filename')
 
-         allocate( k_grid(0:ngrid(1)/2, 0:ngrid(2)-1, 0:ngrid(3)-1, N_monomer) )
+         if (.not.allocated(k_grid)) then
+            allocate(k_grid(0:ngrid(1)/2, 0:ngrid(2)-1, 0:ngrid(3)-1, N_monomer))
+         end if
 
-         ! Read field (coefficients of basis functions) from input_filename
+         ! Open input_filename, read header, check grid dimensions
          open(unit=field_unit,file=trim(input_filename),status='old')
-
          ! Skip first 13 lines
          do i=1,14
             read(field_unit,*)
          end do
-
          read (field_unit,*) grid_size
          if (grid_size(1) /= ngrid(1)) then
             write(6,*) "Error: Inconsistent grid in input kgrid file"
@@ -841,33 +843,34 @@ program pscf_pd
             end if
          end if
 
-         ! Read Fourier coeffficients
+         ! Read elements of k_grid (Fourier coefficients) from input file
          k_grid = 0.0
          do i1 = 0, ngrid(1)/2
             do i2 = 0, ngrid(2) - 1
                do i3 = 0, ngrid(3) - 1
-                  read(field_unit,*)k_grid(i1,i2,i3,:)
+                  read(field_unit,*) k_grid(i1,i2,i3,:)
                end do
             end do
          end do
          close(field_unit)
 
-         call create_fft_plan(ngrid,plan)
-         do alpha=1,N_monomer
-            call kgrid_to_basis(k_grid(:,:,:,alpha),rho(alpha,:))
+         ! Transform to symmetry-adapated Fourier expansion of rho
+         call create_fft_plan(ngrid, plan)
+         do alpha=1, N_monomer
+            call kgrid_to_basis(k_grid(:,:,:,alpha), rho(alpha,:))
          end do
 
+         ! Write rho field in coordinate grid format
          open(unit=field_unit,file=trim(output_filename),status='replace')
-         call output_field_grid(rho,field_unit,group_name,ngrid)
+         call output_field_grid(rho, field_unit, group_name, ngrid)
          close(field_unit)
 
          deallocate(k_grid)
 
       case ('RGRID_TO_FIELD')
 
-         ! Read representation of field as the values on the grid points
-         ! (rgrid) , and outputs file containing field
-         ! values in terms of symmetry adapted basis functions (basis).
+         ! Read coordinate-grid representation of a field
+         ! Write representation in symmetry-adapated Fourier expansion
 
          ! Check preconditions for RGRID_TO_FIELD
          if ( .not. unit_cell_flag ) then
@@ -888,16 +891,20 @@ program pscf_pd
          call input(input_filename,'input_filename')
          call input(output_filename,'output_filename')
 
-         allocate( r_grid(0:ngrid(1)-1, 0:ngrid(2)-1, 0:ngrid(3)-1, N_monomer) )
-         allocate( k_grid(0:ngrid(1)/2, 0:ngrid(2)-1, 0:ngrid(3)-1, N_monomer) )
+         ! Allocate required memory
+         if (.not.allocated(r_grid)) then
+            allocate(r_grid(0:ngrid(1)-1,0:ngrid(2)-1,0:ngrid(3)-1,N_monomer))
+         end if
+         if (.not.allocated(k_grid)) then
+            allocate(k_grid(0:ngrid(1)/2,0:ngrid(2)-1,0:ngrid(3)-1,N_monomer))
+         end if
 
-         ! Read field values at grid points from input_filename
+         ! Open input file and read header, including grid dimensions
          open(unit=field_unit,file=trim(input_filename),status='old')
          ! Skip first 13 lines
          do i=1,14
             read(field_unit, *)
          end do
-
          read(field_unit,*) grid_size
          if (grid_size(1) /= ngrid(1)) then
             write(6,*) "Error: inconsistent grid size in kgrid input file"
@@ -916,6 +923,7 @@ program pscf_pd
             end if
          end if
 
+         ! Read field values at grid points from input file
          r_grid=0.0
          do i3 = 0, ngrid(3) - 1
             do i2 = 0, ngrid(2) - 1
@@ -926,11 +934,11 @@ program pscf_pd
          end do
          close(field_unit)
 
-         call create_fft_plan(ngrid,plan)
+         ! Transform to symmetry-adapated rho field
+         call create_fft_plan(ngrid, plan)
          rnodes=dble( plan%n(1) * plan%n(2) * plan%n(3) )
-
          do alpha = 1, N_monomer
-            call fft(plan,r_grid(:,:,:,alpha),k_grid(:,:,:,alpha))
+            call fft(plan,r_grid(:,:,:,alpha), k_grid(:,:,:,alpha))
             k_grid(:,:,:,alpha) = k_grid(:,:,:,alpha)/rnodes
             call kgrid_to_basis(k_grid(:,:,:,alpha), rho(alpha,:))
          end do
@@ -944,9 +952,10 @@ program pscf_pd
 
       case('RHO_TO_OMEGA')
 
-         ! Transform rho field to omega field by assuming Lagrange mulitplier
-         ! field (pressure field) to be zero. Both rho and omega are in terms
-         ! of symmetry-adapted basis functions.
+         ! (1) Read a rho field from file, in symmetry-adapted format.
+         ! (2) Generate approximate omega field from rho field by assuming
+         !     that Lagrange multiplier (pressure) field is zero. 
+         ! (3) Output resulting omega file to file in symmetry-adapated format
 
          ! Check preconditions for RGRID_TO_FIELD
          if ( .not. unit_cell_flag ) then
@@ -963,25 +972,29 @@ program pscf_pd
          iterate_flag = .FALSE.
          omega_flag = .FALSE.
 
-         call input(input_filename,'input_filename')
-         call input(output_filename,'output_filename')
+         ! Read filenames from parameter file
+         call input(input_filename, 'input_filename')
+         call input(output_filename, 'output_filename')
 
+         ! Read input rho field
          open(unit=field_unit,file=trim(input_filename),status='old')
          call input_field(rho,field_unit)
          close(field_unit)
 
-         allocate(omega_basis(N_monomer,N_star))
+         ! Compute approximate omega field
+         allocate(omega_basis(N_monomer, N_star))
          do alpha=1, N_monomer
             do i=1, N_star
                omega_basis(alpha,i) = sum(chi(:,alpha)*rho(:,i))
             end do
          end do
 
+         ! Output omega field
          open(unit=field_unit,file=trim(output_filename),status='replace')
          call output_field(omega_basis,field_unit,group_name)
          close(field_unit)
 
-         deallocate( omega_basis )
+         deallocate(omega_basis)
 
       case ('FINISH')
 
@@ -1076,7 +1089,7 @@ contains ! internal subroutines of program pscf_pd
       call output('DISCRETIZATION',f='N',j='L')
       call output(ngrid,dim,'ngrid')
       call output(chain_step,'chain_step')
-      !call output(extr_order,'extr_order')
+      !call output(extr_order, 'extr_order')
    end if
    if (basis_flag) then
       write(out_unit,*)

@@ -28,8 +28,8 @@ The syntax for executing the program pscf is thus::
 
 Here, "param" is the name of the parameter file, and "log" is a file to which 
 we have redirected messages emitted by the program during operation.  The 
-command 'pscf &lt; in', with no output log file, would instead cause these 
-messages to be printed to the screen. 
+command 'pscf < in', with no output log file, would instead cause these messages 
+to be printed to the screen. 
 
 Output Files
 ============

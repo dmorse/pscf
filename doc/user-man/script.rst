@@ -187,16 +187,14 @@ transformations on fields or parameters, or to output additional information.
   ============================== ====================================================
   Section                        Description
   ============================== ====================================================
-  :ref:`output_waves`            Output contents of symmetry adapted basis functions
-  :ref:`param-fieldtorgrid-sub`  Convert field from basis function expansion to 
-                                 values on a r-space coordinate grid
-  :ref:`param-rgridtofield-sub`  Convert field from basis function expansion to 
-                                 values on a r-space coordinate grid
-  :ref:`param-rgridtokgrid-sub`  Fourier transform field from a r-space to kspace
-  :ref:`param-kgridtorgrid-sub`  Inverse Fourier transform k-space to r-space grid
-  :ref:`param-rhotoomega-sub`    Compute and output omega field obtained from an
-                                 input rho field, assuming a vanishing Lagrange 
-                                 multiplier pressure field.
+  :ref:`param-fieldtorgrid-sub`  Read field file in symmetry-adapated format
+                                 and output file in coordinate grid format
+  :ref:`param-rgridtofield-sub`  Read field file in coordinate grid file format
+                                 and output in symmetry-adapated format
+  :ref:`param-kgridtorgrid-sub`  Read field in k-space and output in r-space format 
+  :ref:`param-rhotoomega-sub`    Read rho field, and compute and output omega field 
+                                 obtained for vanishing Lagrange multiplier field.
+  :ref:`param-output_waves`      Output contents of symmetry adapted basis functions
   :ref:`param-rescale-sub`       Redefine monomer reference volume v by rescaling 
                                  omega and all parameters whose values depend on v
   ============================== ====================================================
@@ -637,24 +635,6 @@ representationo as an symmetry-adapted Fourier expansion.
   output_filename  character(60) name of output file 
                                  (symmetry-adapted format)
   ================ ============= ========================================
-  
-.. _param-rgridtokgrid-sub:
-
-RGRID_TO_KGRID
---------------
-
-This command reads a file containing values of a field on a coordinate
-grid, peforms a fast Fourier transform, and outputs the corresponding
-Fourier components for all wavevectors on a k-space grid.
-
-  ================ =============  ===================================
-  Variable         Type           Description
-  ================ =============  ===================================
-  input_filename   character(60)  name of input file 
-                                  (coordinate grid)
-  output_filename  character(60)  name of the output file 
-                                  (wavevector grid)
-  ================ =============  ===================================
   
 .. _param-kgridtorgrid-sub:
 
