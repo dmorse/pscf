@@ -411,6 +411,8 @@ program pscf_pd
 
       case ('RESCALE')
 
+         ! This command should be read immediately before iterate.
+
          ! Rescale monomer reference volume. Change values of kuhn,
          ! chi, block_length, and solvent_size parameter arrays, and
          ! the omega field, to obtain an equivalent set of parameters
@@ -423,33 +425,24 @@ program pscf_pd
          else if (.not.interaction_flag) then
             write(6,*) "Error: Must read INTERACTION before RESCALE"
             exit op_loop
-         else if (.not.unit_cell_flag) then
-            write(6,*) "Error: Must read UNIT_CELL before RESCALE"
-            exit op_loop
-         else if (.not.discretize_flag) then
-            write(6,*) "Error: Must read DISCRETIZATION before RESCALE"
-            exit op_loop
          else if (.not.basis_flag) then
             write(6,*) "Error: Must read BASIS before RESCALE"
             exit op_loop
          end if
+         iterate_flag = .FALSE.
+         omega_flag = .TRUE.
 
-         ! Read in scale factor: vref -> vref/vref_scale
+         ! Read name of input omega file
+         call input(input_filename, 'input_filename')  
+
+         ! Read scale factor: vref -> vref/vref_scale
          call input(vref_scale, 'vref_scale')
 
-         ! If omega field has not been read previously, read it now
-         if (.not.omega_flag) then
-
-            ! Read omega
-            call input(input_filename, 'input_filename')  ! input  file prefix
-            open(unit=field_unit,file=trim(input_filename), status='old', iostat=ierr)
-            if (ierr/=0) stop "Error while opening omega file"
-            call input_field(omega, field_unit)
-            close(field_unit)
-            omega_flag = .TRUE.
-            iterate_flag = .FALSE.
-
-         end if
+         ! Read omega field
+         open(unit=field_unit,file=trim(input_filename), status='old', iostat=ierr)
+         if (ierr/=0) stop "Error while opening omega file"
+         call input_field(omega, field_unit)
+         close(field_unit)
 
          ! Rescale kuhn, chi, block_length, solvent_size
          ! See chemistry_mod
@@ -480,7 +473,7 @@ program pscf_pd
             exit op_loop
          end if
 
-         ! Read omega file, if not read previously
+         ! Read omega file, if not input preceding RESCALE command
          if (.not.omega_flag) then
             call input(input_filename, 'input_filename')  ! input  file prefix
             open(unit=field_unit,file=trim(input_filename),&
