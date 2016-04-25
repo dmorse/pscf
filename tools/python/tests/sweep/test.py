@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.4
+#!/usr/bin/env python2.7
 
 from sweep import *
 sweep = Sweep('ABbcp_lam_1')

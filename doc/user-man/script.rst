@@ -2,146 +2,143 @@
 .. _param-page:
 
 **************
-Parameter File 
+Parameter File
 **************
 
-The main program reads an parameter file containing the parameters and 
-instructions for a calculation. This file  is divided into sections, 
+The main program reads an parameter file containing the parameters and
+instructions for a calculation. This file  is divided into sections,
 each of which contains a different type of information.  Each section
 is preceded by a blank line and starts with a line containing a
-section title in all capital letters (i.e., 'CHEMISTRY', 'UNIT_CELL', 
-etc.) Each block may contain values of a sequence of variables. The 
-name of each variable appears on a line by itself, followed by the 
+section title in all capital letters (i.e., 'CHEMISTRY', 'UNIT_CELL',
+etc.) Each block may contain values of a sequence of variables. The
+name of each variable appears on a line by itself, followed by the
 value or (for arrays) values on one more subsequent lines.  The
 order in which variables must appear within a section is fixed. The
-program stops when it encounters the block title 'FINISH'. 
+program stops when it encounters the block title 'FINISH'.
 
 .. _example-sec:
 
 Example
 =======
 
-An example of a complete parameter file is shown below. This example is 
-for a system containing a triblock copolymer containing three chemically 
-distinct blocks in a solvent that is chemically identical to one of 
-the blocks. The first line identifies the version of the file format 
-(in this case, version 1.0).  The remainder of the file is divided into 
-sections, each of which begins with a line containing a capitalized label, 
-such as MONOMERS, CHAINS, ec. The first few sections in this example 
-simply provide blocks input data. The 
-ITERATE and SWEEP sections instead contain the instructions required 
-to initiate a computation. Execution stops when a FINISH block is 
-encountered.
+An example of a complete parameter file is shown below. This example is
+for a system containing a triblock copolymer containing three chemically
+distinct blocks in a solvent that is chemically identical to one of
+the blocks. The first line identifies the version of the file format
+(in this case, version 1.0).  The remainder of the file is divided into
+sections, each of which begins with a line containing a capitalized label,
+such as MONOMERS, CHAINS, ec. The first few sections in this example
+simply provide blocks input data. The ITERATE and SWEEP sections instead
+contain the instructions required to initiate a computation. Execution
+stops when a FINISH block is encountered.
 
 ::
 
    format  1  0
-   
+
    MONOMERS
-   N_monomer           
+   N_monomer
                  2
-   kuhn                
-     0.4000000E+00  0.6000000E+00 
-   
+   kuhn
+     0.4000000E+00  0.6000000E+00
+
    CHAINS
-   N_chain              
+   N_chain
                  1
-   N_block             
+   N_block
                  3
-   block_monomer  
+   block_monomer
                  1              2              3
-   block_length   
+   block_length
      1.2000000E+02  0.7000000E+02  0.6000000E+02
-   
+
    SOLVENTS
-   N_solvent              
+   N_solvent
                  1
    solvent_monomer
                  2
    solvent_size
                1.0
-   
+
    COMPOSITION
-   ensemble            
+   ensemble
                  0
-   phi_chain      
+   phi_chain
      0.8000000E+00
-   phi_solvent      
+   phi_solvent
      0.2000000E+00
-   
+
    INTERACTIONS
    interaction_type
                'chi'
-   chi                 
+   chi
      1.2000000E-02
-   
+
    UNIT_CELL
-   dim                 
+   dim
                  1
-   crystal_system      
+   crystal_system
         'lamellar'
-   N_cell_param        
+   N_cell_param
                  1
-   cell_param          
+   cell_param
      1.3200000E+01
-   
+
    DISCRETIZATION
    ngrid
                 32
    ds
               1.00
-   
-   FILE_PREFIXES
-   input_prefix        
-             'in.'
-   output_prefix       
-                ''
-   
+
    BASIS
-   group_name          
+   group_name
               '-1'
-   
+
    ITERATE
-   max_itr             
+   input_filename
+        'in.omega'
+   output_prefix
+            'out/'
+   max_itr
                 20
-   error_max           
+   error_max
      1.0000000E-08
-   domain              
+   domain
                  T
    itr_algo
               'NR'
    N_cut
                100
-   
+
    SWEEP
-   s_max               
+   s_max
       10.00000E+00
    d_chi
      1.0000000E+00
    end_increments
-   
+
    FINISH
 
 
-The MONOMERS block contains information about the monomers used in this 
-calculation, including the number N_monomer of monomer types and the 
-statistical segment length of each type, given as elemetns of the 
-one-dimensional array named "kuhn". 
+The MONOMERS block contains information about the monomers used in this
+calculation, including the number N_monomer of monomer types and the
+statistical segment length of each type, given as elemetns of the
+one-dimensional array named "kuhn".
 
-The CHAINS block describes the structure and composition of all polymer 
+The CHAINS block describes the structure and composition of all polymer
 chains, which must linear block polymers or hompolymers.
 
 .. _param-overview-sec:
 
-Overview 
+Overview
 ========
- 
+
 Primary Sections
 ----------------
 
 The following list shows the titles of the blocks required to complete most
-standard computations, in the order in which they normally appear. 
-Subsequent sections describe each of the corresponding blocks of the input 
+standard computations, in the order in which they normally appear.
+Subsequent sections describe each of the corresponding blocks of the input
 file in detail. To solve the SCF problem for a single set of parameters,
 leave out the penulimate SWEEP section.
 
@@ -151,23 +148,21 @@ leave out the penulimate SWEEP section.
   :ref:`param-monomers-sub`        # of monomers and kuhn lengths
   :ref:`param-chains-sub`          Chain species, block sequences and lengths, etc.
   :ref:`param-solvents-sub`        Solvent species, chemical identities, volumes
-  :ref:`param-solvents-sub`        Statistical ensemble and mixture composition
-  :ref:`param-unitcell-sub`        Dimensionality (1,2 or 3), lattice, 
-                                    and unit cell parameters
-  :ref:`param-discretization-sub`  Numbers of spatial grid points and 'time' step ds.
-  :ref:`param-prefixes-sub`        Prefixes for paths to input and output files
-  :ref:`param-basis-sub`           Read space group and construct 
-                                    symmetry-adapted basis functions
+  :ref:`param-composition-sub`     Statistical ensemble and mixture composition
+  :ref:`param-interaction-sub`     Interaction parameters (excess free energy)
+  :ref:`param-unitcell-sub`        Unit cell dimension, lattice type, and parameters
+  :ref:`param-discretization-sub`  Spatial grid dimensions and 'time' step ds.
+  :ref:`param-basis-sub`           Construct symmetry adapted basis 
   :ref:`param-iterate-sub`         Solve SCFT for one set of parameters
   :ref:`param-sweep-sub`           Solve SCFT for multiple sets of parameters
   :ref:`param-response-sub`        Calculate linear susceptibility of an ordered phase
   :ref:`param-finish-sub`          Stop program
   ===============================  ====================================================
- 
+
 Several standard types of computation are possible using the blocks listed above:
 
-   - Iterate: To solve solve SCF equations for a single state point, include 
-     all of the listed below sections except the SWEEP and RESPONSE sections. 
+   - Iterate: To solve solve SCF equations for a single state point, include
+     all of the listed below sections except the SWEEP and RESPONSE sections.
 
    - Sweep: To compute a sequence of different states along a line in parameter
      space, include both an ITERATE and SWEEP function, but not a RESPONSE
@@ -191,12 +186,11 @@ transformations on fields or parameters, or to output additional information.
                                  and output file in coordinate grid format
   :ref:`param-rgridtofield-sub`  Read field file in coordinate grid file format
                                  and output in symmetry-adapated format
-  :ref:`param-kgridtorgrid-sub`  Read field in k-space and output in r-space format 
-  :ref:`param-rhotoomega-sub`    Read rho field, and compute and output omega field 
+  :ref:`param-kgridtorgrid-sub`  Read field in k-space and output in r-space format
+  :ref:`param-rhotoomega-sub`    Read rho field, and compute and output omega field
                                  obtained for vanishing Lagrange multiplier field.
-  :ref:`param-output_waves`      Output contents of symmetry adapted basis functions
-  :ref:`param-rescale-sub`       Redefine monomer reference volume v by rescaling 
-                                 omega and all parameters whose values depend on v
+  :ref:`param-waves-sub`         Output contents of symmetry adapted basis functions
+  :ref:`param-rescale-sub`       Redefine monomer reference volume 
   ============================== ====================================================
 
 Further details about the contents and purpose of each section are given below.
@@ -208,62 +202,62 @@ Parameter Conventions
 
 PSCF does not impose the use of a particular system of units
 for lengths. Any system of units can be used for entering values
-of the monomer statistical segment lengths and the unit cell 
-dimensions, as long as the same unit of length are used for all 
-relevant quantities.  One can use either a physical unit, such 
-as nanometers or Angstroms, or dimensionless units in which one 
-or more of the statistical segment lengths is set to unity. 
+of the monomer statistical segment lengths and the unit cell
+dimensions, as long as the same unit of length are used for all
+relevant quantities.  One can use either a physical unit, such
+as nanometers or Angstroms, or dimensionless units in which one
+or more of the statistical segment lengths is set to unity.
 
 
-SCFT also leaves the user some freedom to redefine what he or 
+SCFT also leaves the user some freedom to redefine what he or
 she means by a "monomer", which need not correspond to a chemical
-repeat unit.  The choice of values of the parameters block_length, 
+repeat unit.  The choice of values of the parameters block_length,
 solvent_size, kuhn, and chi to represent a particular experimental
-system all depend on the choice of a value for a reference volume 
-used to define an effective repeat unit.  Each element of the 
-variable block_length represents the number of "monomers" in a 
-block of a block copolymer, defined to be the ratio of the block 
-volume to the chosen reference volume.  Similarly, the variable 
-solvent_size is given by ratio of the solvent volume to the 
+system all depend on the choice of a value for a reference volume
+used to define an effective repeat unit.  Each element of the
+variable block_length represents the number of "monomers" in a
+block of a block copolymer, defined to be the ratio of the block
+volume to the chosen reference volume.  Similarly, the variable
+solvent_size is given by ratio of the solvent volume to the
 reference volume. The values of the chi parameters are proportional
 to the reference volume, while kuhn lengths are proportional to
-the square root of the reference volume.  Note that PSCF does not 
-require the user to input a value for the monomer reference volume 
+the square root of the reference volume.  Note that PSCF does not
+require the user to input a value for the monomer reference volume
 - the choice only effects the values required for other quantities.
 
 All parameters that are represented internally as characters or
-character strings must appear in the parameter file with single 
-quotes, e.g., as 'chi' or 'out.'. 
+character strings must appear in the parameter file with single
+quotes, e.g., as 'chi' or 'out.'.
 
 .. _param-array-sec:
 
 Array-Valued Parameters
 =======================
 
-Some input parameters are one or two-dimensional array. Here, we discuss how 
+Some input parameters are one or two-dimensional array. Here, we discuss how
 the dimension and format of these parameters is indicated in subsequent sections
-that describe the parameters required in different sections of the input 
+that describe the parameters required in different sections of the input
 script.
 
 Below, the discussion of possible section of an parameter file contains a table
 listing the required parameters and meaning. One or two-dimensional parameters
 are indicated in these tables by displaying the name of each array variable
-with an appropriate number of indices.  One dimensional parameters are thus 
-indicated by writing the name of the parameter with one index: For example, 
-in the description of the MONOMERS section, kuhn(im) denotes a one dimensional 
-array of statistical segment lengths for different monomer types.  Two 
-dimensional arrays are shown with two indices.  
+with an appropriate number of indices.  One dimensional parameters are thus
+indicated by writing the name of the parameter with one index: For example,
+in the description of the MONOMERS section, kuhn(im) denotes a one dimensional
+array of statistical segment lengths for different monomer types.  Two
+dimensional arrays are shown with two indices.
 
-The meaning and range of each such array index is indicated by using a set of 
+The meaning and range of each such array index is indicated by using a set of
 standard variable names to indicate different types of indices, with different
-ranges of allowed values. For example, in the remainder of this page, the 
-symbol 'im' is always used to indicates an index for a monomer type.  The 
+ranges of allowed values. For example, in the remainder of this page, the
+symbol 'im' is always used to indicates an index for a monomer type.  The
 meaning and range of every index symbol is summarized in the following table:
 
 Meaning of Array Indices:
 
   ========= =====================  ================
-  Indices   Meaning                Range   
+  Indices   Meaning                Range
   ========= =====================  ================
   im, in    monomer types          1,...,N_monomer
   ic        chain/polymer species  1,...,N_chain
@@ -271,34 +265,34 @@ Meaning of Array Indices:
   is        solvent species        1,...,N_solvent
   id        Cartesian direction    1,...,dim
   ========= =====================  ================
- 
-For each array parameter, the elements of the array are expected to appear 
-in the parameter file in a specific format. Generally, arrays that contain 
-a polymer or solvent molecular species index are input with the required 
-information about each molecule on a separate line, while values 
-associated with different monomer types or with different blocks within 
-a molecule are listed sequentially on a single line. The expected format 
+
+For each array parameter, the elements of the array are expected to appear
+in the parameter file in a specific format. Generally, arrays that contain
+a polymer or solvent molecular species index are input with the required
+information about each molecule on a separate line, while values
+associated with different monomer types or with different blocks within
+a molecule are listed sequentially on a single line. The expected format
 for each array parameter in specified by a code labeled "Format" in each
-the table of parameters for each section. The meaning of each array format 
+the table of parameters for each section. The meaning of each array format
 code is specified below:
 
 Array Format Codes:
 
   =======  ==================================================
-  Format   Meaning   
+  Format   Meaning
   =======  ==================================================
-  R        1D array, row format (all values in a single line) 
-  C        1D array, column format (one value per line) 
-  MR       2D array, multiple rows of different length 
-  LT       2D array, lower triangular 
+  R        1D array, row format (all values in a single line)
+  C        1D array, column format (one value per line)
+  MR       2D array, multiple rows of different length
+  LT       2D array, lower triangular
   =======  ==================================================
 
 Within each line, values may be separated by any amount of whitespace.
-In the row (R) format for 1D arrays, all values appear on a single line 
-separated by whitespace. In the column format (C), each value appears on 
+In the row (R) format for 1D arrays, all values appear on a single line
+separated by whitespace. In the column format (C), each value appears on
 a separate line. In the multiple row (MR) format, which is used for the
-arrays block_monomer(ib,ic) and block_length(ib,ic), each line of data 
-contains the values for all of the blocks of one chain molecule, with 
+arrays block_monomer(ib,ic) and block_length(ib,ic), each line of data
+contains the values for all of the blocks of one chain molecule, with
 N_block(ic) values in the line for molecule number ic.
 
 The lower triangular (LT) format for square 2D arrays is used for the
@@ -309,20 +303,20 @@ a symmetric array with zero diagonal elements is input in the form::
    chi(3,1) chi(3,2)
    .....
 
-in which line i contains elements chi(i+1,j) for j< i. For a 
+in which line i contains elements chi(i+1,j) for j< i. For a
 system with only two monomer types (e.g., a diblock copolymer melt
-or a binary homopolymer blend), only the single value chi(2,1) on 
-a single line is required. 
+or a binary homopolymer blend), only the single value chi(2,1) on
+a single line is required.
 
 .. _param-sections-sec:
 
-Script Sections
-===============
+Sections
+========
 
 Each of the following subsections describes the format of an allowed
 section of the parameter file. Array-valued parameters are indicated using
-the conventions described above.  Some variables may be present or absent 
-depending on the value of a previous variable.  These conditions, if any, 
+the conventions described above.  Some variables may be present or absent
+depending on the value of a previous variable.  These conditions, if any,
 are given in a column entitled 'Required if' or 'Absent if'.
 
 
@@ -365,14 +359,14 @@ CHAINS
 
 Chain Parameters
 
-  ==================== ======== ============================================ ====== 
+  ==================== ======== ============================================ ======
   Variable             Type     Description                                  Format
-  ==================== ======== ============================================ ====== 
+  ==================== ======== ============================================ ======
   N_chain              integer  Number of chain species
   N_block(ic)          integer  Number of blocks in species ic               C
   block_monomer(ib,ic) integer  Monomer type for block ib of species ic      MR
   block_length(ib,ic)  real     Number of monomers in block ib of species ic MR
-  ==================== ======== ============================================ ====== 
+  ==================== ======== ============================================ ======
 
 The block_monomer and block_length arrays are entered in a format in which each
 line contains the data with one polymer species, so that the number of entries
@@ -421,8 +415,8 @@ Composition Parameters
 UNIT_CELL
 ---------
 
-The variables in the UNIT_CELL section contain the information necessary to define 
-the unit cell type, and the unit cell dimensions and shape. 
+The variables in the UNIT_CELL section contain the information necessary to define
+the unit cell type, and the unit cell dimensions and shape.
 
 
   ================ ============== ============================================ ======
@@ -435,8 +429,8 @@ the unit cell type, and the unit cell dimensions and shape.
   cell_param(i)    real           N_cell_param unit cell parameters            R
   ================ ============== ============================================ ======
 
-The array cell_param contains N_cell_param elements, which are input in row format, 
-with all elements in a single line. Further information about the allowed values of 
+The array cell_param contains N_cell_param elements, which are input in row format,
+with all elements in a single line. Further information about the allowed values of
 the crystal_system string and the number and type of parameters required by each
 type of lattice is given in the :ref:`lattice-page`  page.
 
@@ -449,7 +443,7 @@ DISCRETIZATION
 The discretization section defines the grid used to spatially discretize
 the modified diffusion equaiton and the size ds of the "step" ds in the
 time-like contour length variable used to integral this equation.
-  
+
 Parameters
 
   ========= ========  ====================================== ====
@@ -459,34 +453,8 @@ Parameters
   ds        real      contour length step size
   ========= ========  ====================================== ====
 
-The integer array ngrid(id) is input in row format, with dim (i.e., 1,2 or 3) 
-values on a line, where dim is the dimensionality of space.  
-
-.. _param-prefixes-sub:
-
-FILE_PREFIXES
--------------
-
-The FILE_PREFIXES section contains prefixes strings that are used 
-to construct paths for input and output files. The input_prefix is 
-a string that is concatenated with a suffix "omega" to obtain the 
-path to the input omega field that is read by the ITERATE command.  
-The output prefix is concatenated with the suffixes 'out', 'rho', 
-and 'omega' to create paths for the output summary, output monomer 
-concentration field, and output omega field files. 
-
-Examples: To specify an input file 'in.omega' and output files 'out', 
-'rho', and 'omega' in the current directory, you would set in_prefix 
-to 'in.', and the output prefix to the blank string ''. To specify 
-an input file from another directory, you would set in_prefix to the 
-path to that directory, followed by a trailing '/' directory separator.  
-
-  ==========  ============= ==============================================
-  Variable    Type          Description
-  ==========  ============= ==============================================
-  in_prefix   character(60) prefix to .omega input file
-  out_prefix  character(60) prefix to .rho, .omega, and .out output files
-  ==========  ============= ==============================================
+The integer array ngrid(id) is input in row format, with dim (i.e., 1,2 or 3)
+values on a line, where dim is the dimensionality of space.
 
 .. _param-basis-sub:
 
@@ -503,44 +471,56 @@ elements of the group. After reading this string from file,
 basis functions are constructed by the make_basis routine
 of module basis_mod.
 
-  ======== =============  ==========================================
+  ======== =============  ==========================
   Variable Type           Description
-  ======== =============  ==========================================
-  group    character(60)  name of group, or file that contains group
-  ======== =============  ==========================================
+  ======== =============  ==========================
+  group    character(60)  group name, or file name
+  ======== =============  ==========================
 
-The file format for a group file is determined by the input_group
-routine in module group_mod. Some simple 2D examples of the format
-are provided in src/tests/group.
+The file format for a group file is determined by the 
+input_group routine in module group_mod. 
 
 .. _param-iterate-sub:
 
 ITERATE
 -------
 
-The ITERATE command causes the program to read in an input omega file
-and attempts to iteratively solve the SCFT equations for one set of 
-input parameters. The name of the input file is given by concatenating
-the input_prefix and the string 'omega'. This section must precede any
-SWEEP or RESPONSE section.
+The ITERATE command causes the program to read in an input omega file and 
+attempts to iteratively solve the SCFT equations for one set of input 
+parameters.  This section must immediately precede any SWEEP or RESPONSE 
+section. 
 
-  ========= ============= =====================================================
-  Variable  Type          Description
-  ========= ============= =====================================================
-  max_itr   integer       maximum allowed number of iterations
-  max_error real          tolerance - maximum norm of residual 
-  domain    logical       variable unit cell if true, fixed cell if false
-  itr_algo  character(10) code for iteration algorithm:
-                          'NR' => Newton/Broyden, 'AM' => Anderson mixing.
-  N_cut     integer       dimension of cutoff Jacobian in NR algorithm
-                          (required iff itr_algo = 'NR')
-  N_hist    integer       Number of histories used in AM algorithm
-                          (required iff itr_algo = 'AM')
-  ========= ============= =====================================================
+If an ITERATE section is immediately preceded by a RESCALE section, it uses 
+the rescaled version of the field that was read by the RESCALE command. In 
+this case the parameter file should not contain an input_filename parameter.
 
-For now, the value of the 'itr_algo' variable must be 'NR', for Newton-Raphson
-or 'AM', for Anderson mixing. Other iteration algorithms may be added in the
-future.
+
+  ============== ============= =================================================
+  Variable       Type          Description
+  ============== ============= =================================================
+  input_filename character(60) input omega file name
+  output_prefix  character(60) prefix to all output files
+  max_itr        integer       maximum allowed number of iterations
+  max_error      real          tolerance - max. norm of residual
+  domain         logical       unit cell is variable if true, fixed if false
+  itr_algo       character(10) code for iteration algorithm
+  N_cut          integer       dimension of cutoff Jacobian in NR algorithm
+                               (required iff itr_algo = 'NR')
+  N_hist         integer       Number of histories used in AM algorithm
+                               (required iff itr_algo = 'AM')
+  ============== ============= =================================================
+
+For now, the value of the 'itr_algo' variable must be either 'NR', to use a 
+quasi-Newton-Raphson/Broyden algorithm, or 'AM', to use the Anderson mixing
+iteration algorithm. Other iteration algorithms may be added in the future.
+
+The output prefix is concatenated with the suffixes 'out', 'rho', and 'omega' 
+to create paths for the output summary, output monomer concentration field, 
+and output omega field files. The output prefix string should usually be either
+the name of a subdirectory followed by a "/" directory separator string, such 
+as 'out/', in order to place these files in a separate directory, or a string 
+that ends with a period, such as 'out.', to obtain files with file extensions 
+'.out', '.rho' and '.omega'. In all of the examples, output_prefix = 'out/'.
 
 .. _param-sweep-sub:
 
@@ -602,8 +582,8 @@ a user defined vector increment.
 FIELD_TO_RGRID
 --------------
 
-This command reads a file containing a field in the symmetry-adapted 
-Fourier expansion format and outputs a representation containing 
+This command reads a file containing a field in the symmetry-adapted
+Fourier expansion format and outputs a representation containing
 values of the field on a coordinate space grid. This and the other
 commands to transform representation can be applied to either a rho
 or omega field.
@@ -611,12 +591,12 @@ or omega field.
   ================  ============= ============================
   Variable          Type          Description
   ================  ============= ============================
-  input_filename    character(60) name of input file 
+  input_filename    character(60) input file name
                                   (symmetry-adapted format)
-  output_filename   character(60) name of output file 
+  output_filename   character(60) output file name
                                   (coordinate grid format)
   ================  ============= ============================
-  
+
 .. _param-rgridtofield-sub:
 
 RGRID_TO_FIELD
@@ -630,12 +610,12 @@ representationo as an symmetry-adapted Fourier expansion.
   ================ ============= ========================================
   Variable         Type          Description
   ================ ============= ========================================
-  input_filename   character(60) name of input file 
-                                 (coordinate grid format)
-  output_filename  character(60) name of output file 
-                                 (symmetry-adapted format)
+  input_filename   character(60) input file name
+                                 (coordinate grid) 
+  output_filename  character(60) output file name
+                                 (symmetry-adapted)
   ================ ============= ========================================
-  
+
 .. _param-kgridtorgrid-sub:
 
 KGRID_TO_RGRID
@@ -643,18 +623,18 @@ KGRID_TO_RGRID
 
 This command inverts the operation applied by RGRID_TO_KGRID: It reads
 a file containing values Fourier components of a field on wavevectors
-on a k-space FFT grid, performs an inverse Fourier transform, and 
+on a k-space FFT grid, performs an inverse Fourier transform, and
 outputs values of the field on a coordinate r-space grid.
 
   ================ ============= ============================
   Variable         Type          Description
   ================ ============= ============================
-  input_filename   character(60) name of input file 
+  input_filename   character(60) input file name
                                  (wavevector grid)
-  output_filename  character(60) name of output file 
+  output_filename  character(60) output file name
                                  (coordinate grid)
   ================ ============= ============================
-  
+
 .. _param-rhotoomega-sub:
 
 RHO_TO_OMEGA
@@ -663,10 +643,10 @@ RHO_TO_OMEGA
 This command reads a file containing a monomer concetnration field
 and outputs a corresponding initial guess for the omega field. Both
 input and ouput files use the symmetry-adapted Fourier expansion
-format. The omega field is computed by simply setting the Lagrange 
-multiplier pressure field to zero, giving a field that only contains 
-the contributions that arise from the excess interaction free 
-energy, e.g., terms that explicitly involve the Flory-Huggins chi 
+format. The omega field is computed by simply setting the Lagrange
+multiplier pressure field to zero, giving a field that only contains
+the contributions that arise from the excess interaction free
+energy, e.g., terms that explicitly involve the Flory-Huggins chi
 parameter. This command is intended to be used to generate an initial
 guess for $\omega$ from an approximate structural model for the
 volume fraction fields in a particular structure.
@@ -674,12 +654,73 @@ volume fraction fields in a particular structure.
   ================  ============= ============================
   Variable          Type          Description
   ================  ============= ============================
-  input_filename    character(60) name of input rho file 
+  input_filename    character(60) input rho file name
                                   (symmetry-adapted)
-  output_filename   character(60) name of output omega file 
+  output_filename   character(60) output omega file name
                                   (symmetry-adapted)
   ================  ============= ============================
-  
+
+.. _param-rescale-sub:
+
+RESCALE
+-------
+
+This command reads in an omega file, then applies a change in the
+convention for the monomer reference volume to the omega field and 
+to all parameters whose value depend upon an implicit choice of 
+monomer reference volume. This command may only be called (if at all)
+immediately prior to an ITERATE commands, in order to read in an
+omega field and then change the convention for the monomer reference 
+volume prior to solving the SCFT equations.
+
+This command applies a change in the omega field and various 
+properties that corresponds to a change of the monomer reference 
+volume :math:`v` by a factor :math:`v \rightarrow v/\lambda`. The
+scale factor :math:`\lambda` is given in the parameter file by 
+the input variable "vref_scale".
+
+  ================  ============= ============================
+  Variable          Type          Description
+  ================  ============= ============================
+  input_filename    character(60) input omega file name
+  vref_scale        real          scale factor
+  ================  ============= ============================
+
+This command applies the following set of transformations to each
+block length :math:`N`, solvent size :math:`S`, statistical segment 
+length :math:`b`, Flory-Huggins interaction parameter :math:`\chi`,
+and monomer chemical potential field :math:`\omega`:
+
+   ==================  ==============  ========================
+   Variable type       Symbol          New value
+   ==================  ==============  ========================
+   block length        :math:`N`       :math:`N \lambda`
+   solvent size        :math:`S`       :math:`S \lambda`
+   monomer length      :math:`b`       :math:`b/\sqrt{\lambda}`
+   interaction         :math:`\chi`    :math:`\chi/\lambda`
+   field               :math:`\omega`  :math:`\omega/\lambda`
+   ==================  ==============  ========================
+
+The SCFT equations can be shown to be invariant under such a change 
+in convention for the definition of a "monomer". Also note that 
+this transformation leaves invariant any product :math:`\chi N` of 
+a interaction parameter and a block or a chain length or any product 
+:math:`\omega N` of a chemical potential field per monomer and the 
+number of monomers in a block, both of which correspond to measures 
+of the free energy of interaction of a block with its surroundings. 
+The transformation also leaves invariant any product 
+:math:`\sqrt{N} b` that corresponds to a random-walk coil size.
+
+Applying this rescaling to an omega field that already solves the
+SCFT equations for the choice of parameters given in the parameter
+file simply generates an equivalent solution corresping to a 
+rescaled choice of parameter values. Using the RESCALE command to 
+read in a file containing such a converged solution should thus 
+cause the subsequent ITERATE command to terminate immediately,
+since the error should be less than the numerical threshhold on 
+and output the new parameters to an output summary file and the 
+rescaled omega field to an output omega file. 
+
 .. _param-finish-sub:
 
 FINISH

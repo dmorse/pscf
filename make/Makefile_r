@@ -34,7 +34,10 @@ F90=gfortran
 FAST=-O3 -ffree-form 
 NOPT=-ffree-form
 LINK=-O3 -ffree-form -lgfortran
- 
+
+# Mac OS X, gfortran as installed by MacPorts package manager
+#F90=/opt/local/bin/gfortran-mp-5
+
 # Intel compiler
 # F90=ifort
 # FAST=-O3 -free
@@ -47,7 +50,7 @@ LINK=-O3 -ffree-form -lgfortran
 # Empty by default
 LIBDIRS=
 
-# MacIntosh, if using MacPorts package management system
+# Mac OS X, if using MacPorts package manager
 #LIBDIRS= -L /opt/local/lib
 
 # ============ FFTW Fast Fourier Transform Library =============
