@@ -45,14 +45,14 @@ add_subdirectory(response)
 
 ### PREPROCESS THE MAIN FILE ###
 add_custom_command(
-   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/pscf_pd.f 
-   COMMAND  ${FORPEDO} ${DEVEL} ${CMAKE_CURRENT_SOURCE_DIR}/pscf_pd.fp.f > ${CMAKE_CURRENT_BINARY_DIR}/pscf_pd.f 
-   DEPENDS pscf_pd.fp.f
+   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/pscf.f 
+   COMMAND  ${FORPEDO} ${DEVEL} ${CMAKE_CURRENT_SOURCE_DIR}/pscf.fp.f > ${CMAKE_CURRENT_BINARY_DIR}/pscf.f 
+   DEPENDS pscf.fp.f
 )
 
 add_executable(pscf 
    ${BUILD_MACOSX_BUNDLE} WIN32
-   ${CMAKE_CURRENT_BINARY_DIR}/pscf_pd.f 
+   ${CMAKE_CURRENT_BINARY_DIR}/pscf.f 
 )
 
 set(APPS ${CMAKE_CURRENT_BINARY_DIR}/pscf${MACOSX_BUNDLE_EXT})

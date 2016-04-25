@@ -45,7 +45,7 @@ Com_char:
 !
 
 Filenames:
-pscf_pd.f
+pscf.f
 iterate/iterate_mod.f
 iterate/sweep_mod.f
 iterate/response_pd_mod.f

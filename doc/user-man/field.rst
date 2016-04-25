@@ -216,7 +216,7 @@ lamellar phase of a diblock copolymer melt:
     -1.475930488937E-13 -4.916067553040E-14      20     1
 
 
-**Description of File Format**
+**Description of Format**
 
 This first part of such a field file is a header that ends with the
 parameter N_star, which is the number of basis functions. This is 
@@ -313,22 +313,134 @@ comments in the source code for the basis_mod module.
  
 .. _field-grid-sec:
 
-Coordinate Grid (RGRID) Format
-================================
+Coordinate Grid Format
+=======================
 
 PSCF can also output the values of set of fields (one per 
 monomer type) evaluated on all of the grid points of the FFT 
 grid that is used to solve the modified diffusion equation.
 
-TODO: Add description of this format
+**Example: 2D Hex Phase of Diblock Copolymer Melt**
+
+Here is example of a converged omega field for a hex phase::
+
+    format  1  0
+   dim                 
+                      2
+   crystal_system      
+            'hexagonal'
+   N_cell_param        
+                      1
+   cell_param          
+       1.7703537313E+00
+   group_name          
+              'P 6 m m'
+   N_monomer           
+                      2
+   ngrid               
+                     24                  24
+          0.340581085      19.518839883
+          0.570887775      19.658020087
+          1.199229419      19.984609517
+          2.070864605      20.233012735
+          2.929754416      19.853514300
+               .                 .
+               .                 .
+               .                 .
+          0.999219800      19.890258066
+          0.570887775      19.658020087
+
+
+**Description of Format**
+
+Like the others, this file format contains a header section with
+crystallographic information followed by a data section. The header
+section is similar that for the symmetry adapted format, except that
+the last variable is an array "ngrid" of integers giving the number
+of grid points in each direction. In this example, because it is a
+two-dimensional crystal (dim = 2), this array contains two numbers,
+both 24, indicating a grid in which there are 24 grid points along
+each axis. To describe a hexagonal phase, we use a non-orthogonal
+coordinate system in which each axis is parallel to one of the 
+Bravais lattice vectors, which in a hexagonal phase have an angle
+of 60 degrees between. 
+
+The data section contains the values of fields associated 
+with N_monomer monomer types at grid points given by
+
+.. math::
+
+    \textbf{r}(n_1, \ldots, n_{D}) = \sum_{i=1}^{\textrm{D}}
+    \frac{n_{i}}{N_{i}}\textbf{a}_{1}
+
+where $D$ is the dimensionality of the crystal (denoted by "dim" in 
+the header and the parameter file), :math:`\textbf{a}_{i}` is a Bravais 
+lattice vector, :math:`N_{i}` is the number of grid points along 
+direction :math:`i`, :math:`\textbf{a}_{i}`, and $n_{i}$ is an integer 
+in the range :math:`0 \leq n_{i} < N_{i}`.  The number of rows in the 
+data section is equal to the total number of grid points, and each row 
+contains values of all fields at a single grid point. The number of 
+columns is equal to the number of monomer types, so that data in column 
+:math:`alpha` contains the values of the field associated with monomer 
+type :math:`\alpha`. 
+
+Grid points are listed in order using index :math:`n_{1}` as the most 
+rapidly varying (innermost) loop index. This is implemented in the 
+field_io_mod module, in subroutines output_field_grid and 
+input_field_grid as a fortran loop of the form::
+
+   do n3 = 0, ngrid(3) - 1
+     do n2 = 0, ngrid(2) - 1
+       do n1 = 0, ngrid(1) - 1
+          [Read or write data at grid point (n1, n2, n3)]
+       enddo
+     enddo
+   enddo
+
 
 .. _field-fourier-sec:
 
-Fourier Grid (KGRID) Format
-=============================
+Wavevector Grid Format
+=======================
 
 Finally, PSCF can read and write the unsymmetrized discrete 
 Fourier transform of a multi-component field, which is related
-to the values on a grid a by discrete Fourier transform.
+to the values on a grid a by discrete Fourier transform.  The 
+required file format is very similar to that used for the 
+coordinate space grid. The file consists of a header and a
+data section. The format of the header is identical to that
+used for the coordinate grid format, and includes a list of
+the number of grid points used in each direction, denoted by
+ngrid.
 
-TODO: Add description of this format
+The data section contains the Fourier coefficients obtained by
+a discrete Fourier transform of each field at wavevectors given
+by
+
+.. math::
+
+    \textbf{k}(n_1, \ldots, n_{D}) = \sum_{i=1}^{\textrm{D}}
+    n_{i}\textbf{b}_{i}
+
+where $D$ is the dimensionality of the crystal, :math:`\textbf{b}_{i}` 
+is a reciprocal lattice basis vector, :math:`N_{i}` is the number of 
+grid points along direction :math:`i`, :math:`\textbf{a}_{i}`, and 
+$n_{i}$ is an integer in the range :math:`0 \leq n_{1} \leq N_{1}/2` 
+for the first index and :math:`0 \leq n_{i} \leq N_{i} - 1` for 
+indices :math:`i > 1`. The number of rows in the data section is 
+equal to the total number of such wavevectors, and each row 
+contains values of Fourier coefficients associated with a single
+wavevector, with coefficients for fields associated with different
+monomer types in different columnns. Coefficients for different
+wavevectors are output in order with the last index (e.g., 
+:math:`n_{3}` for a 3D crystal) as the most rapidly varying
+(inner-most) loop index. This implemented by a loop of the form::
+
+   do n1 = 0, ngrid(1)/2
+     do n2 = 0, ngrid(2) - 1
+       do n3 = 0, ngrid(3) - 1
+         [Read or write coefficients for (n1, n2, n3)]
+        enddo
+     enddo
+   enddo
+
