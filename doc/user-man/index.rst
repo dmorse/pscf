@@ -14,7 +14,7 @@ Contents:
    intro
    install
    usage
-   script
+   param
    field
    lattice
    groups

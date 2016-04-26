@@ -130,11 +130,10 @@ chains, which must linear block polymers or hompolymers.
 
 .. _param-overview-sec:
 
-Overview
-========
+Overview of Sections
+====================
 
-Primary Sections
-----------------
+**Primary Sections**
 
 The following list shows the titles of the blocks required to complete most
 standard computations, in the order in which they normally appear.
@@ -155,7 +154,7 @@ leave out the penulimate SWEEP section.
   :ref:`param-basis-sub`           Construct symmetry adapted basis 
   :ref:`param-iterate-sub`         Solve SCFT for one set of parameters
   :ref:`param-sweep-sub`           Solve SCFT for multiple sets of parameters
-  :ref:`param-response-sub`        Calculate linear susceptibility of an ordered phase
+  :ref:`param-response-sub`        Compute linear susceptibility of ordered phase
   :ref:`param-finish-sub`          Stop program
   ===============================  ====================================================
 
@@ -173,8 +172,7 @@ Several standard types of computation are possible using the blocks listed above
      periodic microstructure, include ITERATE and RESPONSE sections, but do not include
      a SWEEP section.
 
-Miscellaneous Utilities
------------------------
+**Miscellaneous Utilities**
 
 The following sections are used to invoke a variety of data processing operations or
 transformations on fields or parameters, or to output additional information.
@@ -189,8 +187,8 @@ transformations on fields or parameters, or to output additional information.
   :ref:`param-kgridtorgrid-sub`  Read field in k-space and output in r-space format
   :ref:`param-rhotoomega-sub`    Read rho field, and compute and output omega field
                                  obtained for vanishing Lagrange multiplier field.
-  :ref:`param-waves-sub`         Output contents of symmetry adapted basis functions
   :ref:`param-rescale-sub`       Redefine monomer reference volume 
+  :ref:`param-waves-sub`         Output contents of symmetry adapted basis functions
   ============================== ====================================================
 
 Further details about the contents and purpose of each section are given below.
@@ -231,8 +229,8 @@ quotes, e.g., as 'chi' or 'out.'.
 
 .. _param-array-sec:
 
-Array-Valued Parameters
-=======================
+Array Formats
+==============
 
 Some input parameters are one or two-dimensional array. Here, we discuss how
 the dimension and format of these parameters is indicated in subsequent sections
@@ -310,10 +308,10 @@ a single line is required.
 
 .. _param-sections-sec:
 
-Sections
-========
+Individual Sections
+====================
 
-Each of the following subsections describes the format of an allowed
+Each of the following subsections describes the format of one possible
 section of the parameter file. Array-valued parameters are indicated using
 the conventions described above.  Some variables may be present or absent
 depending on the value of a previous variable.  These conditions, if any,
@@ -333,24 +331,6 @@ Chemistry Parameters
   N_monomer    integer   Number of monomer types
   kuhn(im)     real      statistical segment length of monomer im    R
   ===========  ========  =========================================   ==========
-
-.. _param-interaction-sub:
-
-INTERACTION
------------
-
-Interaction Parameters
-
-  ============ ======= ==================================  ======  ============
-  Variable     Type    Description                         Format  Required if
-  ============ ======= ==================================  ======  ============
-  chi_flag     char(1) 'B' => bare chi,
-                       'T' => chi=chi_A/T + chi_B
-  chi(im,in)   real    Flory-Huggins parameter ('bare')    LT      chi_flag='B'
-  chi_A(im,in) real    Enthalpic coefficient for chi(T)    LT      chi_flag='T'
-  chi_B(im,in) real    Entropic contribution to chi(T)     LT      chi_flag='T'
-  Temperature  real    Absolute temperature                        chi_flag='T'
-  ============ ======= ==================================  ======  ============
 
 .. _param-chains-sub:
 
@@ -410,6 +390,24 @@ Composition Parameters
   mu_solvent(ic)  real     chemical potential of solvent species ic  C       ensemble=1 and N_solvent > 0
   =============== ======== ========================================= ======= ============================
 
+.. _param-interaction-sub:
+
+INTERACTION
+-----------
+
+Interaction Parameters
+
+  ============ ======= ==================================  ======  ============
+  Variable     Type    Description                         Format  Required if
+  ============ ======= ==================================  ======  ============
+  chi_flag     char(1) 'B' => bare chi,
+                       'T' => chi=chi_A/T + chi_B
+  chi(im,in)   real    Flory-Huggins parameter ('bare')    LT      chi_flag='B'
+  chi_A(im,in) real    Enthalpic coefficient for chi(T)    LT      chi_flag='T'
+  chi_B(im,in) real    Entropic contribution to chi(T)     LT      chi_flag='T'
+  Temperature  real    Absolute temperature                        chi_flag='T'
+  ============ ======= ==================================  ======  ============
+
 .. _param-unitcell-sub:
 
 UNIT_CELL
@@ -423,8 +421,7 @@ the unit cell type, and the unit cell dimensions and shape.
   Variable         Type           Description                                  Format
   ================ ============== ============================================ ======
   dim              integer        dimensionality =1, 2, or 3
-  crystal_system   character(60)  unit cell type
-                                  (cubic, tetragonal, orthorhombic, etc.)
+  crystal_system   character(60)  unit cell type (cubic, tetragonal, etc.)
   N_cell_param     integer        # parameters required to describe unit cell
   cell_param(i)    real           N_cell_param unit cell parameters            R
   ================ ============== ============================================ ======
@@ -441,7 +438,7 @@ DISCRETIZATION
 --------------
 
 The discretization section defines the grid used to spatially discretize
-the modified diffusion equaiton and the size ds of the "step" ds in the
+the modified diffusion equation and the size ds of the "step" ds in the
 time-like contour length variable used to integral this equation.
 
 Parameters
