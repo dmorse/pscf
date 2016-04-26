@@ -3,7 +3,7 @@
 # GDOC   = path to GDoc.py python documentation generation script
 
 SRC=../src
-BLD=../bld
+BLD=../make
 PYTHON=python
 GDOC=../tools/python/GDoc/GDoc.py
 
@@ -18,11 +18,11 @@ user-man:
 .PHONY: devel-man 
 
 devel-man:	
-	cp $(BLD)/pscf_pd.f $(SRC)/pscf_pd.f
+	cp $(BLD)/pscf.f $(SRC)/pscf.f
 	cp $(BLD)/scf_mod.f $(SRC)/scf/scf_mod.f
 	cp $(BLD)/iterate_mod.f $(SRC)/iterate/iterate_mod.f
 	$(PYTHON) $(GDOC)
-	rm $(SRC)/pscf_pd.f
+	rm $(SRC)/pscf.f
 	rm $(SRC)/scf/scf_mod.f
 	rm $(SRC)/iterate/iterate_mod.f
 
