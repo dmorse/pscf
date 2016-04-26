@@ -721,6 +721,24 @@ since the error should be less than the numerical threshhold on
 and output the new parameters to an output summary file and the 
 rescaled omega field to an output omega file. 
 
+.. _param-waves-sub:
+
+OUTPUT WAVES
+-------------
+
+Output the relationship between plane waves and symmetry-adapted
+basis functions, by outputting a file containing showing which
+star each wavevector belongs to and the coefficients of the 
+plane-wave within a symmetry adapted basis function assocated 
+with that star.
+
+  ================  ============= ============================
+  Variable          Type          Description
+  ================  ============= ============================
+  output_filename   character(60) output file name
+  ================  ============= ============================
+
+
 .. _param-finish-sub:
 
 FINISH

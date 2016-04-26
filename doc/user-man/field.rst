@@ -413,28 +413,30 @@ used for the coordinate grid format, and includes a list of
 the number of grid points used in each direction, denoted by
 ngrid.
 
-The data section contains the Fourier coefficients obtained by
-a discrete Fourier transform of each field at wavevectors given
-by
+The data section contains the Fourier coefficients obtained by a 
+discrete Fourier transform of each field at wavevectors given by
 
 .. math::
 
     \textbf{k}(n_1, \ldots, n_{D}) = \sum_{i=1}^{\textrm{D}}
     n_{i}\textbf{b}_{i}
 
-where $D$ is the dimensionality of the crystal, :math:`\textbf{b}_{i}` 
-is a reciprocal lattice basis vector, :math:`N_{i}` is the number of 
-grid points along direction :math:`i`, :math:`\textbf{a}_{i}`, and 
-$n_{i}$ is an integer in the range :math:`0 \leq n_{1} \leq N_{1}/2` 
-for the first index and :math:`0 \leq n_{i} \leq N_{i} - 1` for 
-indices :math:`i > 1`. The number of rows in the data section is 
-equal to the total number of such wavevectors, and each row 
-contains values of Fourier coefficients associated with a single
-wavevector, with coefficients for fields associated with different
-monomer types in different columnns. Coefficients for different
-wavevectors are output in order with the last index (e.g., 
-:math:`n_{3}` for a 3D crystal) as the most rapidly varying
-(inner-most) loop index. This implemented by a loop of the form::
+where :math:`D` is the dimensionality of the crystal (i.e., dim
+in the header file), :math:`\textbf{b}_{i}` is a reciprocal lattice 
+basis vector, :math:`N_{i}` is the number of grid points along 
+direction :math:`i`, and :math:`n_{i}` is an integer in the 
+range :math:`0 \leq n_{1} \leq N_{1}/2` for the first index and 
+:math:`0 \leq n_{i} \leq N_{i} - 1` for indices :math:`i > 1`. 
+The number of rows in the data section is equal to the total 
+number of such wavevectors, and each row contains values of 
+Fourier coefficients associated with a single wavevector, 
+with coefficients for fields associated with different monomer 
+types in different columnns. 
+
+Coefficients for different wavevectors are output in sequential
+order, using the last index (e.g., :math:`n_{3}` for a 3D crystal) 
+as the most rapidly varying (inner-most) loop index. This is 
+implemented by a fortran loop of the form::
 
    do n1 = 0, ngrid(1)/2
      do n2 = 0, ngrid(2) - 1
