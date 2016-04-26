@@ -9,9 +9,9 @@
 ! the Free Software Foundation. A copy of this license is included in
 ! the LICENSE file in the top-level PSCF directory.
 !----------------------------------------------------------------------
-!****e scf/pscf_pd
+!****e scf/pscf
 ! PROGRAM
-!   pscf_pd
+!   pscf
 ! PURPOSE
 !   Main program for polymer self-consistent field theory (PSCF) for
 !   spatially periodic (PD) microstructures. The program can treat
@@ -57,7 +57,7 @@
 !
 ! SOURCE
 !----------------------------------------------------------------------
-program pscf_pd
+program pscf
    use const_mod
    use string_mod
    use io_mod
@@ -1004,7 +1004,7 @@ program pscf_pd
    end do op_loop
 
 
-contains ! internal subroutines of program pscf_pd
+contains ! internal subroutines of program pscf
 
 
    subroutine allocate_scf_arrays
@@ -1179,5 +1179,5 @@ contains ! internal subroutines of program pscf_pd
    end subroutine output_fields
    !============================================================
 
-end program pscf_pd
+end program pscf
 !***
