@@ -16,7 +16,7 @@ Contents:
    usage
    param
    field
-   lattice
+   unitcell
    groups
    memory
    package

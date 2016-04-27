@@ -429,7 +429,7 @@ the unit cell type, and the unit cell dimensions and shape.
 The array cell_param contains N_cell_param elements, which are input in row format,
 with all elements in a single line. Further information about the allowed values of
 the crystal_system string and the number and type of parameters required by each
-type of lattice is given in the :ref:`lattice-page`  page.
+type of lattice is given in the :ref:`unitcell-page`  page.
 
 
 .. _param-discretization-sub:

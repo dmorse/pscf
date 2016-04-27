@@ -45,17 +45,17 @@ file format
 
 Consider a system with N_monomer monomer types indexed by an 
 integer :math:`\alpha = 1, \ldots,` N_monomer. Let 
-:math:`\phi_{\alpha}(\textbf{r})` denote a field (e.g., a volume fraction) 
-associated with monomer type :math:`\alpha` . We approximate the field 
-:math:`\phi_{\alpha}` as an expansion of the form
+:math:`\omega_{\alpha}(\textbf{r})` denote a field (e.g., a monomer chemical
+potential field) associated with monomer type :math:`\alpha` . We approximate 
+the field :math:`\omega_{\alpha}` as an expansion of the form
 
 .. math::
 
-    \phi_{\alpha}(\textbf{r}) = 
-    \sum_{i=1}^{\texttt{N_star}} \phi_{i\alpha} f_{i}(\textbf{r})
+    \omega_{\alpha}(\textbf{r}) = 
+    \sum_{i=1}^{\texttt{N_star}} \omega_{i\alpha} f_{i}(\textbf{r})
 
 in which each function :math:`f_{i}(\textbf{r})` is a real basis 
-function, :math:`\phi_{i\alpha}` is an associated real coefficient, and 
+function, :math:`\omega_{i\alpha}` is an associated real coefficient, and 
 :math:`\texttt{N_star}` is the number of basis functions used to
 approximate the field. In a symmetry-adapted Fourier expansion of a 
 field with a specified space group symmetry, each basis function 
@@ -121,7 +121,7 @@ in the symmetry-adapted file format by a label consisting of d integer
 indices. These indices correspond to the Miller indices for one of the 
 wavevectors associated with the basis function.  Thus for example, we 
 identity the basis function associated with the {321} family of wavevectors 
-in a cubic crystal by a label "3 1 1".  The conventions for choosing 
+in a cubic crystal by a label "3 2 1".  The conventions for choosing 
 which plane wave to use to identify the basis function is discussed 
 in the comments provided in the source code of crystal_mod (See the html
 developers manual for browseable version of this. The set of Miller 
@@ -240,7 +240,7 @@ coefficients associated with one basis function, along with an identifier
 for the basis function. The first N_monomer columns of row i (e.g., the
 first two columns, in both of the above examples) contain the 
 coefficients associated with different monomer types.  Specifically,
-a coefficient :math:`\phi_{i\alpha}` associated with basis function 
+a coefficient :math:`\omega_{i\alpha}` associated with basis function 
 :math:`i` and monomer type :math:`\alpha` is given in column 
 :math:`\alpha` of row i of this data section.
 

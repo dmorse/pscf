@@ -730,8 +730,8 @@ program pscf
          iterate_flag = .FALSE.
          omega_flag = .FALSE.
 
-         open(unit=field_unit, &
-              file=trim(output_prefix)//'group',status='replace')
+         call input(output_filename,'output_filename')
+         open(unit=field_unit,file=trim(output_filename), status='replace')
          call output_group(group,field_unit)
          close(field_unit)
 
@@ -742,8 +742,11 @@ program pscf
             write(6,*) "Error: Must read BASIS before OUTPUT_WAVES"
             exit op_loop
          end if
+         iterate_flag = .FALSE.
+         omega_flag = .FALSE.
 
-         open(unit=field_unit,file=trim(output_prefix)//'waves',&
+         call input(output_filename,'output_filename')
+         open(unit=field_unit,file=trim(output_filename),&
               status='replace')
          call output_waves(field_unit, group_name)
          close(field_unit)
