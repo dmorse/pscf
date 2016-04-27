@@ -63,7 +63,7 @@ install: pscf
 
 uninstall:
 	rm -rf $(BIN_DIR)/pscf*
-	rm $(PYTHON_DIR)/pscf/*
+	rm -rf $(PYTHON_DIR)/pscf/*
 
 # ====== Modules =================================================
 
