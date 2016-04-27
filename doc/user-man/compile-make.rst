@@ -27,35 +27,34 @@ To compile the code in this way, proceed as follows:
 
      from within src/make.
 
-   * To install in the location specified by $(INSTALL) makefile variable, 
-     enter::
+   * To install in the location specified by the $(INSTALL) makefile 
+     variable (defined in config.mk), enter::
 
         > make install
 
-    * To modify your $PATH and $PYTHONPATH environment variables to include
-      the directories in which you have installed executables and python
-      scripts, enter::
+   * To modify your $PATH and $PYTHONPATH environment variables to include
+     the directories in which you have installed executables and python
+     scripts, enter::
 
-           > source $(INSTALL)/bin/pscf-env
+        > source $(INSTALL)/bin/pscf-env
 
-      where $(INSTALL) denotes the base installation directory. This method 
-      will only modify these environment variables temporarily until you 
-      log out (on linux) or close the terminal (on a Mac). 
+     where $(INSTALL)/bin is a placeholder for the actual path to the 
+     directory in which the pscf and pscf-env executable files were installed.
 
-    * To setup your environment to add the appropriate paths to your 
-      $PATH and $PYTHONPATH whenever you log in, add the above command,
-      "source $(INSTALL)/bin/pscf-env", to the .profile configuration file
-      in your home directory.
+   * The above method will only modify the $PATH and $PYTHONPATH variables 
+     temporarily, until you log out (on linux) or close the terminal (on a Mac). 
+     To have the appropriate directories automatically added to these environment 
+     variables whenever you log in, add the command "source $(INSTALL)/bin/pscf-env" 
+     to the .profile configuration file in your home directory.
       
 Some of these steps are discussed in more detail below
 
-Customize the Makefile
------------------------
+**Editing the config.mk configfuration file**
 
-In the config.mk file in the src/make directory (which you must create 
-by copying config.mk_r), you will need to set values for a set of macro 
-variables to values appropriate to your system. Makefile variables 
-you may need to reset are:
+In the config.mk file in the src/make directory (which you must create by 
+copying config.mk_r), you will need to set values for a set of macro variables 
+to values appropriate to your system. Makefile variables you may need to reset 
+are:
  
  =========  ========================================================
  F90        path to executable for Fortran 90 compiler
@@ -68,25 +67,26 @@ you may need to reset are:
  =========  ========================================================
 
 The default config.mk file contains values appropriate for a number of 
-different common environments, most of which are commented out. Modify 
-this configuration file as needed, but make sure you give exactly one 
+different common environments, most of which are commented out, and some
+comments about appropriate choices for common environments.  Modify this 
+configuration file as needed, but make sure you give exactly one 
 uncommented definition for each variable, and comment out any unused 
 definitions.
 
-Compile and Link
------------------
+**Compile and Link**
 
 To compile and link, from the src/make directory, simply enter::
 
    > make -j4 
 
-This should fill the src/make directory with .o and .mod files, and 
-create an executable named pscf in the same directory. 
+This should fill the src/make directory with .o and .mod files, which
+are created when the modules are compiled, and create an executable 
+file named pscf in the same directory. 
 
-Installation
-------------
+**Install**
 
-To install the executable in your chosen location, simply enter::
+To install a copy of the executable file in your chosen location, simply 
+enter::
 
    > make install
 
@@ -101,9 +101,7 @@ This will install:
 where $(INSTALL) denotes the makefile variable defined in the config.mk
 file, which specifies the root of the installation directory tree.
 
-
-Setting your Path and Running 
-------------------------------
+**Setting Paths and Running**
 
 To invoke the pscf program, you will need to do one of the following:
 
@@ -125,17 +123,15 @@ To invoke the pscf program, you will need to do one of the following:
      variables by using the "source" command to execute the pscf-env 
      script.
 
-Cleaning Up
------------
+**Cleaning Up**
 	
-To remove all generated files from the pscf/make directory::
+To remove all generated files from the pscf/make directory, if desired, 
+enter::
 
    > make clean
 
-To remove all files installed in the INSTALL directory and start over, enter::
+To remove all files installed in the INSTALL directory by the "make install"
+command, enter::
 
    > make uninstall
-
-If you have manually moved the executable or other files, you may need to 
-remove these files manually to fully clean up.
 

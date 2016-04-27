@@ -243,7 +243,7 @@ To use git to clone the repository, after git is installed on your machine:
 
     * Clone the repository, by entering::
 
-          git clone https://github.com/dmorse/simpatico.git
+          git clone https://github.com/dmorse/pscf.git
 
     * This should create a subdirectory of pscf/ that is also named pscf/. 
       To avoid confusion, we recommend that you change the subdirectory 
