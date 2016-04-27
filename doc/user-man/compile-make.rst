@@ -14,12 +14,12 @@ To compile the code in this way, proceed as follows:
 
    * Change the working directory (cd) to the pscf/make directory
 
-   * Make a copy named makefile of the file Makefile_r, by entering::
+   * Make a copy named config.mk of the file config.mk_r, by entering::
 
-        cd Makefile_r Makefile
+        cd config.mk_r config.mk
 
-   * Examine and edit the Makefile to reflect your environment (see below).
-     Also choose an install base directory by setting the INSTALL variable.
+   * Examine and edit the config.mk file to reflect your environment, 
+     and to choose an installation directory (see below).
 
    * To compile, enter::
 
@@ -38,9 +38,9 @@ To compile the code in this way, proceed as follows:
 
            > source $(INSTALL)/bin/pscf-env
 
-      where $(INSTALL) is the base installation directory. This method will
-      only modify these environment variables temporarily until you log out
-      (on linux) or close the terminal (on a Mac). 
+      where $(INSTALL) denotes the base installation directory. This method 
+      will only modify these environment variables temporarily until you 
+      log out (on linux) or close the terminal (on a Mac). 
 
     * To setup your environment to add the appropriate paths to your 
       $PATH and $PYTHONPATH whenever you log in, add the above command,
@@ -52,8 +52,8 @@ Some of these steps are discussed in more detail below
 Customize the Makefile
 -----------------------
 
-In the Makefile in the src/make directory (which you must create by
-copying Makefile_r), you will need to set values for a set of macro 
+In the config.mk file in the src/make directory (which you must create 
+by copying config.mk_r), you will need to set values for a set of macro 
 variables to values appropriate to your system. Makefile variables 
 you may need to reset are:
  
@@ -65,46 +65,65 @@ you may need to reset are:
  LAPACKLIB  option setting name of lapack library (e.g., "-l liblapack")
  FFTWLIB    option setting name of the FFTW library (e.g., "-l fftw3")
  INSTALL    root directory for installation of executables and scripts
- EXE        name of executable file (pscf by default)
  =========  ========================================================
 
-The makefile contains values appropriate for a number of different common 
-environments, most of which are commented out. Modify the Makefile file
-as needed, but make sure you give exactly one uncommented definition for 
-each variable, and comment out any unused definitions.
+The default config.mk file contains values appropriate for a number of 
+different common environments, most of which are commented out. Modify 
+this configuration file as needed, but make sure you give exactly one 
+uncommented definition for each variable, and comment out any unused 
+definitions.
 
 Compile and Link
 -----------------
 
 To compile and link, from the src/make directory, simply enter::
 
-   > make pscf
+   > make -j4 
 
 This should fill the src/make directory with .o and .mod files, and 
-create an executable $(BIN)/$(EXE). By default, this will create a program 
-named pscf in the pscf/bin directory. The executable file can be relocated 
-to somewhere else if you desire.
+create an executable named pscf in the same directory. 
+
+Installation
+------------
+
+To install the executable in your chosen location, simply enter::
+
+   > make install
+
+This will install:
+
+   * pscf and other executable files in the $(INSTALL)/bin directory
+
+   * python modules in $(INSTALL)/lib/python2.7/site-packages/pscf/
+
+   * matlab scripts in $(INSTALL)/lib/matlab/
+
+where $(INSTALL) denotes the makefile variable defined in the config.mk
+file, which specifies the root of the installation directory tree.
+
 
 Setting your Path and Running 
 ------------------------------
 
-To invoke the program, you will either need to:
+To invoke the pscf program, you will need to do one of the following:
 
-   * Invoke the program using an absolute path name
+   * Invoke pscf using an absolute path name
+
+   * Install pscf in a directory such as /usr/local/bin that is already 
+     in your command search $PATH. 
 
    * Add the directory containing your executable to your command search
-     PATH variable. To do so, enter:
+     PATH variable. To do so manually, enter:
 
-         PATH=$PATH:$(BIN)
+         PATH=$PATH:$(INSTALL)/bin
          export path
 
-     where $(BIN) denotes the path in which you installed the executable.
-     You may want to add this to your .bashrc or .profile file so that 
-     this directory is added to your path when automatically when you 
-     log in.
+     where $(INSTALL)/bin denotes the directory in which you installed 
+     the pscf executable. 
 
-   * Move pscf to a directory such as /usr/local/bin that is already in 
-     your $PATH. 
+   * As discussed above, you can set both the $PATH and $PYTHONPATH 
+     variables by using the "source" command to execute the pscf-env 
+     script.
 
 Cleaning Up
 -----------
