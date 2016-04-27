@@ -1,3 +1,5 @@
+include config.mk
+
 # ============ Root Directories ================================
 # REPO = Root directory for pscf source code repository
 # SRC = $(REPO)/src = directory for source files
@@ -6,76 +8,10 @@ REPO=..
 SRC=$(REPO)/src
 BLD=$(REPO)/make
 
-# ====== Executable Install Location ===========================
-
-# INSTALL = directory prefix for installing executable and scripts
-# Several possible install locations are suggested below. If you
-# ~/.local/bin or ${REPO}/bin, make sure the directory exists first.
-
-INSTALL=../..
-#INSTALL=${HOME}/.local
-#INSTALL=/usr/local/
-
-# ============ Compiler and Options ============================
-# Fortran compiler and settings for high and low optimization.
-
-# Note: High optimization setting (FAST) is used for every file 
-# except the space_groups_mod.f, which is compiled with no 
-# optimiztion (NOPT). This is because space_groups_mod.f is a
-# very long file that can take a long time to compile, but that
-# requires very little run time.
-
-# Gnu Compiler Collection (gcc) - gfortran
-F90=gfortran
-FAST=-O3 -ffree-form 
-NOPT=-ffree-form
-LINK=-O3 -ffree-form -lgfortran
-
-# Mac OS X, gfortran as installed by MacPorts package manager
-#F90=/opt/local/bin/gfortran-mp-5
-
-# Intel compiler
-# F90=ifort
-# FAST=-O3 -free
-# NOPT=-free
-# LINK=-O3 -free
-
-# ============ Directories for Libraries =======================
-# LIBDIRS= nonstandard directories containing libraries
-
-# Empty by default
-LIBDIRS=
-
-# Mac OS X, if using MacPorts package manager
-#LIBDIRS= -L /opt/local/lib
-
-# ============ FFTW Fast Fourier Transform Library =============
-# FFTWLIB  = path(s) to directory(ies) containing FFTW library
-# FFT_FILE = fft2_mod for FFTW version 2 
-#          = fft3_mod for FFTW version 3
-
-# Linux and Mac
-FFTWLIB= -lfftw3
-FFT_FILE=fft3_mod
-
-# ============ LAPACK Linear Algebra Library ==================
-# LAPACKLIB = path(s) to directories containing lapack and blas
-
-# Fedora linux (as installed by yum) and Mac OS X
-LAPACKLIB= -llapack -lblas
-#LAPACKLIB= -llapack -lblas -latlas
-
-# Ubuntu linux (as installed by apt-get)
-#LAPACKLIB=/usr/lib/liblapack.so.3gf /usr/lib/libf77blas.so.3gf /usr/lib/libatlas.so.3gf
-   
 # ======  Forpedo Fortran preprocessor =========================
 # FORPEDO = path to Forpedo preprocessor
-# DEVEL   = '' (empty string) for stable version, 
-#         = '-D DEVEL' for development version
 
 FORPEDO=$(REPO)/tools/python/preprocess-0.6.1/preprocess.py
-#DEVEL=-D DEVEL
-DEVEL=
 
 # ====== Main Program ==========================================
 .PHONY: all clean install uninstall
@@ -149,7 +85,7 @@ field_io_mod.o: $(SRC)/io/field_io_mod.f const_mod.o io_mod.o\
 	$(FFT_FILE).o grid_basis_mod.o
 	$(F90) $(FAST) -c $(SRC)/io/field_io_mod.f
 
-#grid directory
+# grid directory
 grid_mod.o: $(SRC)/grid/grid_mod.f const_mod.o\
 	group_mod.o unit_cell_mod.o
 	$(F90) $(FAST) -c $(SRC)/grid/grid_mod.f
@@ -231,7 +167,6 @@ response_pd_mod.o: $(SRC)/iterate/response_pd_mod.f const_mod.o io_mod.o\
 sweep_mod.o: $(SRC)/iterate/sweep_mod.f const_mod.o io_mod.o\
 	chemistry_mod.o unit_cell_mod.o basis_mod.o
 	$(F90) $(FAST) -c $(SRC)/iterate/sweep_mod.f
-
 
 # response directory
 response_step_mod.o: $(SRC)/response/response_step_mod.f\
