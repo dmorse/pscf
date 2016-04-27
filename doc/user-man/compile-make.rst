@@ -18,7 +18,8 @@ To compile the code in this way, proceed as follows:
 
         cd Makefile_r Makefile
 
-   * Examine and edit the Makefile to reflect your environment (see below)
+   * Examine and edit the Makefile to reflect your environment (see below).
+     Also choose an install base directory by setting the INSTALL variable.
 
    * To compile, enter::
 
@@ -26,6 +27,26 @@ To compile the code in this way, proceed as follows:
 
      from within src/make.
 
+   * To install in the location specified by $(INSTALL) makefile variable, 
+     enter::
+
+        > make install
+
+    * To modify your $PATH and $PYTHONPATH environment variables to include
+      the directories in which you have installed executables and python
+      scripts, enter::
+
+           > source $(INSTALL)/bin/pscf-env
+
+      where $(INSTALL) is the base installation directory. This method will
+      only modify these environment variables temporarily until you log out
+      (on linux) or close the terminal (on a Mac). 
+
+    * To setup your environment to add the appropriate paths to your 
+      $PATH and $PYTHONPATH whenever you log in, add the above command,
+      "source $(INSTALL)/bin/pscf-env", to the .profile configuration file
+      in your home directory.
+      
 Some of these steps are discussed in more detail below
 
 Customize the Makefile
@@ -37,14 +58,14 @@ variables to values appropriate to your system. Makefile variables
 you may need to reset are:
  
  =========  ========================================================
- BIN        directory in which executable should be installed
- EXE        name of executable file
  F90        path to executable for Fortran 90 compiler
  FAST       compiler options for high optimization
  NOPT       compiler options for no optimization
  LIBDIR     option setting any nonstandard directories for libraries
  LAPACKLIB  option setting name of lapack library (e.g., "-l liblapack")
  FFTWLIB    option setting name of the FFTW library (e.g., "-l fftw3")
+ INSTALL    root directory for installation of executables and scripts
+ EXE        name of executable file (pscf by default)
  =========  ========================================================
 
 The makefile contains values appropriate for a number of different common 
@@ -88,9 +109,14 @@ To invoke the program, you will either need to:
 Cleaning Up
 -----------
 	
-To remove all of the .o amd .mod files from the src/make directory::
+To remove all generated files from the pscf/make directory::
 
    > make clean
 
-If you have moved the executable, you will need to remove this manually
-to fully clean up.
+To remove all files installed in the INSTALL directory and start over, enter::
+
+   > make uninstall
+
+If you have manually moved the executable or other files, you may need to 
+remove these files manually to fully clean up.
+

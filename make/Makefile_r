@@ -1,21 +1,20 @@
 # ============ Root Directories ================================
-# SCF = Root directory for pscf project
-# SCF = $(SCF)/src = directory for source files
-# BLD = $(SCF)/make = build directory for building with make
-SCF=..
-SRC=$(SCF)/src
-BLD=$(SCF)/make
+# REPO = Root directory for pscf source code repository
+# SRC = $(REPO)/src = directory for source files
+# BLD = $(REPO)/make = build directory for building with make
+REPO=..
+SRC=$(REPO)/src
+BLD=$(REPO)/make
 
 # ====== Executable Install Location ===========================
 
-# BIN = path to directory for executable file
+# INSTALL = directory prefix for installing executable and scripts
 # Several possible install locations are suggested below. If you
-# ~/.local/bin or ${SCF}/bin, make sure the directory exists first.
+# ~/.local/bin or ${REPO}/bin, make sure the directory exists first.
 
-BIN=${BLD}
-#BIN=${SCF}/bin
-#BIN=${HOME}/.local/bin
-#BIN=/usr/local/bin
+INSTALL=../..
+#INSTALL=${HOME}/.local
+#INSTALL=/usr/local/
 
 # EXE = name of executable file
 EXE=pscf
@@ -77,23 +76,27 @@ LAPACKLIB= -llapack -lblas
 # DEVEL   = '' (empty string) for stable version, 
 #         = '-D DEVEL' for development version
 
-FORPEDO=$(SCF)/tools/python/preprocess-0.6.1/preprocess.py
+FORPEDO=$(REPO)/tools/python/preprocess-0.6.1/preprocess.py
 #DEVEL=-D DEVEL
 DEVEL=
 
 # ====== Main Program ==========================================
+.PHONY: all clean install uninstall
 
 all:
-	make $(BIN)/$(EXE)
+	make pscf
 
-$(BIN)/$(EXE):	pscf.o\
+clean:
+	rm -f  *.o  *.mod  *.f  pscf
+
+pscf:	pscf.o\
 	const_mod.o string_mod.o io_mod.o version_mod.o field_io_mod.o\
 	unit_cell_mod.o group_mod.o space_groups_mod.o basis_mod.o\
 	chemistry_mod.o scf_mod.o iterate_mod.o sweep_mod.o\
 	step_mod.o grid_mod.o chain_mod.o $(FFT_FILE).o grid_basis_mod.o\
 	response_pd_mod.o spinodal_mod.o\
 	response_mod.o response_step_mod.o extrapolate_mod.o
-	$(F90) $(LINK) -o $(BIN)/$(EXE) pscf.o \
+	$(F90) $(LINK) -o pscf pscf.o \
 	const_mod.o string_mod.o io_mod.o version_mod.o field_io_mod.o \
 	unit_cell_mod.o group_mod.o space_groups_mod.o basis_mod.o \
 	chemistry_mod.o scf_mod.o iterate_mod.o sweep_mod.o \
@@ -111,6 +114,23 @@ pscf.o: pscf.f const_mod.o io_mod.o version_mod.o\
 
 pscf.f: $(SRC)/pscf.fp.f
 	$(FORPEDO) $(DEVEL) $(SRC)/pscf.fp.f > pscf.f
+
+# ====== Install =================================================
+
+BIN_DIR=$(INSTALL)/bin
+PYTHON_DIR=$(INSTALL)/lib/python2.7/site-packages
+
+install: pscf
+	mkdir -p $(BIN_DIR)
+	cp pscf $(BIN_DIR)/$(EXE)
+	cp $(REPO)/tools/bin/pscf-env $(BIN_DIR)
+	cp $(REPO)/tools/bin/pscf-read-sweep $(BIN_DIR)
+	mkdir -p $(PYTHON_DIR)/pscf
+	cp $(REPO)/tools/python/pscf/*.py $(PYTHON_DIR)/pscf
+
+uninstall:
+	rm -rf $(BIN_DIR)/pscf*
+	rm $(PYTHON_DIR)/pscf/*
 
 # ====== Modules =================================================
 
@@ -230,12 +250,6 @@ response_mod.o:	$(SRC)/response/response_mod.f\
 	grid_mod.o $(FFT_FILE).o group_mod.o response_step_mod.o\
 	extrapolate_mod.o field_io_mod.o spinodal_mod.o
 	$(F90) $(FAST) -c $(SRC)/response/response_mod.f
-
-# ====== Clean Targets =========================================
-
-.PHONY: clean
-clean:
-	rm -f  *.o  *.mod  *.f $(BIN)/$(EXE)
 
 # ========================================================
 # tests subdirectory 
