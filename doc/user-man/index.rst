@@ -18,6 +18,7 @@ Contents:
    field
    unitcell
    groups
+   theory
    memory
    package
 
