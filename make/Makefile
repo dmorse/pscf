@@ -170,7 +170,7 @@ sweep_mod.o: $(SRC)/iterate/sweep_mod.f const_mod.o io_mod.o\
 
 # response directory
 response_step_mod.o: $(SRC)/response/response_step_mod.f\
-	$(FFT_FILE).o
+	chemistry_mod.o $(FFT_FILE).o
 	$(F90) $(FAST) -c $(SRC)/response/response_step_mod.f
 
 extrapolate_mod.o: $(SRC)/response/extrapolate_mod.f\

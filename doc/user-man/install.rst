@@ -20,5 +20,6 @@ specific operating systems and specific distributions of linux.
    binary
    compile-cmake
    compile-make
+   examples
 
 

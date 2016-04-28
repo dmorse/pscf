@@ -1,9 +1,9 @@
 
-.. _lattice-page:
+.. _unitcell-page:
 
-***************
-Bravais Lattice
-***************
+**********
+Unit Cell
+**********
 
 The variables in the UNIT_CELL section of the parameter file specify the Bravais
 lattice of the crystal. The variables required in this section, in the required

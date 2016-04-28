@@ -177,19 +177,19 @@ Several standard types of computation are possible using the blocks listed above
 The following sections are used to invoke a variety of data processing operations or
 transformations on fields or parameters, or to output additional information.
 
-  ============================== ====================================================
+  ============================== ===============================================
   Section                        Description
-  ============================== ====================================================
+  ============================== ===============================================
   :ref:`param-fieldtorgrid-sub`  Read field file in symmetry-adapated format
                                  and output file in coordinate grid format
-  :ref:`param-rgridtofield-sub`  Read field file in coordinate grid file format
+  :ref:`param-rgridtofield-sub`  Read field in coordinate grid file format
                                  and output in symmetry-adapated format
-  :ref:`param-kgridtorgrid-sub`  Read field in k-space and output in r-space format
-  :ref:`param-rhotoomega-sub`    Read rho field, and compute and output omega field
-                                 obtained for vanishing Lagrange multiplier field.
+  :ref:`param-kgridtorgrid-sub`  Read field in k-space and output in r-space
+  :ref:`param-rhotoomega-sub`    Read rho field, compute and output omega field
   :ref:`param-rescale-sub`       Redefine monomer reference volume 
-  :ref:`param-waves-sub`         Output contents of symmetry adapted basis functions
-  ============================== ====================================================
+  :ref:`param-waves-sub`         Output map of waves to basis functions
+  :ref:`param-group-sub`         Output all elements of space group
+  ============================== ===============================================
 
 Further details about the contents and purpose of each section are given below.
 
@@ -429,7 +429,7 @@ the unit cell type, and the unit cell dimensions and shape.
 The array cell_param contains N_cell_param elements, which are input in row format,
 with all elements in a single line. Further information about the allowed values of
 the crystal_system string and the number and type of parameters required by each
-type of lattice is given in the :ref:`lattice-page`  page.
+type of lattice is given in the :ref:`unitcell-page`  page.
 
 
 .. _param-discretization-sub:
@@ -728,6 +728,22 @@ basis functions, by outputting a file containing showing which
 star each wavevector belongs to and the coefficients of the 
 plane-wave within a symmetry adapted basis function assocated 
 with that star.
+
+  ================  ============= ============================
+  Variable          Type          Description
+  ================  ============= ============================
+  output_filename   character(60) output file name
+  ================  ============= ============================
+
+
+.. _param-group-sub:
+
+OUTPUT GROUP
+-------------
+
+Output all elements of the space group to a file.
+
+Parameters:
 
   ================  ============= ============================
   Variable          Type          Description
