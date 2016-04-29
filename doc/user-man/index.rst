@@ -15,6 +15,7 @@ Contents:
    install
    usage
    param
+   summary
    field
    unitcell
    groups

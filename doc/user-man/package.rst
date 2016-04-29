@@ -2,22 +2,22 @@
 .. _package-sec:
 
 =====================================
-Appendix: Creating Binary Installers
+Appendix: Creating Binary Packages
 =====================================
 
-This page for how to use cmake to create a binary .dmg installer file for Mac OS
-X and a .deb or .rpm package for different variants of linux.  This information is 
-not relevant to most users, and is provided only as reference for core developers. 
+This page gives instructions for how to use cmake to create a binary .dmg 
+installer file for Mac OS X and a .deb or .rpm binary package for different 
+distributions of linux.  This information is not relevant to most users, 
+and is provided only as reference for core developers. 
 
-The first step in creating a package, for any operating system, is to follow the 
-instruction given on the page about :ref:`install-compile-cmake-sec` for installing 
-dependencies and obtaining the source code. The remaining instructions given 
-here assume that the dependencies are already installed, and that a copy of the
-source code has been installed within the directory structure described in the
-instructions for compiling from source.
+The first step in creating a package, for any operating system, is to follow 
+the instruction given on the page about :ref:`install-compile-cmake-sec` for 
+installing dependencies and obtaining the source code. The remaining 
+instructions given here assume that all dependencies are already installed, 
+and that a copy of the source code has been installed within the directory 
+structure described in the instructions for compiling from source.
 
-Mac OS X
---------
+**Mac OS X**
 
 On Mac OS X, after installing all dependencies and installing a copy of the
 source code in a repository named git/, one must:
@@ -41,8 +41,7 @@ the install target is not supported when BUILD_DMG is defined.  This procedure
 creates a standard Mac .dmg installer file with a name of the form 
 pscf<version>-Darwin.dmg in the pscf/cmake directory.
 
-Linux (Fedora or Ubuntu)
-------------------------
+**Linux (Fedora or Ubuntu)**
 
 On a linux system, one must:
 

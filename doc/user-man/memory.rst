@@ -1,7 +1,7 @@
 
 
 ===========================
-Appendix: Memory Counting
+Appendix: Memory Usage
 ===========================
 
 The majority of memory in a typical SCF calculation is consumed by the 
