@@ -55,11 +55,9 @@ pair of modified diffusion equations
 
 .. math::
 
-  \frac{\partial q_{i}}{\partial s} 
-  & = & -H_{\alpha(s)}q_{i} 
-  \\
-  \frac{\partial q_{i}^{\dagger}}{\partial s} 
-  & = & +H_{\alpha(s)}q_{i}^{\dagger}
+  \frac{\partial q_{i}}{\partial s} =  -H_{\alpha(s)}q_{i} 
+
+  \frac{\partial q_{i}^{\dagger}}{\partial s} = +H_{\alpha(s)}q_{i}^{\dagger}
 
 in which :math:`\alpha(s)` is the monomer type of the block containing 
 monomer :math:`s` of polymer species :math:`i`, and in which :math:`H_{\alpha}` 
@@ -124,7 +122,8 @@ Each solvent species :math:`i` is associated with a specific monomer type
 to a solvent species may or may not also be contained within one or more 
 of the polymeric species. 
 
-In the single molecule problem for solvent species, the free energy penalty \for a solvent molecule of monomer type :math:`\alpha` to be located at position 
+In the single molecule problem for solvent species, the free energy penalty 
+for a solvent molecule of monomer type :math:`\alpha` to be located at position 
 :math:`\textbf{r}` is given by :math:`k_{B}T N_{i}\omega_{\alpha}(\textbf{r})`.
 This yields a solvent concentration 
 :math:`\rho_{i}(\textbf{r}) \propto \exp(-N_{i}\omega_{\alpha}(\textbf{r}))`. 
@@ -134,8 +133,7 @@ an integral
 
 .. math::
 
-   Q_{i} = \frac{1}{V}\int \! d\textbf{r} \; 
-   \exp(-N_{i}\omega_{\alpha}(\textbf{r}))
+   Q_{i} = \frac{1}{V}\int \! d\textbf{r} \; \exp(-N_{i}\omega_{\alpha}(\textbf{r}))
 
 The contribution of solvent species :math:`i` of type :math:`\alpha` to 
 the local volume fraction of :math:`\alpha` is given by a ratio
@@ -186,15 +184,16 @@ in the output file, is given by a sum
 
 .. math::
 
-    \frac{f}{k_{B}T} & = &
+    \frac{f}{k_{B}T} 
+    & = 
     \sum_{i=1}^{P+S} \frac{\overline{\rho}_{i}}{N_{i}} 
     \left [ \ln ( \overline{\rho}_{i} / Q_{i}) - 1 \right ] \\
-    & - & \frac{1}{V}
+    & -  \frac{1}{V}
           \sum_{\alpha=1}^{C} 
           \int \! d\textbf{r} \; 
           \omega_{\alpha}(\textbf{r})
           \rho_{\alpha}(\textbf{r}) \\
-    & + & \frac{1}{2V} 
+    & +  \frac{1}{2V} 
           \sum_{\alpha, \beta =1}^{C}  \chi_{\alpha\beta}
           \int \! d\textbf{r} \; 
           \rho_{\alpha}(\textbf{r})

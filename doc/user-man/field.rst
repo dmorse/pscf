@@ -52,11 +52,11 @@ the field :math:`\omega_{\alpha}` as an expansion of the form
 .. math::
 
     \omega_{\alpha}(\textbf{r}) = 
-    \sum_{i=1}^{\texttt{N_star}} \omega_{i\alpha} f_{i}(\textbf{r})
+    \sum_{i=1}^{{\rm N_star}} \omega_{i\alpha} f_{i}(\textbf{r})
 
 in which each function :math:`f_{i}(\textbf{r})` is a real basis 
-function, :math:`\omega_{i\alpha}` is an associated real coefficient, and 
-:math:`\texttt{N_star}` is the number of basis functions used to
+function, :math:`\omega_{i\alpha}` is an associated real coefficient, 
+and :math`{\rm N_star}` is the number of basis functions used to
 approximate the field. In a symmetry-adapted Fourier expansion of a 
 field with a specified space group symmetry, each basis function 
 :math:`f_{i}(\textbf{r})` is a real function that is invariant under 
