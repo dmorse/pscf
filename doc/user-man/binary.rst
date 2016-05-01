@@ -4,13 +4,14 @@
 Binary Installation
 ===================
 
-The steps to install a precompiled binary are different for different operating
-systems, and somewhat different for different distributions of linux.  The 
-intaller for Mac OS X installs a completely self-contained package that 
-includes copies of all required external libraries. Instructions for using
-.rpm and .deb installers for Redhat and Debian linux systems instead require 
-the user to install packages containing the FFTW fast Fourier transform and 
-Lapack linear algebra libraries before installing PSCF.
+The steps to install a precompiled binary are different for different 
+operating systems, and somewhat different for different distributions of 
+linux.  The installer for Mac OS X installs a completely self-contained 
+package that includes copies of all required external libraries. Instructions 
+for installing binary .rpm and .deb packages for Redhat and Debian linux 
+systems instead require the user to install packages containing the FFTW 
+fast Fourier transform and Lapack linear algebra libraries before installing 
+PSCF.
 
 Mac OSX
 -------
@@ -18,12 +19,13 @@ Mac OSX
 The procedure for installing PSCF on a Mac using a binary installer is 
 similar to that for installing any application on a Mac:
 
-  * Download the Mac pscf<version>.dmg installer from the PSCF home page
+  * Download the Mac .dmg installer from the PSCF home page. This is a
+    file with a name of the form pscf<version>-Darwin.dmg.
 
   * Open the .dmg file, and drag and drop the pscf_terminal icon file 
     into the Applications folder.
 
-To run the program, simply double clicking the pscf_terminal application.  
+To run the program, then simply double click the pscf_terminal application.  
 This will open up a yellow terminal window from which you can use standard 
 unix commands to navigate within the directory structure of your Mac, and 
 from which you can invoke the pscf command.
@@ -34,29 +36,27 @@ Developer".  You will need to add an exception for this software. The
 following instructions are provided by Apple on 
 https://support.apple.com/kb/PH18657?locale=en_US: 
 
-1. In the Finder, locate the app you want to open. Don’t use Launchpad to do 
-   this. Launchpad doesn’t allow you to access the shortcut menu.
+1. In the Finder, locate the app you want to open. Don’t use Launchpad to 
+   do this. Launchpad doesn’t allow you to access the shortcut menu.
 
-2. Press the Control key, then click the app icon, then choose Open from the 
-   shortcut menu.
+2. Press the Control key, then click the app icon, then choose Open from 
+   the shortcut menu.
 
 3. Click Open.
 
-The app is saved as an exception to your security settings, and you can 
-open it in the future by double-clicking it just as you can any registered 
-app.
+The app is saved as an exception to your security settings, and you will
+be able to open it in the future by double-clicking it just as you can 
+any registered app.
 
 Ubuntu or Debian Linux
 ----------------------
 
 Ubuntu and Debian distributions of the linux operating systems both use 
-package management systems that use .deb package files.  To install on 
-Ubuntu:
+variants of the debian package management system, which uses .deb package 
+files.  To install from binary on Ubuntu:
 
-  * Download the pscf<version>.deb package from the PSCF home page
-
-  * Use the Ubuntu software center graphical installer or the apt-get
-    command line utility to install the following packages:
+  * First use the Ubuntu software center graphical installer or the 
+    apt-get command line utility to install the following packages:
    
         - libfftw3-3
         - liblapack3
@@ -66,6 +66,9 @@ Ubuntu:
         sudo apt-get libfftw3-3
         sudo apt-get liblapack3
 
+  * Download the .deb package from the PSCF home page. This is a file
+    with a name of the form pscf<version>-Linux.deb.
+
   * Install the pscf package by running::
 
         dpkg -i pscf<version>.deb
@@ -73,9 +76,9 @@ Ubuntu:
   * If the above command fails because of a missing dependence, try 
     running::
 
-        apt-get install pscf<version>.deb
+        apt-get install pscf<version>-Linux.deb
 
-    This allows apt-get to attempt to fetch any missing dependencies.
+    This sometimes allows apt-get to attempt to fetch missing dependencies.
 
 
 Fedora / Redhat Linux
@@ -85,8 +88,6 @@ Redhat distributions of the linux operating systems, including Fedora
 and CentOS, use package management systems that use .rpm package files. 
 Instructions are similar to those for Ubuntu/Debian, except for the use 
 of a different package file format and package manager. In this case:
-
-  * Download the pscf<version>.rpm package from the PSCF home page
 
   * Use the yum command line utility or the Fedora graphical package 
     manager to install the following packages from the appropriate
@@ -99,6 +100,9 @@ of a different package file format and package manager. In this case:
 
         > sudo yum install lapack
         > sudo yum install fftw
+
+  * Download the pscf<version>-Linux.rpm package from the PSCF home 
+    page.
 
   * To install, enter::
 
