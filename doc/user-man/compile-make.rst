@@ -5,14 +5,16 @@ Compiling from source, using make
 =================================
 
 It is also possible to compile using the unix make utility using a simple
-Makefile that is located in the pscf/make directory. The instructions for
-using make to compile from source are same on any unix-like operating system,
-including Max OS X. The main difference among different unix environments is 
-the locations of the required libraries. 
+Makefile that is provided in the make/ directory of the git repository. The 
+instructions for using make to compile from source are same on any unix-like 
+operating system, including Max OS X. The main difference among different 
+unix environments is the locations of the required libraries. 
 
 To compile the code in this way, proceed as follows:
 
-   * Change the working directory (cd) to the pscf/make directory
+   * Change the working directory (cd) to the pscf/git/make directory
+     (i.e., to make/ subdirectory of the directory tree containing the
+     pscf git repository).
 
    * Make a copy named config.mk of the file config.mk_r, by entering::
 
@@ -23,38 +25,27 @@ To compile the code in this way, proceed as follows:
 
    * To compile, enter::
 
-        > make all
+        > make -j4 all
 
-     from within src/make.
+     from within pscf/git/make.
 
    * To install in the location specified by the $(INSTALL) makefile 
      variable (defined in config.mk), enter::
 
         > make install
 
-   * To modify your $PATH and $PYTHONPATH environment variables to include
-     the directories in which you have installed executables and python
-     scripts, enter::
+   * Modify the PATH and PYTHONPATH environment variables, if needed, by 
+     following the instructions given for compiling using cmake, in the 
+     subsection :ref:`install-compile-cmake-paths-sub`.
 
-        > source $(INSTALL)/bin/pscf-env
-
-     where $(INSTALL)/bin is a placeholder for the actual path to the 
-     directory in which the pscf and pscf-env executable files were installed.
-
-   * The above method will only modify the $PATH and $PYTHONPATH variables 
-     temporarily, until you log out (on linux) or close the terminal (on a Mac). 
-     To have the appropriate directories automatically added to these environment 
-     variables whenever you log in, add the command "source $(INSTALL)/bin/pscf-env" 
-     to the .profile configuration file in your home directory.
-      
-Some of these steps are discussed in more detail below
+Some of these steps are discussed in more detail below.
 
 **Editing the config.mk configfuration file**
 
 In the config.mk file in the src/make directory (which you must create by 
-copying config.mk_r), you will need to set values for a set of macro variables 
-to values appropriate to your system. Makefile variables you may need to reset 
-are:
+copying config.mk_r), you will need to set values for a set of macro 
+variables to values appropriate to your system. Makefile variables you 
+may need to reset are:
  
  =========  ========================================================
  F90        path to executable for Fortran 90 compiler
