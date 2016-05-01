@@ -106,11 +106,11 @@ species :math:`i` that contains at least one block of monomer type
 .. math::
 
    \rho_{\alpha}^{(i)}(\textbf{r}) =  
-   \frac{\overline{\rho}_{i}}{N_{i}Q_{i}}
+   \frac{\overline{\phi}_{i}}{N_{i}Q_{i}}
    \int\limits_{\alpha(s)=\alpha} \! ds \;
    q(\textbf{r},s) q^{\dagger}(\textbf{r},s)
 
-in which :math:`\overline{\rho}_{i}` is the average overall volume
+in which :math:`\overline{\phi}_{i}` is the average overall volume
 fraction of molecule species :math:`i` within the mixture, and the
 integral with respect to :math:`s` is taken only over blocks of 
 monomer type :math:`\alpha`.
@@ -140,11 +140,11 @@ the local volume fraction of :math:`\alpha` is given by a ratio
 
 .. math::
 
-   \rho_{\alpha}^{(i)} = 
-   \frac{\overline{\rho}_{i}}{Q_{i}} 
+   \rho_{\alpha}^{(i)}(\textbf{r}) = 
+   \frac{\overline{\phi}_{i}}{Q_{i}} 
    \exp(-N_{i}\omega_{\alpha}(\textbf{r}))
 
-in which :math:`\overline{\rho}_{i}` is the overall volume fraction of
+in which :math:`\overline{\phi}_{i}` is the overall volume fraction of
 species :math:`i` within the mixture. 
 
 The total volume fraction :math:`\rho_{\alpha}(\textbf{r})` for each
@@ -186,8 +186,8 @@ in the output file, is given by a sum
 
     \frac{f}{k_{B}T} 
     & = 
-    \sum_{i=1}^{P+S} \frac{\overline{\rho}_{i}}{N_{i}} 
-    \left [ \ln ( \overline{\rho}_{i} / Q_{i}) - 1 \right ] \\
+    \sum_{i=1}^{P+S} \frac{\overline{\phi}_{i}}{N_{i}} 
+    \left [ \ln ( \overline{\phi}_{i} / Q_{i}) - 1 \right ] \\
     & -  \frac{1}{V}
           \sum_{\alpha=1}^{C} 
           \int \! d\textbf{r} \; 
@@ -208,7 +208,7 @@ is given by
 
 .. math::
 
-    \frac{\mu_{i}}{k_{B}T} = \ln(\overline{\rho}_{i}/Q_{i})
+    \frac{\mu_{i}}{k_{B}T} = \ln(\overline{\phi}_{i}/Q_{i})
 
 The value given in the output file is :math:`\mu_{i}/k_{B}T`.
 
@@ -216,12 +216,12 @@ The macroscopic physical pressure :math:`P` is computed from the identity
 
 .. math::
 
-    P = - \frac{f}{v} + \sum_{i=1}\frac{\mu_{i}\overline{\rho}_{i}}{N_{i}v} 
+    P = - \frac{f}{v} + \sum_{i=1}\frac{\mu_{i}\overline{\phi}_{i}}{N_{i}v} 
       
 in which :math:`v` is the monomer reference volume and :math:`f` is 
 the Helmholtz free energy per reference volume. Note that :math:`f/v`
 is the Helmholtz free energy per volume and 
-:math:`\overline{\rho}_{i}/(N_{i}v)` is the average number of 
+:math:`\overline{\phi}_{i}/(N_{i}v)` is the average number of 
 molecules of species :math:`i` per unit volume. The value given in the 
 output file is the dimensionless value :math:`Pv/k_{B}T`.
 
@@ -231,7 +231,7 @@ PSCF can be carry out calculations using either canonical ensemble
 or grand-canonical ensemble. 
 
 In canonical ensemble a value of the overall volume fraction 
-:math:`\overline{\rho}_{i}` must be given for each species in 
+:math:`\overline{\phi}_{i}` must be given for each species in 
 the input parameter file, and values of chemical potential are 
 computed from the solution.
 
@@ -247,12 +247,15 @@ are uniquely determined by the values for the chemical potentials.
 In canonical ensemble, the value of the Lagrange multplier field 
 :math:`\xi(\textbf{r})` is defined only to within a arbitrary
 spatially homogeneous constant. As a result, the chemical potentials
-and the macroscopic pressure :math:`P` is also undefined in this
-ensemble. PSCF resolves this ambiguity by requiring, as a matter
-of convention, that the spatial average of :math:`\xi` vanish, 
-and outputs values for the pressure, chemical potentials, and 
-:math:`\omega` fields that are all consistent with this convention. 
+and the macroscopic pressure :math:`P` are also undefined in this
+ensemble, unless an additional constraint is imposed. PSCF resolves 
+this ambiguity by requiring, as a matter of convention, that the 
+spatial average of :math:`\xi(\textbf{r})` vanish. In this ensemble,
+PSCF also outputs values for the pressure, chemical potentials, and 
+:math:`\omega` fields that are all consistent with this convention
+for the average value of :math:`\xi`. Values for the Hemholtz free
+energy density of an incompressible liquid can, however, be shown 
+to be independent of changes in the value of :math:`\xi` by a 
+homogeneous constant, and are thus independent of this choice of
+convention.
 
-Using chemical potential values that are obtained as the output 
-of a canonical calculation as inputs to a grand-canonical simulation 
-will yield a solution that also obeys this convention. 

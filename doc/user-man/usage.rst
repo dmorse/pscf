@@ -16,20 +16,30 @@ The parameter file contains both parameters required to define a physical
 system and instructions to execute a sequence of computations.  The input 
 omega file contains an initial guess for the monomer chemical potential 
 fields.  The parameter file is read by the main program from standard input. 
-The path for the omega file is specified in the parameter file.  The format 
-of the :ref:`param-page` is described in the next page of this manual.
+The path for the omega file is normally specified in the parameter file.  
+The format of the :ref:`param-page` is described in the next page of this 
+manual.
 
 Command Line Usage 
 ==================
 
-The syntax for executing the program pscf is thus::
+The syntax for executing the pscf program is thus::
 
-   pscf < param> log
+   pscf < param
 
-Here, "param" is the name of the parameter file, and "log" is a file to which 
-we have redirected messages emitted by the program during operation.  The 
-command 'pscf < in', with no output log file, would instead cause these messages 
-to be printed to the screen. 
+Here, "param" is the name of the parameter file. This method of executing
+the program will cause log messages that describe the progress of the 
+calculation to written to the users screen. To run in the background and 
+save these messages to a file, you would instead enter::
+
+   pscf < param > log &
+
+
+where "log" is a file to which we have redirected messages emitted by the 
+program during operation. The "&" at the end of this line indicates that
+the program should be run in the background, as is appropriate for a long
+computation, so that the user can continue on to other tasks in the same
+terminal.
 
 Output Files
 ============

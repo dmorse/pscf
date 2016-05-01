@@ -54,75 +54,55 @@ may need to reset are:
  LIBDIR     option setting any nonstandard directories for libraries
  LAPACKLIB  option setting name of lapack library (e.g., "-l liblapack")
  FFTWLIB    option setting name of the FFTW library (e.g., "-l fftw3")
- INSTALL    root directory for installation of executables and scripts
+ INSTALL    root installation directory 
  =========  ========================================================
 
+The INSTALL makefile variable in this makefile is equivalent to the 
+MAKE_INSTALL_PREFIX variable that can be passed to cmake when compiling
+using cmake.
+
 The default config.mk file contains values appropriate for a number of 
-different common environments, most of which are commented out, and some
-comments about appropriate choices for common environments.  Modify this 
-configuration file as needed, but make sure you give exactly one 
-uncommented definition for each variable, and comment out any unused 
+different common environments, most of which are commented out. It also
+contains some comments about appropriate choices for common environments. 
+Modify your copy of config.mk as needed, but make sure you give exactly 
+one uncommented definition for each variable, and comment out any unused 
 definitions.
 
 **Compile and Link**
 
-To compile and link, from the src/make directory, simply enter::
+To compile and link, from the git/make directory, simply enter::
 
    > make -j4 
 
-This should fill the src/make directory with .o and .mod files, which
-are created when the modules are compiled, and create an executable 
-file named pscf in the same directory. 
+This should create several .o object files and .mod module files in
+the git/make directory, and then create an executable file named pscf
+in the same directory. 
 
 **Install**
 
-To install a copy of the executable file in your chosen location, simply 
-enter::
+To install a copy of the executable file in your chosen location, after
+compiling, simply enter::
 
    > make install
 
 This will install:
 
-   * pscf and other executable files in the $(INSTALL)/bin directory
+   * pscf and other executable files in directory $(INSTALL)/bin/
 
    * python modules in $(INSTALL)/lib/python2.7/site-packages/pscf/
 
-   * matlab scripts in $(INSTALL)/lib/matlab/
-
-where $(INSTALL) denotes the makefile variable defined in the config.mk
-file, which specifies the root of the installation directory tree.
-
-**Setting Paths and Running**
-
-To invoke the pscf program, you will need to do one of the following:
-
-   * Invoke pscf using an absolute path name
-
-   * Install pscf in a directory such as /usr/local/bin that is already 
-     in your command search $PATH. 
-
-   * Add the directory containing your executable to your command search
-     PATH variable. To do so manually, enter:
-
-         PATH=$PATH:$(INSTALL)/bin
-         export path
-
-     where $(INSTALL)/bin denotes the directory in which you installed 
-     the pscf executable. 
-
-   * As discussed above, you can set both the $PATH and $PYTHONPATH 
-     variables by using the "source" command to execute the pscf-env 
-     script.
+where $(INSTALL) denotes the value of the makefile variable defined in 
+the config.mk file.
 
 **Cleaning Up**
 	
-To remove all generated files from the pscf/make directory, if desired, 
+To remove all generated files from the git/make directory, if desired, 
 enter::
 
    > make clean
 
-To remove all files installed in the INSTALL directory by the "make install"
-command, enter::
+To remove all files installed in the INSTALL directory by the 
+"make install" command, enter::
 
    > make uninstall
 

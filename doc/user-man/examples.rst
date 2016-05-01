@@ -18,11 +18,11 @@ at:
 
       https://github.com/dmorse/pscf-examples
 
-As for the source code repository, a copy of the examples may be obtained 
-either by downloading a zip file from the repository web page or using the 
-git version control system to clone the repository. The instruction given 
-below for both methods are very similar to those given for obtaining the 
-source code:
+A copy of this repository may be obtained (as for the source code 
+repository) either by downloading a zip file from the repository web 
+page or using git to clone the repository. The instruction given 
+below for both methods are very similar to those given for obtaining 
+the source code:
  
 To download a zip file:
 
@@ -31,21 +31,25 @@ To download a zip file:
     * Click the "Download ZIP" button near the upper right corner 
       of that web page. 
 
-    * Move the pscf-examples-master/ directory into the pscf/ directory. 
+    * Move the pscf-examples-master/ directory into your pscf/ directory,
+      which should also contain a subdirectory that holds the repository 
+      containing the source code.
 
-    * Rename the pscf/pscf-examples-master/ directory as pscf/examples.
+    * Rename the resulting directory pscf/pscf-examples-master/ to 
+      pscf/examples.
 
-To use git to clone the repository, after git is installed on your machine:
+To clone the repository of examples, if git is installed on your machine:
 
-    * Change directory to the pscf directory.
+    * Change directory to the parent pscf/ directory.
 
-    * Clone the repository, by entering::
+    * Clone the pscf-examples repository, by entering::
 
           git clone https://github.com/dmorse/pscf-examples.git
 
-    * Change the name of the pscf/pscf-examples directory to pscf/examples/
+    * Change the name (i.e., mv) the pscf/pscf-examples directory to 
+      pscf/examples/
 
-At this point, by either method, you should have pscf/ directory structure::
+Either method should give you a pscf/ directory with the structure::
 
     pscf/
        git/
@@ -54,14 +58,6 @@ At this point, by either method, you should have pscf/ directory structure::
 in which the pscf/git/ subdirectory contains the source code and the 
 pscf/examples/ directory contains the examples.
 
-**Directory structure**
-
-The resulting directory has several subdirectories containing different
-classes of examples involving diblock copolymer melts, triblock copolymer
-melts, and mixtures of diblock copolymer and solvent. Lower level directories
-that contain individual examples each have a file named param (the input
-parameter file), a file named in.omega (the input chemical potential file),
-and an initially empty directory named "out/" in which output files will
-be placed. The instructions for running pscf given in the next section
-use the same conventions for input file names. 
+The structure and contents of the examples directory is explained in 
+the README file within that directory.
 

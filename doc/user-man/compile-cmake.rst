@@ -403,11 +403,11 @@ there, enter::
 This will run a script that is installed by PSCF, which adds the 
 appropriate paths to your PATH and PYTHONPATH environment variables.
 
-If you want to make the required changes manually, or simply want to
-know what ./pscf-env does, you could instead enter the commands::
+Alternatively, to make the required changes manually, you could simply 
+enter the commands::
 
-    export PATH=$PATH:install/bin
-    export PYTHONPATH=$PYTHONPATH:install/lib/python2.7/site-packages
+    PATH=$PATH:install/bin
+    PYTHONPATH=$PYTHONPATH:install/lib/python2.7/site-packages
 
 where "install" denotes the absolute path to your chosen installation
 directory.
@@ -416,7 +416,36 @@ The above procedures (running pscf-env script or manually setting the
 relevant environment variables) only modifies the $PATH and $PYTHONPATH
 variables temporarily, until you log out (on Linux) or until you close
 the terminal window (on a Mac). To have the appropriate directories
-added to these variables automatically, whenever you log in, add the
-command "SOURCE install/bin/pscf-env to the .bashrc configuration 
-file in your home directory, and make sure that the .profile or 
-.bash_profile file includes that .bashrc file.
+added to these variables automatically whenever you log in or open a
+terminal, simply add the command::
+
+   source install/bin/pscf-env 
+
+to the .bashrc configuration file in your home directory. Here, the
+string "install/" is a placeholder for the absolute path to the pscf 
+install directory.
+
+On linux, after a user logs in, the operating system looks for a file 
+in the user directory named .profile or .bash_profile (in that order)
+and executes the first of these files that finds, if any. When you 
+open a new interactive shell that is not a login shell, e.g., by
+opening a new termiinal, it instead looks for and (if it exists)
+executes a file named .bashrc in the users home directory. To make
+sure that the modifications of the environment are applied to both 
+login and non-login terminals, the .bashrc file is normally executed 
+by the .profile or .bash_profile file, by a command such as::
+
+    if [ -f "${HOME}/.bashrc" ]; then
+	source "${HOME}/.bashrc"
+    fi
+
+This part of the .profile or .bash_profile file checks if there is 
+a .bashrc file in the users home directory and, if one is found, 
+executes that file. 
+
+On Mac OS X, the Mac Terminal program actually executes the .profile
+script whenever you open a terminal, rather than using different 
+files for login and non-login terminals, and thus does not ever 
+directly execute the .bashrc file. On a Mac, one can thus either use 
+the procedure described above, or simply place all commands that
+customize the user environment into the .profile. script.

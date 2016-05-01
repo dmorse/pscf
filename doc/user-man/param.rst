@@ -378,17 +378,32 @@ occupied by a particular solvent to the monomer reference volume.
 COMPOSITION
 -----------
 
-Composition Parameters
+Composition Parameters:
 
-  =============== ======== ========================================= ======= ============================
-  Variable        Type     Description                               Format  Required if:
-  =============== ======== ========================================= ======= ============================
-  ensemble        integer
-  phi_chain(ic)   real     volume fraction of chain species ic       C       ensemble=0 and N_chain > 0
-  phi_solvent(is) real     volume fraction of solvent species is     C       ensemble=0 and N_solvent > 0
-  mu_chain(ic)    real     chemical potential of chain species is    C       ensemble=1 and N_chain > 0
-  mu_solvent(ic)  real     chemical potential of solvent species ic  C       ensemble=1 and N_solvent > 0
-  =============== ======== ========================================= ======= ============================
+  =============== ======== ========================================= ======
+  Variable        Type     Description                               Format  
+  =============== ======== ========================================= ======
+  ensemble        integer  0 if canonical, 1 if grand
+  phi_chain(ic)   real     volume fraction of chain species ic       C       
+  phi_solvent(is) real     volume fraction of solvent species is     C       
+  mu_chain(ic)    real     chemical potential of chain species is    C       
+  mu_solvent(ic)  real     chemical potential of solvent species ic  C       
+  =============== ======== ========================================= ======
+
+The integer parameter "ensemble" determines the choice of statistical ensemble, 
+and should be set to 0 for canonical (NVT) ensemble and to 1 for grand-canonical
+ensemble. The remainder of the section then contains only the input parameters
+required in the specified ensemble: If canonical ensemble is specified (ensemble=0), 
+then the rest of the section must contain values for the parameters phi_chain and 
+(if N_solvent > 0) phi_solvent that specify the volume fractions of all species.
+The example parameter file shows this for a canonical ensemble simulations of a
+single-component polymer melt.  If grand canonical ensemble is specified (ensemble=1), 
+then the rest of the section must contain values for the parameters mu_chain and 
+(if N_solvent > 0) mu_solvent that specify values for the chemical potentials of 
+all species. Chemical potentials are specified as free energies per molecule in 
+units with :math:`k_{B}T=1`. Values of phi_solvent (in canonical ensemble) or
+mu_solvent (in grand-canonical ensemble) should be given if and only if there
+are solvent species present, i.e., if N_solvent > 0.
 
 .. _param-interaction-sub:
 
@@ -397,16 +412,22 @@ INTERACTION
 
 Interaction Parameters
 
-  ============ ======= ==================================  ======  ============
-  Variable     Type    Description                         Format  Required if
-  ============ ======= ==================================  ======  ============
+  ============ ======= ================================= ======  
+  Variable     Type    Description                       Format  
+  ============ ======= ================================= ======  
   chi_flag     char(1) 'B' => bare chi,
                        'T' => chi=chi_A/T + chi_B
-  chi(im,in)   real    Flory-Huggins parameter ('bare')    LT      chi_flag='B'
-  chi_A(im,in) real    Enthalpic coefficient for chi(T)    LT      chi_flag='T'
-  chi_B(im,in) real    Entropic contribution to chi(T)     LT      chi_flag='T'
-  Temperature  real    Absolute temperature                        chi_flag='T'
-  ============ ======= ==================================  ======  ============
+  chi(im,in)   real    Flory-Huggins parameter ('bare')  LT      
+  chi_A(im,in) real    Enthalpic coefficient for chi(T)  LT      
+  chi_B(im,in) real    Entropic contribution to chi(T)   LT      
+  Temperature  real    Absolute temperature                       
+  ============ ======= ================================= ======
+
+The parameter "chi_flag" determines whether the Flory-Huggins interation 
+parameters should be input by specifying values, if chi_flag = 'B', or by
+specifying a temperature dependence of the form A/T + B, if chi_flag = 'T'.
+The array chi should be present if and only if chi_flag = 'B', while the
+parameters chi_A and chi_B should be present if and only if chi_flag = 'T'.
 
 .. _param-unitcell-sub:
 

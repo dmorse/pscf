@@ -19,10 +19,10 @@ Here is an example of an output summary file produced by a simulation of
 the BCC of a diblock copolymer melt. The majority of the file, up until
 the FINISH line, has the same format as a parameter file, so that this
 part of the file can be used as the basis of a parameter file for a new
-simulation. The THERMODYNAMIC and STATISTICS sections that are printed
-after the FINISH line, contain additional information about, respectively,
-thermodynamic properties of the converged solution and about how much 
-time was taken to obtain it. 
+simulation. The THERMO and STATISTICS sections appear after the FINISH 
+line, and contain additional information about, respectively, thermodynamic 
+properties of the converged solution and about computational aspeces of
+the simulation.
 
 ::
 
@@ -161,7 +161,7 @@ expressions used to obtain these quantities.
 
 **STATISTICS Section**
 
-The statistics section contains information about the size of the
-basis used to solve the problem, the number of iterations required,
-the final error, and the amount of time taken for different parts
-of the computation. Times are given in seconds.
+The statistics section contains information about the size N_star of 
+the basis used to approximate the rho and omega fields, the number of 
+iterations required, the final error, and the amount of time taken 
+for different parts of the computation. Times are given in seconds.
