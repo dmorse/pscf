@@ -365,23 +365,23 @@ coordinate system in which each axis is parallel to one of the
 Bravais lattice vectors, which in a hexagonal phase have an angle
 of 60 degrees between. 
 
-The data section contains the values of fields associated 
-with N_monomer monomer types at grid points given by
+The data section contains the values of fields associated with 
+N_monomer monomer types at grid points given by
 
 .. math::
 
     \textbf{r}(n_1, \ldots, n_{D}) = \sum_{i=1}^{\textrm{D}}
     \frac{n_{i}}{N_{i}}\textbf{a}_{1}
 
-where $D$ is the dimensionality of the crystal (denoted by "dim" in 
-the header and the parameter file), :math:`\textbf{a}_{i}` is a Bravais 
-lattice vector, :math:`N_{i}` is the number of grid points along 
-direction :math:`i`, :math:`\textbf{a}_{i}`, and $n_{i}$ is an integer 
-in the range :math:`0 \leq n_{i} < N_{i}`.  The number of rows in the 
-data section is equal to the total number of grid points, and each row 
-contains values of all fields at a single grid point. The number of 
-columns is equal to the number of monomer types, so that data in column 
-:math:`alpha` contains the values of the field associated with monomer 
+where :math:`D` is the dimensionality of the crystal (denoted by "dim" 
+in the header and the parameter file), :math:`\textbf{a}_{i}` is a 
+Bravais lattice vector, :math:`N_{i}` is the number of grid points along 
+direction :math:`i`, and :math:`n_{i}` is an integer index in the range
+:math:`0 \leq n_{i} < N_{i}`.  The number of rows in the data section 
+is equal to the total number of grid points. Each row in this section
+contains values of all field components at a single grid point. The number 
+of columns is equal to the number of monomer types, so that data in column 
+:math:`\alpha` contains the values of the field associated with monomer 
 type :math:`\alpha`. 
 
 Grid points are listed in order using index :math:`n_{1}` as the most 
@@ -441,7 +441,7 @@ implemented by a fortran loop of the form::
    do n1 = 0, ngrid(1)/2
      do n2 = 0, ngrid(2) - 1
        do n3 = 0, ngrid(3) - 1
-         [Read or write coefficients for (n1, n2, n3)]
+         [Read or write coefficients for wavevector k(n1, n2, n3)]
         enddo
      enddo
    enddo
