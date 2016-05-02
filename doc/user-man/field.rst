@@ -90,7 +90,7 @@ of the form
 .. math::
 
    f_{i}(\textbf{r}) = 
-   \sum_{i=1}^{M} a_{i} e^{i\textbf{k}_{i}\cdots\textbf{r}_{i}}
+   \sum_{i=1}^{M} a_{i} e^{i\textbf{k}_{i} \cdot \textbf{r}}
 
 where :math:`M` is the number of associated plane waves, and where the
 the coefficients :math:`a_{1}, \ldots ,a_{M}` are complex numbers that 

@@ -12,47 +12,52 @@ order, are:
   ===============  ===================================================
   Variable         Meaning
   ===============  ===================================================
-  dim              the dimensionality (i.e., number of periodic dimensions)
-                   of the crystal, which must be 1, 2, 3.
-  crystal_system   the crystal lattice system, which is a string that 
-                   can be cubic, tetragonal, etc. for 3D crystals.
-  N_cell_param     the number of parameters required to specify the 
-                   dimensions and shape of the unit cell 
-  cell_param       an array of the unit cell parameters
+  dim              number of periodic directions (1,2, or 3)
+  crystal_system   lattice system string identifier
+  N_cell_param     the number of required unit cell parameters 
+  cell_param       an array of unit cell parameter values
   ===============  ===================================================
 
-The value of the number of parameters required to describe the unit cell,
-N_cell_param, is, for example, 1 for a 1D lamellar phase, a 2D hexagonal 
-phase or a 3D cubic phase, 3 for an orthorhombic 3D phase or 6 for a 
-triclinic 3D phase.
+The "crystal_system" for a three dimensional crystal string could, for 
+example, be "cubic", "tetragonal", "orthorhombic" or several other 
+possibilities.  All allowed values of the "crystal_system" string are 
+given below 1, 2 and 3 dimensionally periodic systems. The number
+N_cell_param of parameters required to specify the unit cell is also
+listed for each crystal_system, along with the meaning and order of
+appearance of different parameters.  The value of N_cell_param, is, 
+for example, 1 for a 1D lamellar phase, a 2D hexagonal phase or a 
+3D cubic phase, 3 for an orthorhombic 3D phase or 6 for a triclinic 
+3D phase.
 
-Below, we discuss each of the possible crystals systems for 1, 2 and 3
-dimensional crystals, and specify the meaning and order of the elements
-of the parameter array cell_param
+Below, we discuss all possible crystal systems of 1, 2, and 3 
+dimensional crystals separately. Lists of the names of all possible
+space groups for each crystal system are given on the following page.
 
 1D Crystal Systems
 ==================
 
 The only allowed crystal system name for a one-dimensional crystal is 
-'lamellar', for which N_cell_param = 1. The value of the single element
-of cell_param denotes the layer spacing.
+s "lamellar". Only one unit cell parameter is required to specify a 
+lamellar unit cell (i.e., N_cell_param = 1). The value of that parameter
+is equal to the layer spacing. 
 
 
 2D Crystal Systems
 ==================
 
-For two dimensional crystals (dim=2), the parameters a and b are
-the lengths of the two Bravais lattice basis vectors. For an oblique 
-crystal, gamma is the angle between them, in radians. 
+For two dimensional crystals (dim=2), let the parameters a and b 
+denote the lengths of two independent Bravais lattice basis vectors. 
+For oblique crystals, gamma denotes the angle between these two 
+basis vectors, in radians. 
 
 ============  ============ ============
 systems       N_cell_param cell_param
 ============  ============ ============
 square        1            a
 
-rectangular   2            a, b
-
 hexagonal     1            a
+
+rectangular   2            a, b
 
 oblique       3            a, b, gamma
 ============  ============ ============

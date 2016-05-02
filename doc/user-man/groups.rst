@@ -25,6 +25,11 @@ Number   Symbol  Comments
 2D Space Groups
 ===============
 
+The names of all 17 possible 2D plane groups are given below in the text format expected
+by PSCF. The format used in PSCF for both 2D and 3D space group names is based on the 
+names used in the international tables of crystallography, but allows space group names 
+to be written as simple ascii text strings.
+
  ====== ======== ==============
  Number Symbol   Lattice System
  ====== ======== ==============
@@ -51,6 +56,13 @@ Number   Symbol  Comments
 3D Space Groups
 ===============
 
+The names of all possible 3D space groups are given below in the text format expected
+by PSCF. This format is based on the naming conventions used in the international 
+tables of crystallography, but allows space group names to be written as simple
+ascii text strings, with no special symbols or subscripts. In this format, a space is 
+ntroduced between different elements of the space group name, and overbars are indicated 
+by a "-" sign before the overbarred symbol. Thus for example, the space group of the
+gyroid phase (space group 230) is written in this format as "I a -3 d"
 
  ========  =================
   Number   Symbol 

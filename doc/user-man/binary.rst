@@ -20,7 +20,7 @@ The procedure for installing PSCF on a Mac using a binary installer is
 similar to that for installing any application on a Mac:
 
   * Download the Mac .dmg installer from the PSCF home page. This is a
-    file with a name of the form pscf<version>-Darwin.dmg.
+    file with a name of the form pscf-<version>-Darwin.dmg.
 
   * Open the .dmg file, and drag and drop the pscf_terminal icon file 
     into the Applications folder.
@@ -67,16 +67,16 @@ files.  To install from binary on Ubuntu:
         sudo apt-get liblapack3
 
   * Download the .deb package from the PSCF home page. This is a file
-    with a name of the form pscf<version>-Linux.deb.
+    with a name of the form pscf-<version>-Linux.deb.
 
   * Install the pscf package by running::
 
-        dpkg -i pscf<version>.deb
+        dpkg -i pscf-<version>-Linux.deb
 
   * If the above command fails because of a missing dependence, try 
     running::
 
-        apt-get install pscf<version>-Linux.deb
+        apt-get install pscf-<version>-Linux.deb
 
     This sometimes allows apt-get to attempt to fetch missing dependencies.
 
@@ -101,10 +101,10 @@ of a different package file format and package manager. In this case:
         > sudo yum install lapack
         > sudo yum install fftw
 
-  * Download the pscf<version>-Linux.rpm package from the PSCF home 
+  * Download the pscf-<version>-Linux.rpm package from the PSCF home 
     page.
 
   * To install, enter::
 
-        sudo rpm -Uvh pscf<version>.rpm
+        sudo rpm -Uvh pscf-<version>-Linux.rpm
 
