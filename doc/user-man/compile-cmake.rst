@@ -298,51 +298,54 @@ and other executable files, the lib/ subdirectory will contain python
 modules and matlabe files and the share/ directory will contain several
 text files containing information about the program.
 
-We suggest that you consider the following three possible locations for the
-install directory for pscf:
+We recommend that you choose one of the three following three possible 
+locations for the install directory for pscf:
 
    * The pscf/ directory that contains the cmake/ and git/ subdirectories.
 
-   * A standard location for installation of software within your user 
-     directory, such as the .local directory of hour home directory.
+   * A standard location that you have chosen for installation of software 
+     within your user directory. One common choice is a hidden directory 
+     of your home directory named .local.
 
    * The system-wide /usr/local directory.
 
-The advantage of the first two options is that both of them install all 
-of the software within your user directory, and thus do not require
-adminstrative privileges. The further logistical advantage of the first 
-option (installing within pscf/ itself) is that it keeps all of the files 
-in a single directory tree within your user directory that only contains 
-files associated with pscf/.  The disadvantage of both the first and 
-second options, which both install files within your user directory, 
-is that they both guarantee that you will have to modify some operating 
-system environment variables in order to allow the operating system to
-find the PSCF executable and to allow the python intepreter to find any
-python modules you plan to use. The advantage of installing in /usr/local
-is that, because this puts the executable is in a standard location, the 
-operating system will normally be able to find the pscf executable.
+The advantage of the first two options is that both install all of the 
+software within your user directory, and thus do not require adminstrative 
+privileges. The further logistical advantage of the first option (installing 
+within the pscf/ directory itself) is that it keeps all of the files in a 
+single directory tree within your user directory that only contains files 
+associated with pscf/.  
+
+The disadvantage of both the first and second options is that, because 
+both install files within your user directory, they both guarantee that 
+you will have to modify some operating system environment variables in 
+order to allow the operating system to find the PSCF executable and to 
+allow the python intepreter to find python modules that are provided
+to faciliitate data analysis. The advantage of installing in /usr/local 
+is that, because this puts the executable in a standard location, the 
+operating system should be able to automatically find the pscf executable.
 
 Compiling and Installing
 ------------------------
 
-As the first step of compiling and installing, change directory to the 
-pscf/cmake/ directory. Then make sure the cmake/ directory is empty 
-(remove all contents if necessary) and, from there, enter::
+As the first step of compiling and installing, change directory (cd) to 
+the pscf/cmake/ directory. Then make sure the cmake/ directory is empty, 
+removing all contents if necessary. From there, enter::
 
    > cmake -DCMAKE_INSTALL_PREFIX=/path/to/install ../git
 
 In this command, the string "/path/to/install" denotes the path to
-the root of the install directory.  The last argument "../git" is the
-relative path to your copy of the source code repository from the 
-pscf/cmake directory. 
+the root of the install directory.  The last argument, "../git", is the
+relative path to your copy of the source code repository, in pscf/git, 
+from the pscf/cmake directory. 
 
-To install in the pscf/ directory tree, you would thus enter::
+To install within in the pscf/ directory tree, you would enter::
 
    > cmake -DCMAKE_INSTALL_PREFIX=..  ../git
 
 where ".." represents the pscf/ directory, which is the parent of the
 pscf/cmake directory from which the command is issued. This will cause 
-the eventual creation of bin/, lib/ and share/ subdirectories of the 
+the later creation of bin/, lib/ and share/ subdirectories of the 
 pscf/ directory, alongside the cmake/ and git/ subdirectories.
 
 To install in the .local subdirectory of your home directory, instead
@@ -359,7 +362,7 @@ privileges on your machine, and would enter::
 
 In this case, you must use the "sudo" command to apply the command 
 with "super-user" or administrator privileges, and you will be prompted 
-for your password. No -DCMAKE_INSTALL_PREFIX=" option is required in 
+for your password. No "-DCMAKE_INSTALL_PREFIX=" option is required in 
 this case, however, because /usr/local is the default installation 
 that will be use by cmake if no alternative is specified.
 
@@ -409,7 +412,7 @@ enter the commands::
     PATH=$PATH:install/bin
     PYTHONPATH=$PYTHONPATH:install/lib/python2.7/site-packages
 
-where "install" denotes the absolute path to your chosen installation
+where "install" denotes an absolute path to your chosen installation
 directory.
 
 The above procedures (running pscf-env script or manually setting the
