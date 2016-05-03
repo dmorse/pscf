@@ -397,6 +397,8 @@ operating system to find the pscf program when it is invoked from the
 command line by name, and to allow the python interpreter to find some
 associated python modules that are useful for data analysis. 
 
+**Changing Paths**
+
 The simplest way to make the required changes to your user environment
 is to cd to bin/ subdirectory of the root install directory and, from
 there, enter::
@@ -415,18 +417,22 @@ enter the commands::
 where "install" denotes an absolute path to your chosen installation
 directory.
 
+**Making it Permanent**
+
 The above procedures (running pscf-env script or manually setting the
 relevant environment variables) only modifies the $PATH and $PYTHONPATH
-variables temporarily, until you log out (on Linux) or until you close
-the terminal window (on a Mac). To have the appropriate directories
-added to these variables automatically whenever you log in or open a
-terminal, simply add the command::
+variables temporarily, until you close the terminal window or log out.
+To have the appropriate directories added to these environment variables 
+automatically whenever you log in or open a terminal, simply add the 
+command::
 
    source install/bin/pscf-env 
 
-to the .bashrc configuration file in your home directory. Here, the
-string "install/" is a placeholder for the absolute path to the pscf 
-install directory.
+to the .bashrc file or (on Mac OS X) .profile configurtion file
+in your home directory. Here, the string "install/" is a placeholder 
+for the absolute path to the pscf install directory.
+
+**Configuration files: Linux vs. Mac OS X**
 
 On linux, after a user logs in, the operating system looks for a file 
 in the user directory named .profile or .bash_profile (in that order)
@@ -444,11 +450,14 @@ by the .profile or .bash_profile file, by a command such as::
 
 This part of the .profile or .bash_profile file checks if there is 
 a .bashrc file in the users home directory and, if one is found, 
-executes that file. 
+executes that file. With this configuration, commands that set up
+environment variables should be added to the .bashrc file.
 
-On Mac OS X, the Mac Terminal program actually executes the .profile
+On Mac OS X, the Mac Terminal program instead executes the .profile
 script whenever you open a terminal, rather than using different 
-files for login and non-login terminals, and thus does not ever 
-directly execute the .bashrc file. On a Mac, one can thus either use 
-the procedure described above, or simply place all commands that
-customize the user environment into the .profile. script.
+files for login and non-login terminals. The Mac Terminal program 
+thus thus does not ever directly execute the .bashrc file. A Mac 
+user that always uses the Mac Terminal program could thus either 
+use the procedure described above (which would still work correctly), 
+or simply place all commands that customize the user environment 
+into the .profile script.

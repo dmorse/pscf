@@ -12,16 +12,21 @@ unix environments is the locations of the required libraries.
 
 To compile the code in this way, proceed as follows:
 
-   * Change the working directory (cd) to the pscf/git/make directory
-     (i.e., to make/ subdirectory of the directory tree containing the
-     pscf git repository).
+   * Change the working directory (cd) to the pscf/git/make directory.
+     Note that this is a subdirectory of the pscf/git directory that
+     contains the git repository, and is different from the initially
+     empty pscf/cmake directory used to compile using cmake/.
 
-   * Make a copy named config.mk of the file config.mk_r, by entering::
+   * This directory should contain files named config.mk_r and Makefile.
+     Make a copy named config.mk of the file config.mk_r, by entering::
 
         cd config.mk_r config.mk
 
-   * Examine and edit the config.mk file to reflect your environment, 
-     and to choose an installation directory (see below).
+   * Examine and edit the new config.mk file to reflect your environment, 
+     and to choose an installation directory. The need to manually edit 
+     this configuration file is the main difference between using cmake 
+     to and using make alone. See below for further instructions about
+     this step.
 
    * To compile, enter::
 
@@ -29,8 +34,8 @@ To compile the code in this way, proceed as follows:
 
      from within pscf/git/make.
 
-   * To install in the location specified by the $(INSTALL) makefile 
-     variable (defined in config.mk), enter::
+   * To install in the directory specified by the $(INSTALL) makefile 
+     variable (as defined in config.mk), enter::
 
         > make install
 
@@ -42,8 +47,8 @@ Some of these steps are discussed in more detail below.
 
 **Editing the config.mk configfuration file**
 
-In the config.mk file in the src/make directory (which you must create by 
-copying config.mk_r), you will need to set values for a set of macro 
+In the config.mk file in the src/make directory (which you must create 
+by copying config.mk_r), you will need to set values for a set of macro 
 variables to values appropriate to your system. Makefile variables you 
 may need to reset are:
  
@@ -61,12 +66,16 @@ The INSTALL makefile variable in this makefile is equivalent to the
 MAKE_INSTALL_PREFIX variable that can be passed to cmake when compiling
 using cmake.
 
-The default config.mk file contains values appropriate for a number of 
-different common environments, most of which are commented out. It also
-contains some comments about appropriate choices for common environments. 
-Modify your copy of config.mk as needed, but make sure you give exactly 
-one uncommented definition for each variable, and comment out any unused 
-definitions.
+The file config.mk_r is a default makefile that is stored in the 
+repository. We require you to make an operational copy of this, named 
+config.mk, so that you can modify your config.mk file as needed without 
+changing the default copy. The config.mk_r file contains values for
+Makefile variables appropriate for a several different common operating
+system environments, most of which are commented out. It also contains 
+some comments about appropriate choices for specific environments. 
+Modify your copy of config.mk as needed, but avoid modifying config.mk_r,
+and make sure you give exactly one uncommented definition for each 
+variable in the config.mk file, and comment out any unused definitions.
 
 **Compile and Link**
 

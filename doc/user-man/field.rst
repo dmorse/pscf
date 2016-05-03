@@ -392,7 +392,7 @@ input_field_grid as a fortran loop of the form::
    do n3 = 0, ngrid(3) - 1
      do n2 = 0, ngrid(2) - 1
        do n1 = 0, ngrid(1) - 1
-          [Read or write data at grid point (n1, n2, n3)]
+          [Read or write data at grid point r(n1, n2, n3)]
        enddo
      enddo
    enddo

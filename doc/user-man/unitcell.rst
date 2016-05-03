@@ -33,8 +33,7 @@ Below, we discuss all possible crystal systems of 1, 2, and 3
 dimensional crystals separately. Lists of the names of all possible
 space groups for each crystal system are given on the following page.
 
-1D Crystal Systems
-==================
+**1D Crystal Systems**
 
 The only allowed crystal system name for a one-dimensional crystal is 
 s "lamellar". Only one unit cell parameter is required to specify a 
@@ -42,8 +41,7 @@ lamellar unit cell (i.e., N_cell_param = 1). The value of that parameter
 is equal to the layer spacing. 
 
 
-2D Crystal Systems
-==================
+**2D Crystal Systems**
 
 For two dimensional crystals (dim=2), let the parameters a and b 
 denote the lengths of two independent Bravais lattice basis vectors. 
@@ -63,8 +61,7 @@ oblique       3            a, b, gamma
 ============  ============ ============
 
 
-3D Crystal Systems
-===================
+**3D Crystal Systems**
 
 For three dimensional crystals (dim=3), the parameters a, b, and c 
 are the lengths of the three Bravais lattice vectors, alpha is the 

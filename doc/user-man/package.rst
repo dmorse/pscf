@@ -71,7 +71,7 @@ information (Metadata, Dependencies, and File Contents), enter::
 
    > rpm --info -qpR -qlvp pscf-1.0.0-Linux.rpm 
 
-On a system that uses .deb file, to check the .deb file for 
+On a system that uses .deb package files, to check the .deb file for 
 semi-detailed information, enter::
 
     # This extracts multiple files

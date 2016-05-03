@@ -9,9 +9,16 @@ The symbol for a space group may be entered as the value of "space_group" in
 the BASIS section of the parameter file. The tables below list the allowed 
 space group symbols. 
 
-===============
 1D Space Groups
 ===============
+
+The only possible nontrivial symmetry for a one-dimensional lamellar 
+phase is inversion symmetry. There are thus only two possible groups: 
+The centrosymmetric group (group -1) and the non-centrosymmetric group
+(group 1). Fields for a centrosymmetric lamellar phase are expanded
+using a basis of cosine waves, while fields for a non-centrosymmetric 
+phase are expanded using a basis that contains both cosines and 
+sine waves.
 
 ======== ======  =================
 Number   Symbol  Comments
@@ -21,14 +28,14 @@ Number   Symbol  Comments
 ======== ======  =================
 
 
-===============
 2D Space Groups
 ===============
 
-The names of all 17 possible 2D plane groups are given below in the text format expected
-by PSCF. The format used in PSCF for both 2D and 3D space group names is based on the 
-names used in the international tables of crystallography, but allows space group names 
-to be written as simple ascii text strings.
+The names of all 17 possible 2D plane groups are given below in the text format 
+expected by PSCF. The format used in PSCF for both 2D and 3D space group names 
+is based on the names used in the international tables of crystallography, but 
+allows space group names to be written as simple ascii text strings, which
+contain spaces between elements of the space group name.
 
  ====== ======== ==============
  Number Symbol   Lattice System
@@ -52,17 +59,43 @@ to be written as simple ascii text strings.
  17     p 6 m m  hexagonal
  ====== ======== ==============
 
-===============
 3D Space Groups
 ===============
 
-The names of all possible 3D space groups are given below in the text format expected
-by PSCF. This format is based on the naming conventions used in the international 
-tables of crystallography, but allows space group names to be written as simple
-ascii text strings, with no special symbols or subscripts. In this format, a space is 
-ntroduced between different elements of the space group name, and overbars are indicated 
-by a "-" sign before the overbarred symbol. Thus for example, the space group of the
-gyroid phase (space group 230) is written in this format as "I a -3 d"
+The names of all possible 3D space groups are given below in the text format 
+expected by PSCF. These names are based on the names given in Hermann-Mauguin
+or "international" notation used the international tables of crystallography, 
+but are given in a format that allows space group names to be written as simple 
+ascii text strings, with no special symbols or subscripts. In this format, for
+example, the space group :math:`Ia\overline{3}d: of the gyroid phase (space 
+group 230) is written as "I a -3 d". 
+
+The following rules are applied to convert Hermann-Mauguin symbols into text 
+strings:
+
+   * A single space is introduced between different elements of the space 
+     group name, with a few exceptions described below. 
+
+   * Integers with overbars in the Hermann-Mauguin symbol, which indicate
+     inversion (:math:`\overline{1}`) or a 3-, 4- or 6-fold rotoinversion 
+     axis (:math:`\overline{3}`, :math:`\overline{4}`, or :math:`\overline{6}`), 
+     are indicated in the PSCF text string by placing a "-" sign before 
+     the overbarred integer. Thus for, example, "-3" represents the symbol
+     :math:`\overline{3}` in the text space group name "I a -3 d"
+
+   * Integers with subscripts, such as :math:`4_2`, which indicate screw 
+     axes, are indicated in the text representation by placing the two 
+     integers directly adjacent, with no intervening white space. Thus, 
+     for example, :math:`4_2` is replaced by "42".
+
+   * Symbols that are separated by a slash appear with no space on either 
+     side of the slash. 
+
+   * Different "settings" of the same space group, which correspond to 
+     different definitions of the origin of space in the definition of
+     the symmetry elements, are indicated by a colon followed by an 
+     integer label at the end of the space group. 
+
 
  ========  =================
   Number   Symbol 
@@ -89,7 +122,7 @@ gyroid phase (space group 230) is written in this format as "I a -3 d"
    20      C 2 2 21 
    21      C 2 2 2 
    22      F 2 2 2 
-   23      I 2 2 2 
+   23      I 2 2 2
    24      I 21 21 21 
    25      P m m 2 
    26      P m c 21 
@@ -329,4 +362,81 @@ gyroid phase (space group 230) is written in this format as "I a -3 d"
   229      I m -3 m 
   230      I a -3 d 
  ========  =================
+
+Symmetry Elements
+=================
+
+A list of all of the symmetry elements of any space group can be output to file by placing a "OUTPUT_GROUP" command in the parameter file at any point after the "BASIS" section.
+
+Every space group symmetry can be expressed mathematically as an operation
+
+.. math::
+
+   \textbf{r} \rightarrow \textbf{A}\textbf{r} 
+                    + \textbf{t}
+
+Here, :math:`\textbf{r} = [r_{1}, \ldots, r_{D}]^{T}` is a dimensionless 
+D-element column vector containing the components of a position within 
+the unit cell in a basis of Bravais lattice vectors, :math:`\textbf{A}` 
+is a :math:`D \times D` matrix that represents a point group symmetry 
+operation (e.g., identity, inversion, rotation about an axis, or 
+reflection through a plane), and :math:`\textbf{t}` is a dimenionless
+D-element colummn vector that (if not zero) represents a translation 
+by a fraction of a unit cell. Every group contains an identity element in 
+which :math:`\textbf{A}` is the identity matrix and :math:`\textbf{t}=0`. 
+
+The elements of the column vectors :math:`\textbf{r}` and :math:`\textbf{t}` 
+in the above are dimensionless components defined using a basis of Bravais 
+basis vectors. The position :math:`\textbf{r} = [1/2, 1/2, 1/2]^{T}` thus
+always represents the center of a 3D unit cell. The Cartesian representation 
+of a position vector is instead given by a sum
+
+.. math::
+
+   \sum_{i=1}^{D} r_{i}\textbf{a}_{i}
+
+
+in which :math:`\textbf{a}_{i}` is the Cartesian representation of 
+Bravais lattice vector number i. The elements of the dimensionless 
+translation vector :math:`\textbf{t}` are always either zero or 
+simple fractions such as 1/2, 1/4, or 1/3. For example, a symmetry 
+element in a 3D BCC lattice in which :math:`\textbf{a}` is the identity 
+matrix and :math:`\textbf{t} = [1/2, 1/2, 1/2]^{T}` represents the 
+body-centering translational symmetry that relates the two equivalent 
+positions per cubic unit cell in a BCC lattice. Similarly, a glide plane 
+in a 3D crystal represented by a diagonal matrix that represents inversion 
+through a plane and a translation vector that represents translation 
+by half a unit cell within that plane.
+
+The OUTPUT_GROUPS command outputs a list of symmetry elements in 
+which each element is displayed by showing the elements of the 
+matrix :math:`\textbf{A}` followed by elements of the associated 
+column vector :math:`\textbf{t}`.
+
+The Bravais lattice vectors used internally by PSCF for cubic, tetragonal, 
+and orthorhombic 3D systems are orthogonal basis vectors for the simple 
+cubic, tetragonal, or orthorhombic unit cells, which are aligned along 
+the x, y, and z axes of a Cartesian coordinate system. Similarly, the 
+basis vectors used for the 2D square and rectangular space groups are 
+orthogonal vectors which form a basis for a cubic or rectangular
+unit cell. The grid used to solve the modified diffusion equation is
+based on the same choice of unit cell and, thus for example, uses a
+regular grid within a cubic unit cell to represent fields in a BCC or 
+FCC lattice.  For body-centered and space-centered lattice systems, 
+it is worth nothing that this unit cell not a primitive (minimum 
+size) unit cell of the crystal: For example, a cubic unit cell actually 
+contains 2 equivalent primitive unit cells of a BCC lattice or 4 
+primitive cells of an FCC lattice. 
+ 
+One consequence of the fact that PSCF does not always use a primitive 
+unit cell is that, in the Fourier expansion of the omega and rho fields,
+the Fourier coefficients associated with some sets of symmetry-related 
+wavevectors (some "stars") are required to vanish in order to satisfy 
+the requirement that the field be invariant under all elements of the 
+specified space group. The rules regarding which stars must have 
+vanishing Fourier coefficients are the same as the rules for systematic 
+cancellations of Bragg reflections in X-ray or neutron scattering from 
+a crystal of the specified space group. The procedure used by PSCF to 
+construct symmetry adapted basis functions automatially identifies and 
+accounts for these systematic cancellations.
 
