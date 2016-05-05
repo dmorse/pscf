@@ -195,8 +195,8 @@ Further details about the contents and purpose of each section are given below.
 
 .. _param-conventions-sec:
 
-Parameter Conventions
-======================
+Unit Conventions
+================
 
 PSCF does not impose the use of a particular system of units
 for lengths. Any system of units can be used for entering values
@@ -229,28 +229,31 @@ quotes, e.g., as 'chi' or 'out.'.
 
 .. _param-array-sec:
 
-Array Formats
-==============
+Array Format Conventions
+========================
 
-Some input parameters are one or two-dimensional array. Here, we discuss how
-the dimension and format of these parameters is indicated in subsequent sections
-that describe the parameters required in different sections of the input
-script.
+May input parameters are represented one or two-dimensional array, in which 
+different elements may be associated with, e.g., different monomer types or
+different molecular species.  Here, we discuss how the dimension and format 
+of these parameters is indicated in subsequent sections that use to tables
+to describe the parameters required in different sections of the input script.
 
-Below, the discussion of possible section of an parameter file contains a table
-listing the required parameters and meaning. One or two-dimensional parameters
-are indicated in these tables by displaying the name of each array variable
-with an appropriate number of indices.  One dimensional parameters are thus
-indicated by writing the name of the parameter with one index: For example,
-in the description of the MONOMERS section, kuhn(im) denotes a one dimensional
-array of statistical segment lengths for different monomer types.  Two
-dimensional arrays are shown with two indices.
+The discussion of each section of a parameter file contains a table listing 
+the required parameters and the meaning of each. Parameters that are 
+represented by one- or two-dimensional parameters arrays are indicated in 
+these tables by displaying the name of each array parameter with an
+an appropriate number of indices shown in induces. One dimensional array
+parameters are thus indicated by writing the name of the parameter with one 
+index: For example, in the description of the MONOMERS section, kuhn(im) 
+denotes a one dimensional array of statistical segment lengths for different 
+monomer types.  Two dimensional arrays are shown with two indices.
 
-The meaning and range of each such array index is indicated by using a set of
-standard variable names to indicate different types of indices, with different
-ranges of allowed values. For example, in the remainder of this page, the
-symbol 'im' is always used to indicates an index for a monomer type.  The
-meaning and range of every index symbol is summarized in the following table:
+The meaning and range of each such array index is indicated by using a set 
+of standard variable names to indicate different types of indices, with 
+different ranges of allowed values. For example, in the remainder of this 
+page, the symbol 'im' is always used to indicates an index for a monomer type.  
+The meaning and range of every index symbol is summarized in the following 
+table:
 
 Meaning of Array Indices:
 
@@ -265,19 +268,18 @@ Meaning of Array Indices:
   ========= =====================  ================
 
 For each array parameter, the elements of the array are expected to appear
-in the parameter file in a specific format. Generally, arrays that contain
-a polymer or solvent molecular species index are input with the required
-information about each molecule on a separate line, while values
-associated with different monomer types or with different blocks within
-a molecule are listed sequentially on a single line. The expected format
-for each array parameter in specified by a code labeled "Format" in each
-the table of parameters for each section. The meaning of each array format
-code is specified below:
+in the parameter file in a specific format. Generally, arrays are formatted
+so that information about different molecular species appears on separate
+lines, but that values that are associated with different monomer blocks 
+or different blocks within a block copolymer appear on a single line 
+separated by spaces. 
 
-Array Format Codes:
+The expected format for each array parameter in specified in the table of
+parameters for each section by a code given in a table column labelled 
+"Format".  The meaning of each array format code is specified below:
 
   =======  ==================================================
-  Format   Meaning
+  Code     Meaning
   =======  ==================================================
   R        1D array, row format (all values in a single line)
   C        1D array, column format (one value per line)
@@ -462,14 +464,14 @@ The discretization section defines the grid used to spatially discretize
 the modified diffusion equation and the size ds of the "step" ds in the
 time-like contour length variable used to integral this equation.
 
-Parameters
+Parameters:
 
-  ========= ========  ====================================== ====
-  Variable  Type      Description                            Form
-  ========= ========  ====================================== ====
+  ========= ========  ====================================== ======
+  Variable  Type      Description                            Format
+  ========= ========  ====================================== ======
   ngrid(id) integer   # grid points in direction id=1,..,dim  R
   ds        real      contour length step size
-  ========= ========  ====================================== ====
+  ========= ========  ====================================== ======
 
 The integer array ngrid(id) is input in row format, with dim (i.e., 1,2 or 3)
 values on a line, where dim is the dimensionality of space.

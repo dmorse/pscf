@@ -59,6 +59,7 @@ contain spaces between elements of the space group name.
  17     p 6 m m  hexagonal
  ====== ======== ==============
 
+
 3D Space Groups
 ===============
 
@@ -67,11 +68,13 @@ expected by PSCF. These names are based on the names given in Hermann-Mauguin
 or "international" notation used the international tables of crystallography, 
 but are given in a format that allows space group names to be written as simple 
 ascii text strings, with no special symbols or subscripts. In this format, for
-example, the space group :math:`Ia\overline{3}d: of the gyroid phase (space 
+example, the space group :math:`Ia\overline{3}d` of the gyroid phase (space 
 group 230) is written as "I a -3 d". 
 
-The following rules are applied to convert Hermann-Mauguin symbols into text 
-strings:
+**Name conventions** 
+
+The following conventions are used to convert standard Hermann-Mauguin space 
+group symbols into text strings:
 
    * A single space is introduced between different elements of the space 
      group name, with a few exceptions described below. 
@@ -80,10 +83,10 @@ strings:
      inversion (:math:`\overline{1}`) or a 3-, 4- or 6-fold rotoinversion 
      axis (:math:`\overline{3}`, :math:`\overline{4}`, or :math:`\overline{6}`), 
      are indicated in the PSCF text string by placing a "-" sign before 
-     the overbarred integer. Thus for, example, "-3" represents the symbol
-     :math:`\overline{3}` in the text space group name "I a -3 d"
+     the integer. Thus for, example, :math:`\overline{3}` is replaced by
+     "-3" in the ascii identifier "I a -3 d".
 
-   * Integers with subscripts, such as :math:`4_2`, which indicate screw 
+   * Integers with subscripts, such as :math:`4_2`, which represent screw 
      axes, are indicated in the text representation by placing the two 
      integers directly adjacent, with no intervening white space. Thus, 
      for example, :math:`4_2` is replaced by "42".
@@ -96,6 +99,7 @@ strings:
      the symmetry elements, are indicated by a colon followed by an 
      integer label at the end of the space group. 
 
+**Space Groups**
 
  ========  =================
   Number   Symbol 
