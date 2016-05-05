@@ -479,15 +479,15 @@ values on a line, where dim is the dimensionality of space.
 BASIS
 -----
 
-The BASIS block instructs the code to construct symmetrized
-basis functions that are invariant under the operations of
-a specified space group.  It contains only one variable,
-named "group", which is a string containing either the name
-of one of the standard space groups (which are hard coded
-into the program) or the path to a file that contains the
-elements of the group. After reading this string from file,
-basis functions are constructed by the make_basis routine
-of module basis_mod.
+The BASIS block instructs the code to construct symmetrized basis 
+functions that are invariant under the operations of a specified space 
+group.  The file format for this block contains only one variable, 
+named "group", which is a string identifier for the space group. 
+The value of the "group" string can be either a standard name of 
+one of the possible space groups or the path to a file that 
+contains the elements of the group. The names of all possible space 
+groups, in the form expected by PSCF, are presented in the page on 
+:ref:`group-page`.
 
   ======== =============  ==========================
   Variable Type           Description
@@ -495,23 +495,22 @@ of module basis_mod.
   group    character(60)  group name, or file name
   ======== =============  ==========================
 
-The file format for a group file is determined by the 
-input_group routine in module group_mod. 
-
 .. _param-iterate-sub:
 
 ITERATE
 -------
 
 The ITERATE command causes the program to read in an input omega file and 
-attempts to iteratively solve the SCFT equations for one set of input 
-parameters.  This section must immediately precede any SWEEP or RESPONSE 
-section. 
+then attempt to iteratively solve the SCFT equations for one set of input 
+parameters. This is the workhorse of a SCFT computation. An ITERATE
+section must immediately precede any SWEEP or RESPONSE section. 
 
-If an ITERATE section is immediately preceded by a RESCALE section, it uses 
-the rescaled version of the field that was read by the RESCALE command. In 
-this case the parameter file should not contain an input_filename parameter.
+If an ITERATE section is immediately preceded by a RESCALE section, it 
+uses the rescaled version of the omega field that was read by the RESCALE 
+command.  In this case the parameter file should not contain an 
+input_filename parameter.
 
+Parameters:
 
   ============== ============= =================================================
   Variable       Type          Description
@@ -520,7 +519,7 @@ this case the parameter file should not contain an input_filename parameter.
   output_prefix  character(60) prefix to all output files
   max_itr        integer       maximum allowed number of iterations
   max_error      real          tolerance - max. norm of residual
-  domain         logical       unit cell is variable if true, fixed if false
+  domain         logical       unit cell is variable if true, rigid if false
   itr_algo       character(10) code for iteration algorithm
   N_cut          integer       dimension of cutoff Jacobian in NR algorithm
                                (required iff itr_algo = 'NR')
@@ -528,59 +527,96 @@ this case the parameter file should not contain an input_filename parameter.
                                (required iff itr_algo = 'AM')
   ============== ============= =================================================
 
-For now, the value of the 'itr_algo' variable must be either 'NR', to use a 
-quasi-Newton-Raphson/Broyden algorithm, or 'AM', to use the Anderson mixing
-iteration algorithm. Other iteration algorithms may be added in the future.
+Discussion:
 
-The output prefix is concatenated with the suffixes 'out', 'rho', and 'omega' 
-to create paths for the output summary, output monomer concentration field, 
-and output omega field files. The output prefix string should usually be either
-the name of a subdirectory followed by a "/" directory separator string, such 
-as 'out/', in order to place these files in a separate directory, or a string 
-that ends with a period, such as 'out.', to obtain files with file extensions 
-'.out', '.rho' and '.omega'. In all of the examples, output_prefix = 'out/'.
+The string "output_prefix" is concatenated with the suffixes 'out', 'rho', 
+and 'omega' to create paths (file names) for the output summary, output 
+monomer concentration (rho) field, and output chemical potential (omega) 
+field files.  The output prefix string should usually be either the name 
+of a subdirectory followed by a "/" directory separator string, such as 
+'out/', in order to place these files in a separate directory, or a string 
+that ends with a period, such as 'out.', to obtain files with file 
+extensions '.out', '.rho' and '.omega'. In all of the examples, we set 
+output_prefix = 'out/' to place all output files in a subdirectory.
+
+The value of the "domain" logical parameter determines whether PSCF 
+attempts to solve the self-consistent field equations in a fixed unit 
+cell (if domain == F) or whether it adjusts the parameters of the unit 
+cell so as to find a state of vanishing stress, and thus minimum free
+energy (if domain == "T").
+
+The value of the string "itr_algo" determines the choice of iteration
+algorithm. The only valid values (thus var) are "NR" or "AM". 
+
+If "itr_algo" is "NR", PSCF uses a quasi-Newton-Raphson iteration 
+algorithm that is unique to this program. This algorithm constructs 
+a physically motivated initial approximation for the Jacobian matrix
+in which elements associated with long wavelength components of the
+:\math:`\omega` field are computed numerically and shorter wavelength 
+components are estimated. After construction and inversion of this 
+initial estimate, Broyden updates of the inverse Jacobian are used to 
+refine the estimate of the inverse Jacobian. This method requires a 
+parameter "N_cut", which determines how many rows and columns of the 
+Jacobian matrix are to be computed numerically. The time required to
+construct the initial estimate of the Jacobian, which can become quite 
+long for 3D problems that require many basis functions, increases 
+linearly with "N_cut" . For problems involving relatively simple 3D 
+unit cells of block copolymer melts, values of N_cut of order 100 
+often provide a reasonable balance between accuracy and cost. One
+important disadvantage of the "NR" algorithm is that it requires
+storage of the full Jacobian matrix, which can become impossible for 
+problems with more than about 10,000 basis functions.
+
+If "iter_algo" is set to "AM", PSCF using an Anderson mixing algorithm
+that uses much less memory. This algorithm requires an integer parameter 
+"N_history" that determines how many previous iterations are stored and 
+used to estimate each update. We often set N_history = 30.
 
 .. _param-sweep-sub:
 
 SWEEP
 -----
 
-The presence of a SWEEP section instructs the program to solve the SCFT for
-a sequence of nearby values of parameters along a path through parameter
-space (a 'sweep'). We define a sweep contour variable s that varies from 0
-up to a maximum value s_max, in increments of 1. For each integer step in the
-sweep parameter, each of the relevant parameters in CHEMISTRY section (i.e.,
-any parameter for which a floating point value or values are specified in the
-parameter file) may be incremented by a user specified amount. For simulations
-with a fixed unit cell (domain=1), the elements of the unit_cell_param array
-may also be incremented. The desired increment for any variable <;name&gt;
-is specified by the value or (for an array) values of a corresponding
-increment variable named d_<;name>. Any number of increments may be specified.
-Variables that are not incremented do not need to be referred to explicitly -
-increments of zero are assigned default. When an array variable is incremented,
-however, increment values must be specified for all of the elements of the
-array.  The reading of increment variables ends when the program encounters
-the line 'end_increments'.
+The presence of a SWEEP section instructs the program to solve the SCFT 
+for a sequence of nearby values of parameters along a line through 
+parameter space (a 'sweep'). We define a sweep contour variable s that 
+varies from 0 up to a maximum value s_max, in increments of 1. For each 
+integer step in the sweep parameter, the user may specify a fixed increment
+per step for any of the real parameters that are relevant to the problem.
+The parameters that can be incremented include all of the real parameters 
+in the MONOMERS, CHAINS, SOLVENTS, COMPOSITION, and INTERACTION section 
+(i.e., all parameter in these sections for which a floating point value 
+or an array of floating point values is given in the parameter file). For 
+simulations with a fixed unit cell (domain=1), the elements of the 
+unit_cell_param array may also be incremented. 
 
-  ============= =============== =======================================
-  Variable      Type            Description
-  ============= =============== =======================================
-  s_max         real            maximum value of sweep contour variable
-  s_<name>      type of <name>  increment in variable <name>
-  end_increment none            indicates end of the list of increments
-  ============= =============== =======================================
+The desired increment per step for any variable <name> is specified by 
+the value or (for an array) array of values of a corresponding increment 
+variable named d_<name>. Any number of increments may be specified.
+Variables that are not incremented do not need to be referred to explicitly -
+increments of zero are assigned default. When an array-valued variable is 
+incremented, however, increment values must be specified for all of the 
+elements of the array.  The reading of increment variables ends when the 
+program encounters the line containing the string "end_increments".
+
+  ============== =============== =======================================
+  Variable       Type            Description
+  ============== =============== =======================================
+  s_max          real            maximum value of sweep contour variable
+  s_<name>       type of <name>  increment in variable <name>
+  end_increments none            indicates end of the list of increments
+  ============== =============== =======================================
 
 .. _param-response-sub:
 
 RESPONSE
 --------
 
-The presence of a RESPONSE section instructs the program to
-calculate the linear response matrix for a converged ordered
-structure at one or more k-vectors in the first Brillouin
-zone. If the linear response is calculated for more than one
-k-vector, they must lie along a line in k-space, separated by
-a user defined vector increment.
+The presence of a RESPONSE section instructs the program to calculate 
+the linear response matrix for a converged ordered structure at one or 
+more k-vectors in the first Brillouin zone. If the linear response is 
+calculated for more than one k-vector, they must lie along a line in 
+k-space, separated by a user defined vector increment.
 
   ========= ===========  =====================================
   Variable  Type         Description
@@ -741,8 +777,8 @@ rescaled omega field to an output omega file.
 
 .. _param-waves-sub:
 
-OUTPUT WAVES
--------------
+OUTPUT_WAVES
+------------
 
 Output the relationship between plane waves and symmetry-adapted
 basis functions, by outputting a file containing showing which
@@ -759,10 +795,13 @@ with that star.
 
 .. _param-group-sub:
 
-OUTPUT GROUP
--------------
+OUTPUT_GROUP
+------------
 
-Output all elements of the space group to a file.
+Output all symmetry elements of the current space group to a file.
+See the discussion of space group :ref:`group-symmetry-sec` for a
+discussion of the internal representation of space groups and the
+output file format.
 
 Parameters:
 

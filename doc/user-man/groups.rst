@@ -1,5 +1,5 @@
 
-.. _groups_page:
+.. _group-page:
 
 *************
 Space Groups
@@ -363,6 +363,8 @@ strings:
   230      I a -3 d 
  ========  =================
 
+.. _groups-symmetry-sec:
+
 Symmetry Elements
 =================
 
@@ -400,15 +402,16 @@ in which :math:`\textbf{a}_{i}` is the Cartesian representation of
 Bravais lattice vector number i. The elements of the dimensionless 
 translation vector :math:`\textbf{t}` are always either zero or 
 simple fractions such as 1/2, 1/4, or 1/3. For example, a symmetry 
-element in a 3D BCC lattice in which :math:`\textbf{a}` is the identity 
+element in a 3D BCC lattice in which :math:`\textbf{A}` is the identity 
 matrix and :math:`\textbf{t} = [1/2, 1/2, 1/2]^{T}` represents the 
-body-centering translational symmetry that relates the two equivalent 
-positions per cubic unit cell in a BCC lattice. Similarly, a glide plane 
-in a 3D crystal represented by a diagonal matrix that represents inversion 
-through a plane and a translation vector that represents translation 
-by half a unit cell within that plane.
+purely translational symmetry that relates the two equivalent positions 
+per cubic unit cell in a BCC lattice. Similarly, a glide plane in 
+a 3D crystal is represented by a diagonal :math:`\textbf{A}` matrix 
+with values of :math:`\pm 1` on the diagonal that represents 
+inversion through a plane and a translation vector that represents 
+a translation by half a unit cell within that plane.
 
-The OUTPUT_GROUPS command outputs a list of symmetry elements in 
+The OUTPUT_GROUP command outputs a list of symmetry elements in 
 which each element is displayed by showing the elements of the 
 matrix :math:`\textbf{A}` followed by elements of the associated 
 column vector :math:`\textbf{t}`.
