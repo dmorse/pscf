@@ -363,7 +363,7 @@ strings:
   230      I a -3 d 
  ========  =================
 
-.. _groups-symmetry-sec:
+.. _group-symmetry-sec:
 
 Symmetry Elements
 =================
