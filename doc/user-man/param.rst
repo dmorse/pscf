@@ -24,13 +24,20 @@ Example
 An example of a complete parameter file is shown below. This example is
 for a system containing a triblock copolymer containing three chemically
 distinct blocks in a solvent that is chemically identical to one of
-the blocks. The first line identifies the version of the file format
+the blocks. 
+
+The first line of the file identifies the version of the file format
 (in this case, version 1.0).  The remainder of the file is divided into
 sections, each of which begins with a line containing a capitalized label,
-such as MONOMERS, CHAINS, ec. The first few sections in this example
-simply provide blocks input data. The ITERATE and SWEEP sections instead
-contain the instructions required to initiate a computation. Execution
-stops when a FINISH block is encountered.
+such as MONOMERS, CHAINS, ec. Each section begins with a capitalized 
+section identtifier (MONOMER, CHAINS, etc.) on a line by itself. A single
+line must is left blank between sections. The sections are processed in 
+the order in which the appear in the parameter file. The first few sections 
+in this example simply provide values for physical and computational 
+parameters. An ITERATE section instructs the program to actually perform 
+a SCF calculation, by iteratively solving the SCF equations. A SWEEP 
+section performs a sequence of such calculations along a line in parameter 
+space. Execution of the program stops when a FINISH line is encountered.
 
 ::
 
@@ -120,14 +127,6 @@ stops when a FINISH block is encountered.
    FINISH
 
 
-The MONOMERS block contains information about the monomers used in this
-calculation, including the number N_monomer of monomer types and the
-statistical segment length of each type, given as elemetns of the
-one-dimensional array named "kuhn".
-
-The CHAINS block describes the structure and composition of all polymer
-chains, which must linear block polymers or hompolymers.
-
 .. _param-overview-sec:
 
 Overview of Sections
@@ -135,16 +134,14 @@ Overview of Sections
 
 **Primary Sections**
 
-The following list shows the titles of the blocks required to complete most
-standard computations, in the order in which they normally appear.
-Subsequent sections describe each of the corresponding blocks of the input
-file in detail. To solve the SCF problem for a single set of parameters,
-leave out the penulimate SWEEP section.
+The following list shows the titles of the most common parameter sections, in the 
+order in which they normally appear.  A detailed descriptions of the contents of each 
+parameter file section is given below in a discussion of :ref:`param-sections-sec`.
 
   ===============================  ====================================================
   Section                          Description
   ===============================  ====================================================
-  :ref:`param-monomers-sub`        # of monomers and kuhn lengths
+  :ref:`param-monomers-sub`        # of monomer types, and their kuhn lengths
   :ref:`param-chains-sub`          Chain species, block sequences and lengths, etc.
   :ref:`param-solvents-sub`        Solvent species, chemical identities, volumes
   :ref:`param-composition-sub`     Statistical ensemble and mixture composition
@@ -172,6 +169,9 @@ Several standard types of computation are possible using the blocks listed above
      periodic microstructure, include ITERATE and RESPONSE sections, but do not include
      a SWEEP section.
 
+The SOLVENTS section may be omitted for calculations on polymer melts, with no small 
+molecule solvent.
+
 **Miscellaneous Utilities**
 
 The following sections are used to invoke a variety of data processing operations or
@@ -195,44 +195,49 @@ Further details about the contents and purpose of each section are given below.
 
 .. _param-conventions-sec:
 
-Unit Conventions
-================
+Parameter Conventions
+=====================
 
-PSCF does not impose the use of a particular system of units
-for lengths. Any system of units can be used for entering values
-of the monomer statistical segment lengths and the unit cell
-dimensions, as long as the same unit of length are used for all
-relevant quantities.  One can use either a physical unit, such
-as nanometers or Angstroms, or dimensionless units in which one
+**Units**
+
+PSCF does not impose the use of a particular system of units for lengths. 
+Any system of units can be used for entering values of the monomer statistical 
+segment lengths and the unit cell dimensions, as long as the same unit of 
+length are used for all relevant quantities.  One can use either a physical 
+unit, such as nanometers or Angstroms, or dimensionless units in which one
 or more of the statistical segment lengths is set to unity.
 
+**Definition of a "Monomer"**
 
-SCFT also leaves the user some freedom to redefine what he or
-she means by a "monomer", which need not correspond to a chemical
-repeat unit.  The choice of values of the parameters block_length,
-solvent_size, kuhn, and chi to represent a particular experimental
-system all depend on the choice of a value for a reference volume
-used to define an effective repeat unit.  Each element of the
-variable block_length represents the number of "monomers" in a
-block of a block copolymer, defined to be the ratio of the block
-volume to the chosen reference volume.  Similarly, the variable
-solvent_size is given by ratio of the solvent volume to the
-reference volume. The values of the chi parameters are proportional
-to the reference volume, while kuhn lengths are proportional to
-the square root of the reference volume.  Note that PSCF does not
-require the user to input a value for the monomer reference volume
-- the choice only effects the values required for other quantities.
+SCFT also leaves the user some freedom to redefine what he or she means 
+by a "monomer", which need not correspond to a chemical repeat unit.  The 
+choice of values of the parameters block_length, solvent_size, kuhn, and
+ chi to represent a particular experimental system all depend on the choice 
+of a value for a monomer reference volume, which in turn defines an effective 
+monomer repeat unit. A monomer of a polymeric species defined to be a length 
+or molar mass of chain that occupies one monomer reference volume in the melt. 
+Each element of the variable block_length represents the number of "monomers" 
+in a block of a block copolymer, defined to be the ratio of the block volume 
+to the monomer reference volume.  Similarly, the variable solvent_size is given 
+by ratio of the solvent volume to the reference volume. The values of the chi 
+parameters are proportional to the reference volume, while kuhn lengths are 
+proportional to the square root of the reference volume. 
 
-All parameters that are represented internally as characters or
-character strings must appear in the parameter file with single
-quotes, e.g., as 'chi' or 'out.'.
+Note that PSCF does not require the user to input a value for the monomer 
+reference volume - the choice is implicit in the values given for other
+quantities.
+
+**Character Strings**
+
+All parameters that are represented internally as characters or character 
+strings must appear in the parameter file with single quotes, e.g., as 
+'chi' or 'out.'.
 
 .. _param-array-sec:
 
-Array Format Conventions
-========================
+**Array-valued parameters**
 
-May input parameters are represented one or two-dimensional array, in which 
+Many input parameters are represented one or two-dimensional array, in which 
 different elements may be associated with, e.g., different monomer types or
 different molecular species.  Here, we discuss how the dimension and format 
 of these parameters is indicated in subsequent sections that use to tables
@@ -303,10 +308,10 @@ a symmetric array with zero diagonal elements is input in the form::
    chi(3,1) chi(3,2)
    .....
 
-in which line i contains elements chi(i+1,j) for j< i. For a
-system with only two monomer types (e.g., a diblock copolymer melt
-or a binary homopolymer blend), only the single value chi(2,1) on
-a single line is required.
+in which line i contains elements chi(i+1,j) for j< i. For a system 
+with only two monomer types (e.g., a diblock copolymer melt or a 
+binary homopolymer blend), only the single value chi(2,1) on a single 
+line is required.
 
 .. _param-sections-sec:
 
@@ -327,12 +332,21 @@ MONOMERS
 
 Chemistry Parameters
 
-  ===========  ========  =========================================   ==========
-  Variable     Type      Description                                 Format
-  ===========  ========  =========================================   ==========
+  ===========  ========  ============================================== =========
+  Variable     Type      Description                                    Format
+  ===========  ========  ============================================== =========
   N_monomer    integer   Number of monomer types
-  kuhn(im)     real      statistical segment length of monomer im    R
-  ===========  ========  =========================================   ==========
+  kuhn(im)     real      statistical segment length of monomer type im  R
+  ===========  ========  ============================================== =========
+
+Despite the choice of name, the elements of the kuhn array are actually 
+effective statistical segment lengths, rather than true Kuhn lnegths. The 
+statistical segment length :math:`b` of a random-walk hompolymer depends 
+upon the choice of a definition of an effective monomer, and is defined 
+by setting :math:`b^{2} = R_{e}^{2}/N`, where :math:`R_{e}^{2}` is the 
+mean-squared end-to-end length of the polymer and :math:`N` is the number 
+of effective monomers (i.e., the number of monomer reference volumes) in 
+the chain. 
 
 .. _param-chains-sub:
 
@@ -351,11 +365,12 @@ Chain Parameters
   ==================== ======== ============================================ ======
 
 The block_monomer and block_length arrays are entered in a format in which each
-line contains the data with one polymer species, so that the number of entries
-in line ic must equal to the value of N_block(ic), i.e., to the number of blocks
-in chain species ic. The length of each block in an incompressible mixture is
-equal to the volume occupied by that block (computed using the density of the
-corresponding hompolymer) divided by the monomer reference volume.
+line contains the data for one polymer species, and different entries within each
+line refer to different blocks. The number of entries in line ic must equal to 
+the value of N_block(ic), i.e., to the number of blocks in chain species ic. The 
+length of each block in an incompressible mixture is equal to the volume occupied 
+by that block (computed using the density of the corresponding hompolymer) divided 
+by the monomer reference volume.
 
 .. _param-solvents-sub:
 
@@ -372,8 +387,8 @@ Solvent Parameters
   solvent_size(is)     real     Volume of solvent is          C
   ==================== ======== ============================= ======
 
-The parameter solvent_size is given by the ratio of the actual volume
-occupied by a particular solvent to the monomer reference volume.
+The parameter solvent_size is given by the ratio of the actual volume occupied by 
+a particular solvent to the monomer reference volume.
 
 .. _param-composition-sub:
 
@@ -392,20 +407,26 @@ Composition Parameters:
   mu_solvent(ic)  real     chemical potential of solvent species ic  C       
   =============== ======== ========================================= ======
 
-The integer parameter "ensemble" determines the choice of statistical ensemble, 
-and should be set to 0 for canonical (NVT) ensemble and to 1 for grand-canonical
+The integer parameter "ensemble" determines the choice of statistical ensemble.
+This should be set to 0 for canonical (NVT) ensemble and to 1 for grand-canonical
 ensemble. The remainder of the section then contains only the input parameters
-required in the specified ensemble: If canonical ensemble is specified (ensemble=0), 
-then the rest of the section must contain values for the parameters phi_chain and 
-(if N_solvent > 0) phi_solvent that specify the volume fractions of all species.
-The example parameter file shows this for a canonical ensemble simulations of a
-single-component polymer melt.  If grand canonical ensemble is specified (ensemble=1), 
-then the rest of the section must contain values for the parameters mu_chain and 
-(if N_solvent > 0) mu_solvent that specify values for the chemical potentials of 
-all species. Chemical potentials are specified as free energies per molecule in 
-units with :math:`k_{B}T=1`. Values of phi_solvent (in canonical ensemble) or
-mu_solvent (in grand-canonical ensemble) should be given if and only if there
-are solvent species present, i.e., if N_solvent > 0.
+required as inputs in the specified ensemble: 
+
+If canonical ensemble is specified (ensemble=0), then the rest of the section 
+must contain values for the parameters phi_chain and (if N_solvent > 0) phi_solvent 
+that specify the volume fractions of all species.  The example parameter file 
+shows this for a canonical ensemble simulations of a single-component polymer 
+melt.  
+
+If grand canonical ensemble is specified (ensemble=1), then the rest of the 
+section must contain values for the parameters mu_chain and (if N_solvent > 0) 
+mu_solvent that specify values for the chemical potentials of all species. 
+Chemical potentials are specified as free energies per molecule in units with 
+:math:`k_{B}T=1`. 
+
+Values of phi_solvent (in canonical ensemble) or mu_solvent (in grand-canonical 
+ensemble) should be given if and only if there are solvent species present, 
+i.e., if a solvent block is present and N_solvent > 0.
 
 .. _param-interaction-sub:
 
@@ -437,22 +458,27 @@ UNIT_CELL
 ---------
 
 The variables in the UNIT_CELL section contain the information necessary to define
-the unit cell type, and the unit cell dimensions and shape.
-
+the crystal unit cell type, and the unit cell size and shape (i.e., to define the
+Bravais lattice).
 
   ================ ============== ============================================ ======
   Variable         Type           Description                                  Format
   ================ ============== ============================================ ======
   dim              integer        dimensionality =1, 2, or 3
   crystal_system   character(60)  unit cell type (cubic, tetragonal, etc.)
-  N_cell_param     integer        # parameters required to describe unit cell
+  N_cell_param     integer        # unit cell parameters 
   cell_param(i)    real           N_cell_param unit cell parameters            R
   ================ ============== ============================================ ======
 
-The array cell_param contains N_cell_param elements, which are input in row format,
-with all elements in a single line. Further information about the allowed values of
-the crystal_system string and the number and type of parameters required by each
-type of lattice is given in the :ref:`unitcell-page`  page.
+The unit cell parameters are unit cell length and angles between Bravais basis
+vectors. The number of parameters required to describe a unit cell is different
+for different types of cell (different values of crystal_system), and is given
+by N_cell_param.  The array cell_param contains N_cell_param unit cell parameters,
+which are input in row format, with all elements in a single line. 
+
+Further information about the allowed values of the crystal_system string and 
+the number and type of unit cell parameters required by each type of unit cell 
+is given in the :ref:`unitcell-page`  page.
 
 
 .. _param-discretization-sub:
@@ -461,8 +487,8 @@ DISCRETIZATION
 --------------
 
 The discretization section defines the grid used to spatially discretize
-the modified diffusion equation and the size ds of the "step" ds in the
-time-like contour length variable used to integral this equation.
+the modified diffusion equation and the size ds of the computational "step" 
+ds in the time-like contour length variable.
 
 Parameters:
 
@@ -474,7 +500,11 @@ Parameters:
   ========= ========  ====================================== ======
 
 The integer array ngrid(id) is input in row format, with dim (i.e., 1,2 or 3)
-values on a line, where dim is the dimensionality of space.
+values on a line, where dim is the dimensionality of space. The value of the
+contour length step ds is an optimum value. The length of each block is 
+divided into an integer number of steps, with the number of steps chosen to
+obtain an actual step size for each block that is as close as possible to 
+this input parameter.
 
 .. _param-basis-sub:
 
@@ -484,11 +514,11 @@ BASIS
 The BASIS block instructs the code to construct symmetrized basis 
 functions that are invariant under the operations of a specified space 
 group.  The file format for this block contains only one variable, 
-named "group", which is a string identifier for the space group. 
+a string named "group", which is an identifier for the space group. 
 The value of the "group" string can be either a standard name of 
 one of the possible space groups or the path to a file that 
-contains the elements of the group. The names of all possible space 
-groups, in the form expected by PSCF, are presented in the page on 
+contains the elements of the group. Names of all possible space 
+groups, in the form expected by PSCF, are given in the page on 
 :ref:`group-page`.
 
   ======== =============  ==========================
@@ -508,9 +538,9 @@ parameters. This is the workhorse of a SCFT computation. An ITERATE
 section must immediately precede any SWEEP or RESPONSE section. 
 
 If an ITERATE section is immediately preceded by a RESCALE section, it 
-uses the rescaled version of the omega field that was read by the RESCALE 
-command.  In this case the parameter file should not contain an 
-input_filename parameter.
+will use the rescaled version of the omega field that was read by the 
+RESCALE command.  In that case, the ITERATE section should not contain 
+an input_filename parameter.
 
 Parameters:
 

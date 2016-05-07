@@ -160,15 +160,6 @@ response/extrapolate_mod.f
 	Implements extrapolation with respect to contour length step 
 	size ds. 
 
-src/build/
-----------
-
-build/Makefile
-	Makefile for recompiling the program. 
-
-build/INSTALL
-	Instructions using make to recompile the program.
-
 src/attic/
 ----------
 
