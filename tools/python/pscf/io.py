@@ -282,3 +282,8 @@ def strip_quotes(q_string):
     else:
         return q_string
 
+class IoException:
+
+    def __init__(self, arg):
+	self.args = arg
+
