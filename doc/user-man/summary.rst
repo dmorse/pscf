@@ -26,7 +26,7 @@ the simulation.
 
 ::
 
-   format  1  0
+    format  1  0
    
    MONOMERS            
    N_monomer           
@@ -42,7 +42,7 @@ the simulation.
    block_monomer       
                       1                   2
    block_length        
-       2.5000000000E-01    7.5000000000E-01
+       2.0000000000E-01    8.0000000000E-01
    
    COMPOSITION         
    ensemble            
@@ -54,7 +54,7 @@ the simulation.
    interaction_type    
                   'chi'
    chi                 
-       2.0000000000E+01
+       2.4000000000E+01
    
    UNIT_CELL           
    dim                 
@@ -64,11 +64,11 @@ the simulation.
    N_cell_param        
                       1
    cell_param          
-       1.9254998725E+00
+       1.8447588337E+00
    
    DISCRETIZATION      
    ngrid               
-                     10                  10                  10
+                     24                  24                  24
    chain_step          
        1.0000000000E-02
    
@@ -90,33 +90,33 @@ the simulation.
    itr_algo            
                    'NR'
    N_cut               
-                     28
+                     95
    
    FINISH              
    
    THERMO              
    f_Helmholtz         
-       2.6137508664E+00
+       2.7451703490E+00
    f_homo              
-       2.7500000000E+00
+       2.8400000000E+00
    pressure            
-       3.5507319562E+00
+       3.7365224085E+00
    mu_chain            
-       6.1644828226E+00
+       6.4816927575E+00
    stress              
-      -3.4708983737E-12
+      -6.0758291562E-11
    
    STATISTICS          
    N_star              
-                     28
-   Final Error         
-       3.4708983737E-10
-   Iterations          
-                      3
-   Basis Time          
-       2.0689300000E-01
-   SCF Time            
-       4.1129500000E+00
+                    231
+   final_error         
+       6.0758291562E-09
+   iterations          
+                     10
+   basis_time          
+       5.6800000000E+00
+   scf_time            
+       1.3674400000E+02
 
 
 .. _summary-thermodynamics-sec:
@@ -138,24 +138,46 @@ units in which kT=1 and in which the monomer reference volume is =1.
    pressure        Macroscopic pressure x monomer volume / kT
    mu_chain        chemical potential / kT, for each polymer species
    mu_solvent      chemical potential / kT, for each solvent species
+   phi_chain       total volume fraction for each polymer species 
+   phi_solvent     total volume fraction for each solvent species
    stress          derivatives of free energy per monomer / kT
    =============== ====================================================
 
-Note that the Helmholtz free energy is output per monomer, normalized
-by kT. In the simple case of a single component block copolymer melt, 
-the free energy per chain is then given by the product of f_Helmholtz 
+Values of mu_chain and mu_solvent appear in this section if and only if 
+the calculation was carried out in canonical ensemble (ensemble == 0), 
+in which case the corresponding species volume fractions are given as 
+input parameters in the COMPOSITION section. Conversely, values of
+phi_chain and phi_solvent vectors appear in this output section only 
+if the calculation was carried out in grand-canonical ensemble 
+(ensemble == 1), in which case the corresponding chemical potential
+values are given as inputs in the COMPOSITION section.
+
+**Units**: The Helmholtz free energy f_Helmholtz is given in this
+section is a dimensionless free energy per monomer, normalized by kT. 
+In the simple case of a single component block copolymer melt, the 
+free energy per chain is then given by the product of f_Helmholtz 
 and the overall chain length (sum of the block lengths given in the 
 parameter file).  Similarly, the reported pressure is a dimensionless 
-value obtained by multiplying the pressure by the monomer volume and
-then dividing by kT. Values of mu_chain and (if present) mu_solvent
-are instead free energies per molecule, normalized by kT.
+value obtained by multiplying the pressure by the monomer reference
+volume and then dividing by kT. Values of mu_chain and (if present) 
+mu_solvent are instead free energies per molecule, normalized by kT.
 
-In a system with more than one component, a value would be given for
-the chemical potential of each species, with one value per line. The
-mu_solvent array appears only if there is one or more solvent species.
+In a system with more than one chain and/or solvent component, a value 
+would be given for the chemical potential of each species, with one 
+value per line. The mu_solvent (in canonical ensemble) or phi_solvent
+(in grand-canonical ensemble) array appears only if the parameter file
+has a SOLVENTS input section with one or more solvent species. 
 
-Please refer to the :ref:`theory-page` for the precise mathematical 
-expressions used to obtain these quantities.
+Each element of the array of values of "stress" is the derivative of
+the dimensionless free energy per monomer f_Helmholtz with respect to
+one of the unit cell parameters. The number of elements is thus equal
+to N_cell_param, the number of parameters required to describe the
+unit cell. All components of this array should be very close to zero 
+at the end of a computation with a flexible unit cell (domain == T). 
+
+Please refer to the :ref:`theory-page` for documentaiton of the 
+mathematical expressions used to compute free energies and other
+physical properties.
 
 .. _summary-statistics-sec:
 
