@@ -1,6 +1,6 @@
-#!/usr/bin/env python2.4
+#!/usr/bin/env python2.7
 
-from io import *
+from pscf.io import *
 infile  = open('in','r')
 outfile = open('out','w')
 io = IO()

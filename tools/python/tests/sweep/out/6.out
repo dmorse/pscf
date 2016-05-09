@@ -14,7 +14,7 @@ N_block
 block_monomer       
                    1                   2
 block_length        
-    4.4000000022E-01    5.5999999978E-01
+    3.3000000022E-01    6.6999999978E-01
 
 COMPOSITION         
 ensemble            
@@ -26,27 +26,27 @@ INTERACTION
 interaction_type    
                'chi'
 chi                 
-    1.5000000011E+01
+    1.5000000000E+01
 
 UNIT_CELL           
 dim                 
-                   1
+                   3
 crystal_system      
-          'lamellar'
+             'cubic'
 N_cell_param        
                    1
 cell_param          
-    1.5077084393E+00
+    1.9602689499E+00
 
 DISCRETIZATION      
 ngrid               
-                  32
+                  20                  20                  20
 chain_step          
     1.0000000000E-02
 
 BASIS               
 group_name          
-                '-1'
+          'I m -3 m'
 
 ITERATE             
 input_filename      
@@ -62,30 +62,30 @@ domain
 itr_algo            
                 'NR'
 N_cut               
-                  17
+                 100
 
 FINISH              
 
 THERMO              
 f_Helmholtz         
-    2.4158121462E+00
+    2.2451271903E+00
 f_homo              
-    2.6960000031E+00
+    2.3165000011E+00
 pressure            
-    3.0527172867E+00
+    3.5295053157E+00
 mu_chain            
-    5.4685294329E+00
+    5.7746325061E+00
 stress              
-   -6.2497987993E-11
+    4.3101406799E-11
 
 STATISTICS          
 N_star              
-                  17
-Final Error         
-    6.2497987993E-09
-Iterations          
-                   6
-Basis Time          
-    5.2000000000E-02
-SCF Time            
-    3.2000000000E-01
+                 146
+final_error         
+    4.3101406799E-09
+iterations          
+                  10
+basis_time          
+    3.3400000000E+00
+scf_time            
+    3.2400000000E+00

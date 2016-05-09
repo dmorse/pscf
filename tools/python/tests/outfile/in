@@ -81,11 +81,12 @@ stress
 STATISTICS          
 N_star              
                   17
-Final Error         
+final_error         
     3.1553613757E-12
-Iterations          
+iterations          
                    1
-Basis Time          
+basis_time          
     5.2000000000E-02
-SCF Time            
+scf_time            
     1.4760000000E+00
+

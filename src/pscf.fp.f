@@ -1153,10 +1153,10 @@ contains ! internal subroutines of program pscf
    write(out_unit,*)
    call output('STATISTICS',f='N',j='L')
    call output(N_star,'N_star')
-   call output(error,'Final Error')
-   call output(itr,'Iterations')
-   call output(basis_time,'Basis Time')
-   call output(scf_time,'SCF Time')
+   call output(error,'final_error')
+   call output(itr,'iterations')
+   call output(basis_time,'basis_time')
+   call output(scf_time,'scf_time')
 
    close(out_unit)             ! close output_prefix//'out' file
    call set_io_units(o=6)      ! reset default echo unit to stdout

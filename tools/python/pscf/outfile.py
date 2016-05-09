@@ -76,41 +76,11 @@ class OutFile(object):
             self.flags[flag] = 1
 
             if flag == 'THERMO':
-                self.f_Helmholtz = self._input_var('real')
-                self.f_homo      = self._input_var('real')
-                self.pressure    = self._input_var('real')
-                if self.ensemble == 0 :
-                    if self.N_chain > 0 :
-                        self.mu_chain = \
-                           self._input_vec('real',self.N_chain,s='C')
-                    if self.N_solvent > 0 :
-                        self.mu_solvent = \
-                           self._input_vec('real',self.N_solvent,s='C')
-                if self.ensemble == 1 :
-                    if self.N_chain > 0 :
-                        self.phi_chain = \
-                           self._input_vec('real',self.N_chain,s='C')
-                    if self.N_solvent > 0 :
-                        self.phi_solvent = \
-                           self._input_vec('real',self.N_solvent,s='C')
-                self.stress = self._input_vec('real',self.N_cell_param)
-
+                self.input_thermo()
             if flag == 'DECOMPOSE':
-                self.overlap_AB  = self._input_var('real')
-                if self.N_monomer > 2 :
-                    self.overlap_BC  = self._input_var('real')
-                    self.overlap_CA  = self._input_var('real')
-                self.f_enthalpy  = self._input_var('real')
-                self.f_head      = self._input_var('real')
-                self.f_tail      = self._input_var('real')
-                self.f_excess    = self._input_var('real')
-
+                self.input_decompose()
             elif flag == 'STATISTICS':
-                self.N_star      = self._input_var('int')
-                self.final_error = self._input_var('real')
-                self.iteration   = self._input_var('int')
-                self.basis_time  = self._input_var('real')
-                self.scf_time    = self._input_var('real')
+                self.input_statistics()
 
         self.file.close()
         self.file = None
@@ -165,43 +135,21 @@ class OutFile(object):
 
         if self.flags.has_key('THERMO'):
             file.write("\n%-15s\n" % 'THERMO')
-            self._output_var('real', 'f_Helmholtz')
-            self._output_var('real', 'f_homo')
-            self._output_var('real', 'pressure')
-            if self.ensemble == 0 :
-                if self.N_chain > 0 :
-                    self._output_vec('real', \
-                                     'mu_chain',self.N_chain,s='C')
-                if self.N_solvent > 0 :
-                    self._output_vec('real', \
-                                     'mu_solvent',self.N_solvent,s='C')
-            elif self.ensemble == 1 :
-                if self.N_chain > 0 :
-                    self._output_vec('real', \
-                                     'phi_chain',self.N_chain,s='C')
-                if self.N_solvent > 0 :
-                    self._output_vec('real', \
-                                     'phi_solvent',self.N_solvent,s='C')
-            self._output_vec('real', 'stress',self.N_cell_param)
+            self.output_thermo()
 
         if self.flags.has_key('DECOMPOSE'):
             file.write("\n%-15s\n" % 'DECOMPOSE')
-            self._output_var('real', 'overlap_AB')
-            if self.N_monomer > 2 :
-                self._output_var('real', 'overlap_BC')
-                self._output_var('real', 'overlap_CA')
-            self._output_var('real', 'f_enthalpy')
-            self._output_var('real', 'f_head')
-            self._output_var('real', 'f_tail')
-            self._output_var('real', 'f_excess')
+            self.output_decompose()
 
         if self.flags.has_key('STATISTICS') :
             file.write("\n%-15s\n" % 'STATISTICS')
-            self._output_var('int', 'N_star')
-            self._output_var('real', 'final_error')
-            self._output_var('int', 'iteration')
-            self._output_var('real', 'basis_time')
-            self._output_var('real', 'scf_time')
+            self.output_statistics()
+
+            #self._output_var('int', 'N_star')
+            #self._output_var('real', 'final_error')
+            #self._output_var('int', 'iterations')
+            #self._output_var('real', 'basis_time')
+            #self._output_var('real', 'scf_time')
 
         file.close()
         self.file = None
@@ -410,6 +358,82 @@ class OutFile(object):
             self._output_var('real',self.d_cell_param,self.N_cell_param, 'd_cell_param',f='A')
         self.file.write('end_increments' + "\n")
 
+    def input_thermo(self):
+        self.f_Helmholtz = self._input_var('real')
+        self.f_homo = self._input_var('real')
+        self.pressure = self._input_var('real')
+        if self.ensemble == 0 :
+            if self.N_chain > 0 :
+                self.mu_chain = \
+                   self._input_vec('real',self.N_chain,s='C')
+            if self.N_solvent > 0 :
+                self.mu_solvent = \
+                   self._input_vec('real',self.N_solvent,s='C')
+        if self.ensemble == 1 :
+            if self.N_chain > 0 :
+                self.phi_chain = \
+                   self._input_vec('real',self.N_chain,s='C')
+            if self.N_solvent > 0 :
+                self.phi_solvent = \
+                   self._input_vec('real',self.N_solvent,s='C')
+        self.stress = self._input_vec('real',self.N_cell_param)
+
+    def output_thermo(self):
+        self._output_var('real', 'f_Helmholtz')
+        self._output_var('real', 'f_homo')
+        self._output_var('real', 'pressure')
+        if self.ensemble == 0 :
+            if self.N_chain > 0 :
+                self._output_vec('real', \
+                                 'mu_chain',self.N_chain,s='C')
+            if self.N_solvent > 0 :
+                self._output_vec('real', \
+                                 'mu_solvent',self.N_solvent,s='C')
+        elif self.ensemble == 1 :
+            if self.N_chain > 0 :
+                self._output_vec('real', \
+                                 'phi_chain',self.N_chain,s='C')
+            if self.N_solvent > 0 :
+                self._output_vec('real', \
+                                 'phi_solvent',self.N_solvent,s='C')
+        self._output_vec('real', 'stress',self.N_cell_param)
+
+    def input_statistics(self):
+        self.N_star      = self._input_var('int')
+        self.final_error = self._input_var('real')
+        self.iterations  = self._input_var('int')
+        self.basis_time  = self._input_var('real')
+        self.scf_time    = self._input_var('real')
+
+    def output_statistics(self):
+        self._output_var('int', 'N_star')
+        self._output_var('real', 'final_error')
+        self._output_var('int', 'iterations')
+        self._output_var('real', 'basis_time')
+        self._output_var('real', 'scf_time')
+
+    def input_decompose(self):
+        self.overlap_AB  = self._input_var('real')
+        if self.N_monomer > 2 :
+            self.overlap_BC  = self._input_var('real')
+            self.overlap_CA  = self._input_var('real')
+        self.f_enthalpy  = self._input_var('real')
+        self.f_head      = self._input_var('real')
+        self.f_tail      = self._input_var('real')
+        self.f_excess    = self._input_var('real')
+
+    def output_decompose(self):
+        self._output_var('real', 'overlap_AB')
+        if self.N_monomer > 2 :
+            self._output_var('real', 'overlap_BC')
+            self._output_var('real', 'overlap_CA')
+        self._output_var('real', 'f_enthalpy')
+        self._output_var('real', 'f_head')
+        self._output_var('real', 'f_tail')
+        self._output_var('real', 'f_excess')
+
+    # "Private" methods
+
     # Input methods (wrapper for self.io.input_... methods of IO)
     def _input_var(self, type, comment = None, f='A'):
         return self.io.input_var(self.file, type, comment, f)
@@ -446,7 +470,7 @@ class OutFile(object):
             s.append( key +  ' : ' + str( self[key] ) )
         return string.join(s, '\n')
 
-    def eval(self,expr1):
+    def eval(self, expr1):
         '''
         Returns the value of a python expression calculated
         by using the key names of attributes of an Outfile
