@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.7
 
-from sweep import *
-sweep = Sweep('ABbcp_lam_1')
+from pscf.sweep import *
+sweep = Sweep('out')
 print
 print sweep[5].chi[0][1]
 print

@@ -1,18 +1,15 @@
 #!/usr/bin/env python2.7
 
-from outfile import *
+from pscf.outfile import OutFile
 
 print "Reading file 'in'"
 thing = OutFile('in')
 print "Writing 'out1'"
-file = open('out1','w')
-thing.write(file,1,0)
+thing.write('out1')
 print "Reading 'out1'"
-file = open('out1','r')
 thing2 = OutFile('out1')
 print "Writing 'out2'"
-file = open('out2','w')
-thing2.write(file,1,0)
+thing2.write('out2')
 
 print "\nTesting eval method (expression evaluation):\n"
 expr = 'block_length[0][0]+block_length[0][1]'

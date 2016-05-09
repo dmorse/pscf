@@ -14,7 +14,7 @@ N_block
 block_monomer       
                    1                   2
 block_length        
-    5.0000000000E-01    5.0000000000E-01
+    3.6000000022E-01    6.3999999978E-01
 
 COMPOSITION         
 ensemble            
@@ -36,7 +36,7 @@ crystal_system
 N_cell_param        
                    1
 cell_param          
-    1.5161093081E+00
+    1.4568255862E+00
 
 DISCRETIZATION      
 ngrid               
@@ -68,24 +68,24 @@ FINISH
 
 THERMO              
 f_Helmholtz         
-    2.4293253659E+00
+    2.3351243193E+00
 f_homo              
-    2.7500000027E+00
+    2.4560000035E+00
 pressure            
-    3.0121269977E+00
+    3.3001565972E+00
 mu_chain            
-    5.4414523636E+00
+    5.6352809165E+00
 stress              
-   -1.3484703810E-14
+    8.7701142320E-11
 
 STATISTICS          
 N_star              
                   17
 Final Error         
-    3.1553613757E-12
+    8.7701142320E-09
 Iterations          
-                   1
+                   7
 Basis Time          
     5.2000000000E-02
 SCF Time            
-    1.4760000000E+00
+    3.6400000000E-01

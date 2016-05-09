@@ -120,6 +120,10 @@ class OutFile(object):
         self.att_names.sort()
 
     def write(self, file, major=1, minor=0):
+        # If file argument is a string, open a file of that name
+        if type(file) == type('thing'):
+            temp = open(file,'w')
+            file = temp
         self.file = file
         self.version.major = major
         self.version.minor = minor
@@ -203,83 +207,12 @@ class OutFile(object):
         self.file = None
 
 
-    def input_chemistry(self):
-        ''' Analog of subroutine input_chemistry in chemistry_mod.f '''
-        # Monomers 
-        self.N_monomer = self._input_var('int')
-        N_monomer      = self.N_monomer
-        self.names     = self._input_vec('char', comment='names') # optional
-        self.kuhn      = self._input_vec('real')
-
-        #Interaction
-        self.interaction_type  = self._input_var('char')
-        print 'Reading interaction type =' + self.interaction_type
-        if  self.interaction_type == 'B' or self.interaction_type == 'b':
-            self.interaction_type = 'chi'
-            print 'Changing interaction type to chi'
-        elif self.interaction_type == 'T' or self.interaction_type == 't':
-            self.interaction_type = 'chi_T'
-            print 'Changing interaction type to chi_T'
-        if  self.interaction_type == 'chi':
-            self.chi = self._input_mat('real',N_monomer,N_monomer,s='L')
-        elif self.interaction_type == 'chi_T':
-            self.chi_A = self._input_mat('real',N_monomer,N_monomer,s='L')
-            self.chi_B = self._input_mat('real',N_monomer,N_monomer,s='L')
-            self.Temperature = self._input_var('real')
-
-        # Chains 
-        self.N_chain = self._input_var('int',f='A')
-        if self.N_chain:
-            self.N_block = self._input_vec('int',n=self.N_chain,s='C')
-            self.file.readline()
-            self.block_monomer = []
-            for j in range(self.N_chain):
-                self.block_monomer.append( self._input_vec('int',f='N') )
-            self.file.readline()
-            self.block_length = []
-            for j in range(self.N_chain):
-                self.block_length.append( self._input_vec('real',f='N') )
-        else:
-            self.N_chain = 0
-
-        # Solvents (if any)
-        self.N_solvent = self._input_var('int',comment='N_solvent', f='A')
-        if self.N_solvent:
-            self.solvent_monomer = self._input_vec('int', self.N_solvent, s='C')
-            self.solvent_size    = self._input_vec('real',self.N_solvent, s='C')
-        else:
-            self.N_solvent = 0
-
-        # Ensemble and composition
-        self.ensemble = self._input_var('int',f='A')
-        if self.ensemble == 0:
-            if self.N_chain > 0:
-                self.phi_chain = self._input_vec('real',n=self.N_chain,s='C',f='A') 
-            if self.N_solvent > 0:
-                self.phi_solvent = self._input_vec('real',n=self.N_solvent,s='C',f='A') 
-        elif self.ensemble == 1:
-            if self.N_chain > 0:
-                self.mu_chain = self._input_vec('real', n=self.N_chain,s='C',f='A') 
-            if self.N_solvent > 0:
-                self.mu_solvent = self._input_vec('real',n=self.N_solvent,s='C',f='A') 
-
     def input_monomers(self):
         ''' Analog of subroutine input_monomers in chemistry_mod.f '''
         # Monomers 
         self.N_monomer = self._input_var('int')
         N_monomer      = self.N_monomer
         self.kuhn      = self._input_vec('real')
-
-    def input_interaction(self):
-        ''' Analog of subroutine input_interaction in chemistry_mod.f '''
-        self.interaction_type = self._input_var('char')
-        N_monomer = self.N_monomer
-        if self.interaction_type == 'chi':
-            self.chi = self._input_mat('real',N_monomer,N_monomer,s='L')
-        elif self.interaction_type == 'chi_T':
-            self.chi_A = self._input_mat('real',N_monomer,N_monomer,s='L')
-            self.chi_B = self._input_mat('real',N_monomer,N_monomer,s='L')
-            self.Temperature = self._input_var('real')
 
     def input_chains(self):
         self.N_chain = self._input_var('int',f='A')
@@ -319,61 +252,21 @@ class OutFile(object):
             if self.N_solvent > 0:
                 self.mu_solvent = self._input_vec('real',n=N_solvent,s='C',f='A') 
 
-    def output_chemistry(self):
-        ''' Analog of subroutine input_chemistry in chemistry_mod.f '''
-        self._output_var( 'int', 'N_monomer' )
+    def input_interaction(self):
+        ''' Analog of subroutine input_interaction in chemistry_mod.f '''
+        self.interaction_type = self._input_var('char')
         N_monomer = self.N_monomer
-        #self._output_vec('char', self.names, N_monomer, 'names')
-        self._output_vec('real', 'kuhn', N_monomer )
-        self._output_var('char', 'chi_flag' )
-        if  self.chi_flag == 'B' or self.chi_flag == 'b':
-            self._output_mat('real', 'chi',N_monomer,N_monomer,s='L')
-        elif self.chi_flag == 'T' or self.chi_flag == 't':
-            self._output_mat('real', 'chiA',N_monomer,N_monomer,s='L')
-            self._output_mat('real', 'chiB',N_monomer,N_monomer,s='L')
-            self._output_var('real', 'Temperature')
-        self._output_var( 'int', 'N_chain')
-        N_chain = self.N_chain
-        if N_chain > 0:
-            self._output_vec( 'int', 'N_block', N_chain, s='C')
-            self.file.write('block_monomer'+"\n")
-            for j in range(self.N_chain):
-               self.io.output_vec(self.file, 'int',self.block_monomer[j],self.N_block[j],f='N') 
-            self.file.write('block_length'+"\n")
-            for j in range(self.N_chain):
-                self.io.output_vec(self.file, 'real',self.block_length[j],self.N_block[j],f='N') 
-        self._output_var('int', 'N_solvent')
-        N_solvent = self.N_solvent
-        if self.N_solvent > 0:
-            self._output_vec('int', 'solvent_monomer',N_solvent,s='C')
-            self._output_vec('real', 'solvent_size',N_solvent,s='C')
-        self._output_var('int', 'ensemble')
-        if self.ensemble == 0:
-            if N_chain > 0:
-                self._output_vec('real', 'phi_chain',N_chain,s='C',f='A') 
-            if N_solvent > 0:
-                self._output_vec('real', 'phi_solvent',N_solvent,s='C',f='A') 
-        elif self.ensemble == 1:
-            if N_chain > 0:
-                self._output_vec('real', 'mu_chain',N_chain,s='C',f='A') 
-            if N_solvent > 0:
-                self._output_vec('real', 'mu_solvent',N_solvent,s='C',f='A') 
+        if self.interaction_type == 'chi':
+            self.chi = self._input_mat('real',N_monomer,N_monomer,s='L')
+        elif self.interaction_type == 'chi_T':
+            self.chi_A = self._input_mat('real',N_monomer,N_monomer,s='L')
+            self.chi_B = self._input_mat('real',N_monomer,N_monomer,s='L')
+            self.Temperature = self._input_var('real')
 
     def output_monomers(self):
         ''' Analog of subroutine output_monomers in chemistry_mod.f '''
         self._output_var( 'int', 'N_monomer' )
         self._output_vec('real', 'kuhn', self.N_monomer )
-
-    def output_interaction(self):
-        ''' Analog of subroutine output_interaction in chemistry_mod.f '''
-        N_monomer = self.N_monomer
-        self._output_var('char', 'interaction_type' )
-        if  self.interaction_type == 'chi':
-            self._output_mat('real', 'chi',N_monomer,N_monomer,s='L')
-        if  self.interaction_type == 'chi_T':
-            self._output_mat('real', 'chiA',N_monomer,N_monomer,s='L')
-            self._output_mat('real', 'chiB',N_monomer,N_monomer,s='L')
-            self._output_var('real', 'Temperature')
 
     def output_chains(self):
         self._output_var( 'int', 'N_chain')
@@ -408,6 +301,17 @@ class OutFile(object):
                 self._output_vec('real', 'mu_chain',N_chain,s='C',f='A') 
             if N_solvent > 0:
                 self._output_vec('real', 'mu_solvent',N_solvent,s='C',f='A') 
+
+    def output_interaction(self):
+        ''' Analog of subroutine output_interaction in chemistry_mod.f '''
+        N_monomer = self.N_monomer
+        self._output_var('char', 'interaction_type' )
+        if  self.interaction_type == 'chi':
+            self._output_mat('real', 'chi',N_monomer,N_monomer,s='L')
+        if  self.interaction_type == 'chi_T':
+            self._output_mat('real', 'chiA',N_monomer,N_monomer,s='L')
+            self._output_mat('real', 'chiB',N_monomer,N_monomer,s='L')
+            self._output_var('real', 'Temperature')
 
     def input_unit_cell(self):
         ''' Analog of subroutine input_unit_cell in unit_cell_mod.f '''
