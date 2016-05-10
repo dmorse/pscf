@@ -1,28 +1,50 @@
-from io import *
-from version import *
+from io import IO, IoException
+from version import Version
 import string
 import sys
 
 class Field(object):
     '''
-    A Field object contains the data in a field file in 
-    the PSCF symmetry-adapated Fourier expansion format.
+    Hold data in a PSCF field file. 
+
+    A Field object contains the data in a field file in the PSCF
+    symmetry-adapted Fourier expansion format (see web user manual).
+    It can be used to represent either omega (chemical potential) or
+    rho (volume fraction) fields. a
+
+    The constructor reads a field file, creates a Field object to store
+    the data, and stores all of the parameters and field coefficients in 
+    attributes of the object.
+
+    Attributes:
+    dim            -- [int] number of periodic spatial directions
+    crystal_system -- [string] label of Bravais crystal system
+    N_cell_param   -- [int] number of unit cell parameters
+    cell_param     -- [list] list of real unit cell parameters
+    group          -- [string] name of space group
+    N_monomer      -- [int] number of monomer types
+    N_star         -- [int] number of basis functions (or stars)
+    fields         -- [list] list of list of coefficients
+
+    The attribute field[i] is is a list (or array) of coefficients
+    for a field associated with monomer type number i. The element
+    field[i][j] is the coefficient of basis function j in the field
+    associated with monomer type i. 
     '''
 
     # "Public" methods
 
     def __init__(self,filename):
         '''
-        PURPOSE
-          Constructor: Read a PSCF symmetry-adapted field 
-          file, and create a new Field object to hold data.
-        ARGUMENT
-          filename - string
-        COMMENT
-          File is opened and closed within body of method
+        Read a PSCF symmetry-adapted field file, and create a new object.
+
+        Argument:
+        filename -- name of file
+
+        The file named filename is opened and closed within this function.
         '''
         self.file = open(filename, 'r')
-	self.io   = IO()
+	self._io   = IO()
 	file = self.file
 
         # Read version line
@@ -148,21 +170,21 @@ class Field(object):
     # Wrappers for input_... output_.. methods of IO)
 
     def _input_var(self, type, comment = None, f='A'):
-        return self.io.input_var(self.file, type, comment, f)
+        return self._io.input_var(self.file, type, comment, f)
 
     def _input_vec(self, type, n=None, comment=None, s='R',f='A'):
-        return self.io.input_vec(self.file, type, n, comment, s, f)
+        return self._io.input_vec(self.file, type, n, comment, s, f)
 
     # Output methods (output by name)
     def _output_var(self, type, name, f='A'):
         if self.__dict__.has_key(name):
             data = self.__dict__[name]
-	    self.io.output_var(self.file, type, data, name, f)
+	    self._io.output_var(self.file, type, data, name, f)
 
     def _output_vec(self, type, name, n=None, s='R', f='A'):
         if self.__dict__.has_key(name):
             data = self.__dict__[name]
-	    self.io.output_vec(self.file, type, data, n, name, s, f)
+	    self._io.output_vec(self.file, type, data, n, name, s, f)
 
     def _input_unit_cell(self):
         ''' Analog of subroutine _input_unit_cell in unit_cell_mod.f '''

@@ -1,6 +1,4 @@
-#!/usr/bin/env python2.4
-
-from io import *
+from io import IO, IoException
 import string 
 
 class Version(object):

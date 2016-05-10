@@ -1,31 +1,33 @@
-from io import *
-from version import *
-from paramfile import *
+from io import IO, IoException
+from version import Version
+from paramfile import ParamFile
 import string 
 import sys
 
 class OutFile(ParamFile):
-    '''
-    An OutFile object contains the data in a output summary
-    file produced by F90 program pscf. 
+    """
+    Hold the data in a PSCF output summary file.
 
-    Class Outfile is dervied from ParamFile because the output 
+    The constructor reads an output file and holds the data in
+    attributes with names that are the same as the names of the
+    variables in the output file. 
+
+    Class Outfile is derived from ParamFile because the output 
     file format begins with a parameter file section, to which 
     a few output sections are added. 
-    '''
+    """
    
     def __init__(self,filename):
-        '''
-        PURPOSE
-          Read and parse out file filename. 
-          Create an OutFile object.
-        ARGUMENT
-          filename - name of PSCF output summary file (string)
-        COMMENT
-          The file is opened and closed within body of method
-        '''
+        """
+        Read and parse an output file, and create a corresponding object.
+
+        A file named file is opened, read, and closed within the method.
+
+        Argument:
+        filename -- name of PSCF output summary file (string)
+        """
         self.file = open(filename, 'r')
-        self.io   = IO()
+        self._io = IO()
         file = self.file
         self.N_chain   = 0
         self.N_solvent = 0
@@ -58,6 +60,16 @@ class OutFile(ParamFile):
         self.att_names.sort()
 
     def write(self, file, major=1, minor=0):
+        """
+        Write an output file.
+
+        Argument:
+        file -- file object or name of file.
+
+        If file is a file object, it must be opened for writing.
+        If file is a string, a file of that name is opened. In
+        either case, the file is closed upon return.
+        """
         # If file argument is a string, open a file of that name
         if type(file) == type('thing'):
             temp = open(file,'w')
@@ -65,6 +77,8 @@ class OutFile(ParamFile):
         self.file = file
         self.version.major = major
         self.version.minor = minor
+
+        # Parameter file sections
         self.version.write(file)
         if self.flags.has_key('MONOMERS'):
             file.write("\n%-15s\n" % 'MONOMERS')
@@ -86,7 +100,7 @@ class OutFile(ParamFile):
             self.output_unit_cell()
         if self.flags.has_key('DISCRETIZATION'):
             file.write("\n%-15s\n" % 'DISCRETIZATION')
-            self._output_vec( 'int', 'N_grid', self.dim)
+            self._output_vec( 'int', 'ngrid', self.dim)
             self._output_var( 'real', 'chain_step')
             #self._output_var( 'int', 'extrapolation_order')
         if self.flags.has_key('BASIS'):
@@ -95,12 +109,9 @@ class OutFile(ParamFile):
         if self.flags.has_key('ITERATE'):
             file.write("\n%-15s\n" % 'ITERATE')
             self.output_iterate()
-        if self.flags.has_key('SWEEP'):
-            file.write("\n%-15s\n" % 'SWEEP')
-            self._output_var( 'real', 's_max')
-            self.output_increments()
         file.write("\n%-15s\n" % 'FINISH')
 
+        # Output sections
         if self.flags.has_key('THERMO'):
             file.write("\n%-15s\n" % 'THERMO')
             self.output_thermo()

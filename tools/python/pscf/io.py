@@ -1,25 +1,27 @@
-'''
-MODULE
-  io
-PURPOSE
-  Analog of io_mod module of scf. Defines a class IO which
-  provides generic interfaces for reading in scalars, vectors, 
-  and matrices for several data types.  
-COMMENT
-  Because variables in python are not typed, only one input
-  and one output function is required for io of scalar variables, 
-  one for vectors, and one for matrices. In both input and output
-  functions, the variable type is passed passed as a string 
-  argument 'type', which can have values 'int', 'real', 'char' 
-  and (for scalars) 'logical'.
-'''
-
 class IO:
+    """
+    Provide interfaces for formatted file IO of variables.
+
+    The class IO is analogous to the io_mod module of scf. Class
+    methods provides generic interfaces for reading in scalars, 
+    vectors, and matrices for several data types.  Because variables 
+    in python are not typed, only one input and one output function 
+    is required for io of scalar variables, one for vectors, and one 
+    for matrices. In both input and output functions, the variable 
+    type is passed passed as a string argument 'type', which can have 
+    values 'int', 'real', 'char' and (for scalars) 'logical'.
+    """
 
     def __init__(self):
+        """
+        Default construct an initially empty object.
+        """
 	self.comment = None
 
-    def input_comment(self,file,comment=None):
+    def input_comment(self, file, comment=None):
+        """
+        Read the comment associated with a variable.
+        """
         if not self.comment:
             self.comment = file.readline().strip()
         if comment:
@@ -32,22 +34,18 @@ class IO:
            self.comment = None
            return 1
             
-    # Scalar Variables
-        
     def input_var(self,file,type,comment=None,f='A'):
-        '''
-        PURPOSE
-          Read and return a scalar variable of specified type 
-          from a specified file 
-        ARGUMENTS
-          file - file object (must be opened for reading)
-          type - string, 'int', 'real', 'char', or 'logic'
-          f    - 'A' -> comment string on line above data
-               - 'N' -> no comment string
-        '''
+        """ 
+        Read and return a scalar variable from file. 
+     
+        Arguments:
+          file -- file object (must be opened for reading)
+          type -- string, 'int', 'real', 'char', or 'logic'
+          f    -- 'A' -> comment string on line above data
+               -- 'N' -> no comment string
+        """
         if f == 'A':
-        #    self.comment = file.readline().strip()
-	    if not self.input_comment(file,comment):
+	    if not self.input_comment(file, comment):
 	        return None
         data = file.readline().strip()
         if type == 'int':
@@ -66,24 +64,20 @@ class IO:
         else:
             raise 'Illegal type in input_var'
     
-    # Vectors
-        
     def input_vec(self,file,type,n=None, comment=None, s='R', f='A'):
-        '''
-        PURPOSE
-          Read and return a vector of n variables of specified 
-          type from file 
-        ARGUMENTS
-          file - file object (must be opened for reading)
-          type - string, = 'int', 'real', 'char', or 'logic'
-          n    - number of elements in vector
-          f    - 'A' -> comment on line above data
-               - 'N' -> no comment 
-          s    - 'R' -> row vector (one line)
-               - 'C' -> column vector (n lines)
-        '''
+        """
+        Read and return a vector/array of n variables from file.
+
+        Arguments:
+          file -- file object (must be opened for reading)
+          type -- string, = 'int', 'real', 'char', or 'logic'
+          n    -- number of elements in vector
+          f    -- 'A' -> comment on line above data
+               -- 'N' -> no comment 
+          s    -- 'R' -> row vector (one line)
+               -- 'C' -> column vector (n lines)
+        """
         if f == 'A':
-            #self.comment = file.readline().strip()
 	    if not self.input_comment(file,comment):
 	        return None
         if s == 'R':   # Row Vector
@@ -106,22 +100,21 @@ class IO:
     
     # Matrices
         
-    def input_mat(self,file,type,m,n=None,comment=None,s=None,f='A'):
-        '''
-        PURPOSE
-          Read and return a m x n matrix of variables of specified 
-          type from file 
-        ARGUMENTS
-          file - file object (must be opened for reading)
-          type - string, = 'int' or 'real'
-          m    - number of rows in matrix
-          n    - number of columns (set to m by default)
-          f    - 'A' -> comment on line above data
-               - 'N' -> no comment 
-          s    - 'N' -> full matrix
-               - 'S' -> symmetric
-               - 'L' -> symmetric lower triangular (0 diagonals)
-        '''
+    def input_mat(self, file, type, m, n=None, comment=None, s=None,f='A'):
+        """
+        Read and return an m x n matrix from file.
+
+        Arguments:
+        file -- file object (must be opened for reading)
+        type -- string, = 'int' or 'real'
+        m    -- number of rows in matrix
+        n    -- number of columns (set to m by default)
+        f    -- 'A' -> comment on line above data
+             -- 'N' -> no comment 
+        s    -- 'N' -> full matrix
+             -- 'S' -> symmetric
+             -- 'L' -> symmetric lower triangular (0 diagonals)
+        """
         if f == 'A':
 	    if not self.input_comment(file,comment):
 	        return None
@@ -164,64 +157,74 @@ class IO:
         return data
     
     
-    def format_var(self,type,data):
-        '''
-        PURPOSE
-            Returns a formatted string representation of data,
-    	formatted appropriately for specified data type
-        '''
+    def format_var(self, type, data):
+        """
+        Returns a formatted string representation of data.
+
+        Arguments:
+        type -- string identifying type (int/real/char/logic)
+        data -- variable of specified type
+        """
         if type == 'int':
-            return '%15d' % data
+            return '%20d' % data
         elif type == 'real':
-            return '%15.7E' % data
+            return '%20.10E' % data
         elif type == 'char':
     	    data = "'" + data + "'" 
-	    return "%15s" % data 
+	    return "%20s" % data 
         elif type == 'logic':
             if data:
                 data = 'T'
             else:
                 data = 'F'
-            return "%15s" % data 
+            return "%20s" % data 
         else:
             raise 'Illegal type in format_var'
       
-    def output_comment(self,file, comment, n=20):
+    def output_comment(self, file,  comment, n=20):
+        """
+        Write comment (variable name) to file.
+
+        Arguments:
+        file     -- output file object
+        comment  -- comment string
+        n        -- field size (default = 20)
+        """
         comment = comment.strip()
         comment = comment.ljust(n)
         comment = file.write(comment + "\n")
     
     def output_var(self, file, type, data, comment, f='A'):
-        '''
-        PURPOSE
-          Output a scalar variable of specified type to a file
-        ARGUMENTS
-          file - file object (must be opened for reading)
-          type - string, 'int', 'real', 'char', or 'logic'
-          f    - 'A' -> comment string on line above data
-               - 'N' -> no comment string
-        '''
+        """
+        Output a scalar variable to a file
+
+        Arguments:
+        file -- output file object (must be opened for writing)
+        type -- type identifer string: 'int', 'real', 'char', or 'logic'
+        f    -- 'A' -> comment string on line above data
+             -- 'N' -> no comment string
+        """
         if f == 'A':
             self.output_comment(file,comment)
         file.write(self.format_var(type,data) + "\n")
     
-    def output_vec(self,file, type, data, n=None, comment=None, s='R', f='A'):
-        '''
-        PURPOSE
-          Output a vector of n variables of specified type to a file 
-        ARGUMENTS
-          file - file object (must be opened for reading)
-          type - string, = 'int', 'real', 'char', or 'logic'
-          n    - number of elements in vector
-          f    - 'A' -> comment on line above data
-               - 'N' -> no comment 
-          s    - 'R' -> row vector (one line)
-               - 'C' -> column vector (n lines)
-        '''
+    def output_vec(self, file, type, data, n=None, comment=None, s='R', f='A'):
+        """
+        Output a vector/array to a file.
+       
+        Arguments:
+        file -- file object (must be opened for reading)
+        type -- string, = 'int', 'real', 'char', or 'logic'
+        n    -- number of elements in vector
+        f    -- 'A' -> comment on line above data
+             -- 'N' -> no comment 
+        s    -- 'R' -> row vector (one line)
+             -- 'C' -> column vector (n lines)
+        """
 	if not n:
   	    n = len(data)
         if f == 'A':
-            self.output_comment(file,comment)
+            self.output_comment(file, comment)
         for i in range(n):
             file.write(self.format_var(type,data[i]))
             if s == 'C':
@@ -229,31 +232,29 @@ class IO:
         if s == 'R':
             file.write("\n")
     
-    
-    # Matrices
-        
-    def output_mat(self,file,type,data,m=None,n=None,comment=None,s='L',f='A'):
-        '''
-        PURPOSE
-          Output a m x n matrix of variables of specified type to file
-        ARGUMENTS
-          file - file object (must be opened for reading)
-          type - string, = 'int' or 'real'
-          m    - number of rows in matrix
-          n    - number of columns (set to m by default)
-          f    - 'A' -> comment on line above data
-               - 'N' -> no comment 
-          s    - 'N' -> full matrix
-               - 'S' -> symmetric
-               - 'L' -> symmetric lower triangular (0 diagonals)
-        '''
+    def output_mat(self, file, type, data, m=None, n=None, 
+                   comment=None, s='L',f='A'):
+        """
+        Output an m x n matrix to file.
+
+        Arguments:
+        file -- file object (must be opened for reading)
+        type -- string, = 'int' or 'real'
+        m    -- number of rows in matrix
+        n    -- number of columns (set to m by default)
+        f    -- 'A' -> comment on line above data
+             -- 'N' -> no comment 
+        s    -- 'N' -> full matrix
+             -- 'S' -> symmetric
+             -- 'L' -> symmetric lower triangular (0 diagonals)
+        """
 	if not m:
            m = len(data)
         if not n:
            n = m
         if f == 'A':
-            self.output_comment(file,comment)
-        # Read matrix
+            self.output_comment(file, comment)
+        # Write matrix element values
         if s == 'N' or s == 'S':
             min = 0
         elif s == 'L':
@@ -270,10 +271,12 @@ class IO:
 
 
 def strip_quotes(q_string):
-    '''
-    Strip initial and final quotes marks from string q_string,
-    if present. Return stripped string. 
-    '''
+    """
+    Strip quote marks from a string, if any, and return stripped string.
+
+    Argument:
+    q_string -- upstripped string, which may contain final and initial quotes.
+    """
     q_string = q_string.strip()
     if q_string[0] == "'" and q_string[-1] == "'":
         return q_string[1:-1]
@@ -282,8 +285,13 @@ def strip_quotes(q_string):
     else:
         return q_string
 
-class IoException:
+class IoException(Exception):
+    """
+    Exception for a file syntax error.
+    """
 
-    def __init__(self, arg):
-	self.args = arg
-
+    def __init__(self, message):
+        """
+        Constructor, which stores a comment.
+        """
+        super(IoException, self).__init__(message)
