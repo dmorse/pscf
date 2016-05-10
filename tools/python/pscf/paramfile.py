@@ -1,21 +1,20 @@
 from io import *
 from version import *
-import string 
+import string
 import sys
 
-class OutFile(object):
+class ParamFile(object):
     '''
-    An OutFile object contains the data in a output summary
-    file produced by F90 program pscf.
+    A ParamFile object contains the data in a PSCF parameter file.
     '''
-   
+
     def __init__(self,filename):
         '''
         PURPOSE
-          Read and parse out file filename. 
-          Create an OutFile object.
+          Constructor. Reads and parses paramaeter file named 
+          filename, and creates a ParamFile object to hold data.
         ARGUMENT
-          filename - name of PSCF output summary file (string)
+          filename - name of PSCF parameter file (string)
         COMMENT
           The file is opened and closed within body of method
         '''
@@ -39,28 +38,6 @@ class OutFile(object):
         next = 1
         while next:
             next = self.read_param_section(file)
-
-        # Read additional postscript sections
-        # Note: Each section must begin with one blank line
-        next = 1
-        while next :
-            line = self.file.readline()
-            if not line:
-                break
-            line = self.file.readline()
-            if not line:
-                break
-            flag = line.strip()
-            if flag == '':
-                break
-            self.flags[flag] = 1
-
-            if flag == 'THERMO':
-                self.input_thermo()
-            if flag == 'DECOMPOSE':
-                self.input_decompose()
-            elif flag == 'STATISTICS':
-                self.input_statistics()
 
         self.file.close()
         self.file = None
@@ -113,18 +90,6 @@ class OutFile(object):
             self.output_increments()
         file.write("\n%-15s\n" % 'FINISH')
 
-        if self.flags.has_key('THERMO'):
-            file.write("\n%-15s\n" % 'THERMO')
-            self.output_thermo()
-
-        if self.flags.has_key('DECOMPOSE'):
-            file.write("\n%-15s\n" % 'DECOMPOSE')
-            self.output_decompose()
-
-        if self.flags.has_key('STATISTICS') :
-            file.write("\n%-15s\n" % 'STATISTICS')
-            self.output_statistics()
-
         file.close()
         self.file = None
 
@@ -172,7 +137,7 @@ class OutFile(object):
 
     def input_monomers(self):
         ''' Analog of subroutine input_monomers in chemistry_mod.f '''
-        # Monomers 
+        # Monomers
         self.N_monomer = self._input_var('int')
         N_monomer      = self.N_monomer
         self.kuhn      = self._input_vec('real')
@@ -206,14 +171,14 @@ class OutFile(object):
         N_solvent = self.N_solvent
         if self.ensemble == 0:
             if self.N_chain > 0:
-                self.phi_chain = self._input_vec('real',n=N_chain,s='C',f='A') 
+                self.phi_chain = self._input_vec('real',n=N_chain,s='C',f='A')
             if self.N_solvent > 0:
-                self.phi_solvent = self._input_vec('real',n=N_solvent,s='C',f='A') 
+                self.phi_solvent = self._input_vec('real',n=N_solvent,s='C',f='A')
         elif self.ensemble == 1:
             if self.N_chain > 0:
-                self.mu_chain = self._input_vec('real', n=N_chain,s='C',f='A') 
+                self.mu_chain = self._input_vec('real', n=N_chain,s='C',f='A')
             if self.N_solvent > 0:
-                self.mu_solvent = self._input_vec('real',n=N_solvent,s='C',f='A') 
+                self.mu_solvent = self._input_vec('real',n=N_solvent,s='C',f='A')
 
     def input_interaction(self):
         ''' Analog of subroutine input_interaction in chemistry_mod.f '''
@@ -238,10 +203,10 @@ class OutFile(object):
             self._output_vec( 'int', 'N_block', N_chain, s='C')
             self.file.write('block_monomer'+"\n")
             for j in range(self.N_chain):
-               self.io.output_vec(self.file, 'int',self.block_monomer[j],self.N_block[j],f='N') 
+               self.io.output_vec(self.file, 'int',self.block_monomer[j],self.N_block[j],f='N')
             self.file.write('block_length'+"\n")
             for j in range(self.N_chain):
-                self.io.output_vec(self.file, 'real',self.block_length[j],self.N_block[j],f='N') 
+                self.io.output_vec(self.file, 'real',self.block_length[j],self.N_block[j],f='N')
 
     def output_solvents(self):
         self._output_var('int', 'N_solvent')
@@ -256,14 +221,14 @@ class OutFile(object):
         N_solvent = self.N_solvent
         if self.ensemble == 0:
             if N_chain > 0:
-                self._output_vec('real', 'phi_chain',N_chain,s='C',f='A') 
+                self._output_vec('real', 'phi_chain',N_chain,s='C',f='A')
             if N_solvent > 0:
-                self._output_vec('real', 'phi_solvent',N_solvent,s='C',f='A') 
+                self._output_vec('real', 'phi_solvent',N_solvent,s='C',f='A')
         elif self.ensemble == 1:
             if N_chain > 0:
-                self._output_vec('real', 'mu_chain',N_chain,s='C',f='A') 
+                self._output_vec('real', 'mu_chain',N_chain,s='C',f='A')
             if N_solvent > 0:
-                self._output_vec('real', 'mu_solvent',N_solvent,s='C',f='A') 
+                self._output_vec('real', 'mu_solvent',N_solvent,s='C',f='A')
 
     def output_interaction(self):
         ''' Analog of subroutine output_interaction in chemistry_mod.f '''
@@ -373,81 +338,7 @@ class OutFile(object):
             self._output_var('real',self.d_cell_param,self.N_cell_param, 'd_cell_param',f='A')
         self.file.write('end_increments' + "\n")
 
-    def input_thermo(self):
-        self.f_Helmholtz = self._input_var('real')
-        self.f_homo = self._input_var('real')
-        self.pressure = self._input_var('real')
-        if self.ensemble == 0 :
-            if self.N_chain > 0 :
-                self.mu_chain = \
-                   self._input_vec('real',self.N_chain,s='C')
-            if self.N_solvent > 0 :
-                self.mu_solvent = \
-                   self._input_vec('real',self.N_solvent,s='C')
-        if self.ensemble == 1 :
-            if self.N_chain > 0 :
-                self.phi_chain = \
-                   self._input_vec('real',self.N_chain,s='C')
-            if self.N_solvent > 0 :
-                self.phi_solvent = \
-                   self._input_vec('real',self.N_solvent,s='C')
-        self.stress = self._input_vec('real',self.N_cell_param)
-
-    def output_thermo(self):
-        self._output_var('real', 'f_Helmholtz')
-        self._output_var('real', 'f_homo')
-        self._output_var('real', 'pressure')
-        if self.ensemble == 0 :
-            if self.N_chain > 0 :
-                self._output_vec('real', \
-                                 'mu_chain',self.N_chain,s='C')
-            if self.N_solvent > 0 :
-                self._output_vec('real', \
-                                 'mu_solvent',self.N_solvent,s='C')
-        elif self.ensemble == 1 :
-            if self.N_chain > 0 :
-                self._output_vec('real', \
-                                 'phi_chain',self.N_chain,s='C')
-            if self.N_solvent > 0 :
-                self._output_vec('real', \
-                                 'phi_solvent',self.N_solvent,s='C')
-        self._output_vec('real', 'stress',self.N_cell_param)
-
-    def input_statistics(self):
-        self.N_star      = self._input_var('int')
-        self.final_error = self._input_var('real')
-        self.iterations  = self._input_var('int')
-        self.basis_time  = self._input_var('real')
-        self.scf_time    = self._input_var('real')
-
-    def output_statistics(self):
-        self._output_var('int', 'N_star')
-        self._output_var('real', 'final_error')
-        self._output_var('int', 'iterations')
-        self._output_var('real', 'basis_time')
-        self._output_var('real', 'scf_time')
-
-    def input_decompose(self):
-        self.overlap_AB  = self._input_var('real')
-        if self.N_monomer > 2 :
-            self.overlap_BC  = self._input_var('real')
-            self.overlap_CA  = self._input_var('real')
-        self.f_enthalpy  = self._input_var('real')
-        self.f_head      = self._input_var('real')
-        self.f_tail      = self._input_var('real')
-        self.f_excess    = self._input_var('real')
-
-    def output_decompose(self):
-        self._output_var('real', 'overlap_AB')
-        if self.N_monomer > 2 :
-            self._output_var('real', 'overlap_BC')
-            self._output_var('real', 'overlap_CA')
-        self._output_var('real', 'f_enthalpy')
-        self._output_var('real', 'f_head')
-        self._output_var('real', 'f_tail')
-        self._output_var('real', 'f_excess')
-
-    # "Private" methods
+    # "Protected" methods
 
     # Input methods (wrapper for self.io.input_... methods of IO)
     def _input_var(self, type, comment = None, f='A'):
@@ -489,9 +380,9 @@ class OutFile(object):
         '''
         Returns the value of a python expression calculated
         by using the key names of attributes of an Outfile
-        as variable names. 
+        as variable names.
         '''
         for key in self.__dict__.keys():
             exec( key + '= self.' + key )
         return eval(expr1)
-         
+
