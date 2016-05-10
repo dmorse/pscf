@@ -88,8 +88,8 @@ crystal/basis_mod
 	and to calculate coefficients of plane waves in symmetry
 	adapted basis functions.  A discussion of the data structures 
 	and conventions used in basis_mod is given within a long
-	comment within basis_mod, and in api documentation for the
-	module. 
+	comment within basis_mod, which is reproduced in the 
+        developer/api documentation for the module. 
 
 crystal/grid_basis_mod.f
 	Contains routines to convert between representations of a

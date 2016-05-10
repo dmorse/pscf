@@ -29,6 +29,9 @@ class OutFile(object):
         # Keys are flag string values ('MONOMERS' etc.), values are all 1
         self.flags = {}
 
+        # List sections lists section names (flags) in order read
+        self.sections = []
+
         # Read version line
         self.version = Version(self.file)
 
@@ -41,6 +44,7 @@ class OutFile(object):
 
             # Set key in self.flags dictionary
             self.flags[flag] = 1
+            self.sections.append(flag)
 
             if flag == 'MONOMERS':
                 self.input_monomers()
@@ -50,7 +54,7 @@ class OutFile(object):
                 self.input_solvents()
             if flag == 'COMPOSITION':
                 self.input_composition()
-            if flag == 'INTERACTION':
+            elif flag == 'INTERACTION':
                 self.input_interaction()
             elif flag == 'UNIT_CELL':
                 self.input_unit_cell()
@@ -65,14 +69,18 @@ class OutFile(object):
                 next = 0
 
         # Read additional postscript sections
+        # Note: Each section must begin with one blank line
         next = 1
         while next :
             line = self.file.readline()
             if not line:
                 break
-            flag = self.file.readline().strip()
+            line = self.file.readline()
+            if not line:
+                break
+            flag = line.strip()
             if flag == '':
-                continue
+                break
             self.flags[flag] = 1
 
             if flag == 'THERMO':
@@ -145,15 +153,38 @@ class OutFile(object):
             file.write("\n%-15s\n" % 'STATISTICS')
             self.output_statistics()
 
-            #self._output_var('int', 'N_star')
-            #self._output_var('real', 'final_error')
-            #self._output_var('int', 'iterations')
-            #self._output_var('real', 'basis_time')
-            #self._output_var('real', 'scf_time')
-
         file.close()
         self.file = None
 
+    def read_param_section(self, file):
+        flag = self.file.readline().strip()
+        while flag == '':
+            continue
+        # Set key in self.flags dictionary
+        self.flags[flag] = 1
+        next = 1
+        if flag == 'MONOMERS':
+            self.input_monomers()
+        elif flag == 'CHAINS':
+            self.input_chains()
+        elif flag == 'SOLVENTS':
+            self.input_solvents()
+        elif flag == 'COMPOSITION':
+            self.input_composition()
+        elif flag == 'INTERACTION':
+            self.input_interaction()
+        elif flag == 'UNIT_CELL':
+            self.input_unit_cell()
+        elif flag == 'DISCRETIZATION':
+            self.N_grid = self._input_vec('int')
+            self.chain_step = self._input_var('real')
+        elif flag == 'BASIS':
+            self.group_name = self._input_var('char')
+        elif flag == 'ITERATE':
+            self.input_iterate()
+        elif flag == 'FINISH':
+            next = 0
+        return next
 
     def input_monomers(self):
         ''' Analog of subroutine input_monomers in chemistry_mod.f '''
