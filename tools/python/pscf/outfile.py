@@ -35,32 +35,15 @@ class OutFile(object):
         # Read version line
         self.version = Version(self.file)
 
-        # Read input script section
+        # Read input parameter file sections
         next = 1
         while next:
             next = self.read_param_section(file)
 
-        # Read additional postscript sections
-        # Note: Each section must begin with one blank line
+        # Read additional output sections
         next = 1
         while next :
-            line = self.file.readline()
-            if not line:
-                break
-            line = self.file.readline()
-            if not line:
-                break
-            flag = line.strip()
-            if flag == '':
-                break
-            self.flags[flag] = 1
-
-            if flag == 'THERMO':
-                self.input_thermo()
-            if flag == 'DECOMPOSE':
-                self.input_decompose()
-            elif flag == 'STATISTICS':
-                self.input_statistics()
+            next = self.read_output_section()
 
         self.file.close()
         self.file = None
@@ -167,8 +150,38 @@ class OutFile(object):
             self.input_iterate()
         elif flag == 'FINISH':
             next = 0
+        else:
+            next = 0
 
         return next
+
+    def read_output_section(self):
+        next = 1
+
+        # Read next non-empty line
+        hasFlag = False
+        while not hasFlag:
+            line = self.file.readline()
+            if not line:
+                next = 0
+                return next
+            flag = line.strip()
+            if flag != '':
+                hasFlag = True
+
+        # Read output section
+        self.flags[flag] = 1
+        if flag == 'THERMO':
+            self.input_thermo()
+        if flag == 'DECOMPOSE':
+            self.input_decompose()
+        elif flag == 'STATISTICS':
+            self.input_statistics()
+        else:
+            next = 0
+
+        return next
+
 
     def input_monomers(self):
         ''' Analog of subroutine input_monomers in chemistry_mod.f '''
