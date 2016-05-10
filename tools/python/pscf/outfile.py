@@ -215,13 +215,3 @@ class OutFile(ParamFile):
         self._output_var('real', 'f_tail')
         self._output_var('real', 'f_excess')
 
-#    def eval(self, expr1):
-#        '''
-#        Returns the value of a python expression calculated
-#        by using the key names of attributes of an Outfile
-#        as variable names. 
-#        '''
-#        for key in self.__dict__.keys():
-#            exec( key + '= self.' + key )
-#        return eval(expr1)
-#         
