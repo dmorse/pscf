@@ -340,7 +340,6 @@ locations for the install directory for pscf:
    * The pscf/ directory that contains the cmake/ and git/ subdirectories.
 
    * A standard location for installing software within your user directory.
-     within your user directory. 
 
    * The system-wide /usr/local directory.
 
@@ -402,13 +401,11 @@ in which the tilde (~) is linux shortand for the users home directory.
 Finally, to install in the /usr/local directory, you need adminstrator
 privileges on your machine, and would enter::
 
-   > sudo cmake ../git
+   > cmake ../git
 
-In this case, you must use the "sudo" command to apply the command 
-with "super-user" or administrator privileges, and you will be prompted 
-for your password. No "-DCMAKE_INSTALL_PREFIX=" option is required in 
-this case, however, because /usr/local is the default installation 
-that will be use by cmake if no alternative is specified.
+No "-DCMAKE_INSTALL_PREFIX=" option is required in this case because 
+/usr/local is the default installation chosen by cmake if no alternative 
+is specified.
 
 **Invoke make**
 
@@ -432,6 +429,15 @@ install directory contains subdirectories named bin/, lib/ and share/,
 and that the the bin/ subdirectory contains an executable file named pscf, 
 along with several executable scripts whose names begin with the suffix 
 "pscf-...". One of these should be a bash script named "pscf-env".
+
+If you install in the /usr/local directory, you will need to have 
+administrator privileges on the your computer, and will need to use
+the "sudo" command to run "make install" as the "super-user", by 
+entering::
+
+   > sudo make install 
+
+In this case, you will be prompted for your password. 
 
 .. _install-compile-cmake-paths-sub:
 
