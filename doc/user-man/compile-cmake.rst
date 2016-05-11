@@ -467,8 +467,24 @@ enter the commands::
     PATH=$PATH:install/bin
     PYTHONPATH=$PYTHONPATH:install/lib/python2.7/site-packages
 
-where "install" denotes an absolute path to your chosen installation
-directory.
+where "install" denotes an absolute path to the root installation
+directory that you chose when compiling.
+
+If you installed pscf on Mac OS X using the .dmg installer, the root
+install directory (the directory that contains the relevant bin/ and 
+lib/ subdirectories) is the directory::
+
+  /Applications/pscf_terminal.app/Contents/Resources
+
+In this case, to run the pscf-env script, you must either cd to the 
+bin subirectory of that directory, or use the following command using 
+the absolute path::
+
+  source /Applications/pscf_terminal.app/Contents/Resources/bin/pscf-env
+
+If you installed pscf using a .deb or .rpm binary installer on 
+linux, the root install directory is /usr/local and the path to the 
+pscf-env script is /usr/local/bin/pscf-env.
 
 **Making Changes Permanent**
 
@@ -481,9 +497,9 @@ command::
 
    source install/bin/pscf-env 
 
-to the .bashrc file or (on Mac OS X) .profile configurtion file
-in your home directory. Here, the string "install/" is a placeholder 
-for the absolute path to the pscf install directory.
+to the .bashrc file or (on Mac OS X) .profile configuration file in 
+your home directory. Here, the string "install/" is a placeholder for 
+the absolute path to the pscf install directory.
 
 **Configuration files: Linux vs. Mac OS X**
 

@@ -81,12 +81,12 @@ python modules are placed in a directory::
 
    $(INSTALL_DIR)/lib/python2.7/site-packages/pscf
 
-where $(INSTALL) is a place holder for the actual absolute path
-to the installation directory. This directory must be included in
-the PYTHONPATH environment variable to allow the Python interpreter 
-to find and use these modules. This can be accomplished by running
-script $(INSTALL)/bin/pscf-env, as discussed in more detail in the
-discussion of :ref:`install-compile-cmake-paths-sub`. 
+where $(INSTALL_DIR) is a place holder for the actual absolute path
+to the root of the installation directory tree. This pscf/ subdirectory
+must be included in the PYTHONPATH environment variable in order for 
+the Python interpreter to find and use these modules. This can be 
+accomplished by running script $(INSTALL)/bin/pscf-env, as discussed 
+in more detail in the discussion of :ref:`install-compile-cmake-paths-sub`. 
 
 After running the pscf-env script, to confirm that the $PYTHONPATH 
 is set up correctly, type::
