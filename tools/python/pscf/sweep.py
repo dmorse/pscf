@@ -37,15 +37,15 @@ class Sweep(object):
         # Make list self._outfiles of OutFile objects
         self._outfiles = []
         i = 0
-        while i < n:
+        consecutive = True
+        while i < n and consecutive:
             key = str(i)
             if key in filenames.keys():
                 filename = filenames[key]
                 self._outfiles.append(OutFile(filename))
+                i = i + 1
             else:
-                self._outfiles.append(None)
-                n = n + 1
-            i = i + 1
+                consecutive = False
 
         # Return to original current working directory
         os.chdir(old_cwd)
@@ -87,3 +87,5 @@ class Sweep(object):
         """
         return self._outfiles[i]
     
+    def __len__(self):
+        return len(self._outfiles)

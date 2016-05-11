@@ -3,16 +3,16 @@ from version import Version
 import string
 import sys
 
-class Field(object):
+class FieldFile(object):
     '''
     Hold data in a PSCF field file. 
 
-    A Field object contains the data in a field file in the PSCF
+    A FieldFile object contains the data in a field file in the PSCF
     symmetry-adapted Fourier expansion format (see web user manual).
     It can be used to represent either omega (chemical potential) or
     rho (volume fraction) fields. a
 
-    The constructor reads a field file, creates a Field object to store
+    The constructor reads a field file, creates a FieldFile object to store
     the data, and stores all of the parameters and field coefficients in 
     attributes of the object.
 

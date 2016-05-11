@@ -1,9 +1,9 @@
 #!/usr/bin/env python2.7
 
-from pscf.field import Field
+from pscf.fieldfile import FieldFile
 
 print "Reading file 'rho'"
-thing = Field('rho')
+thing = FieldFile('rho')
 print "Writing 'out1'"
 file = open('out1','w')
 thing.write(file,1,0)
