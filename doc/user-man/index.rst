@@ -19,6 +19,7 @@ Contents:
    field
    unitcell
    groups
+   python
    theory
    memory
    package
