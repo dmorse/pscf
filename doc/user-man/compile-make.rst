@@ -12,37 +12,38 @@ unix environments is the locations of the required libraries.
 
 To compile the code in this way, proceed as follows:
 
-   * Follow the directions given in the subsection of the previous
-     page entitled :ref:`install-compile-cmake-dependencies-sub` in order
-     to install dependencies on your operating systems. Install all
-     required dependencies except cmake.
+   * Follow the directions given in the discussion of 
+     :ref:`install-compile-cmake-dependencies-sub` on the previoius 
+     page. You will need to install all dependencies listed there
+     except cmake.
 
-   * Follow the directions given in the subsection of the previous
-     page entitled :ref:`install-compile-cmake-getsource-sub` in order
-     to obtain the source code and create a directory structure.
+   * Follow the directions given in the preceding discussion of
+     :ref:`install-compile-cmake-getsource-sub` to obtain the source
+     code and create an appropriate directory structure.
 
-   * Change the working directory (cd) to the pscf/git/make directory.
-     Note that this is an existing subdirectory of the pscf/git directory, 
-     and is different from the initially empty pscf/cmake directory from
-     which we suggested that you should invokve cmake, if compiling with
-     cmake. 
+   * Change the working directory (cd) to the directory pscf/git/make in
+     the directory structure described in the instructions for compiling
+     with cmake.  Note that this is an existing subdirectory of the 
+     pscf/git directory, and is different from the initially empty 
+     pscf/cmake directory from which we recommended that invoke cmake
+     when using cmake to generate makefiles.
 
-   * This directory should contain files named config.mk_r and Makefile.
-     Make a copy of the file config.mk_r, by entering::
+   * The pscf/git/make directory will contain files named config.mk_r 
+     and Makefile. Make a copy of the file config.mk_r, by entering::
 
         cd config.mk_r config.mk
 
    * Examine and edit the new config.mk file to reflect your environment, 
      and to specify an installation directory. The need to manually edit 
      this configuration file is the main difference between using cmake 
-     to and using make alone. See below for further instructions about
-     this step.
+     to generate makefiles and using the simple makefile distributed with
+     the source code.  See below for further instructions about this step.
 
    * To compile, enter::
 
         > make -j4 all
 
-     from within pscf/git/make.
+     from within pscf/git/make. The "-j4" option is not necessary.
 
    * To install in the directory specified by the $(INSTALL) makefile 
      variable (as defined in config.mk), enter::
@@ -53,7 +54,7 @@ To compile the code in this way, proceed as follows:
      page entitled :ref:`install-compile-cmake-paths-sub` in order
      to modify environment variables that define search paths.
 
-Some of these steps are discussed in more detail below.
+Several of these steps are discussed in more detail below.
 
 **Editing the config.mk configfuration file**
 

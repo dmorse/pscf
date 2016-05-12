@@ -49,15 +49,13 @@ be able to open it in the future by double-clicking it just as you can
 any registered app.
 
 When the pscf_terminal application opens a yellow terminal window, it
-it modifies the unix executable search path so as to allow the operating 
-system to find the pscf executable when pscf is invoked from within the
-yellow terminal.  It does not, however, modify the user environment in 
-a way that would allow pscf to be invoked from another terminal. If you 
-have installed pscf using the .dmg installer file but would like to be 
-able to run it from the command line of any terminal (as for most unix 
-commands) follow the instructions given in the discussion of
-:ref:`install-compile-cmake-paths` regarding how to modify up your shell 
-configuration files to accomplish this.
+also modifies the unix executable search path used in that window so 
+as to allow the pscf command to be found when invoked from that window.
+This does not, however, allow pscf to be invoked from another terminal. 
+If you install pscf using the .dmg installer file but would also like 
+to be able to run it from the command line of any terminal (like any
+other unix commands), follow the instructions given in the discussion 
+of :ref:`install-compile-cmake-paths-sub`.
 
 Ubuntu or Debian Linux
 ----------------------
@@ -127,6 +125,6 @@ of a different package file format and package manager. In this case:
 
         > sudo rpm -Uvh pscf-<version>-Linux.rpm
 
-  * Confirm that the executable has been installed in /usr/local/bin/,
+  * Confirm that the executable has been installed in /usr/local/bin,
     following the instructions given above for a .deb package.
 
