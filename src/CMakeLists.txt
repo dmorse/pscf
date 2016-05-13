@@ -21,27 +21,57 @@ set(FORPEDO ${CMAKE_SOURCE_DIR}/tools/python/preprocess-0.6.1/preprocess.py)
 
 find_package(LAPACK)
 
-# Create a library called "common", which includes the source file "const_mod.f".
-# The extension is already found. Any number of sources could be listed here.
-add_library(common 
-    const_mod.f
+
+add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/scf_mod.f
+	COMMAND	${FORPEDO} ${DEVEL} ${CMAKE_CURRENT_SOURCE_DIR}/scf_mod.fp.f > ${CMAKE_CURRENT_BINARY_DIR}/scf_mod.f
+	DEPENDS scf_mod.fp.f
 )
+
+add_custom_command(
+   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/iterate_mod.f 
+   COMMAND ${FORPEDO} ${DEVEL} ${CMAKE_CURRENT_SOURCE_DIR}/iterate_mod.fp.f > ${CMAKE_CURRENT_BINARY_DIR}/iterate_mod.f 
+   DEPENDS iterate_mod.fp.f
+)
+
+# Create a library called "pscf_lib", which includes module source files.
+# The extension is already found. Any number of sources could be listed here.
+add_library(pscf_lib
+    const_mod.f
+    io_mod.f
+    string_mod.f
+    version_mod.f
+    field_io_mod.f
+    ${FFT_FILE}
+    grid_mod.f
+    basis_mod.f
+    grid_basis_mod.f
+    group_mod.f
+    unit_cell_mod.f
+    space_groups_mod.f
+    chain_mod.f
+    chemistry_mod.f
+    step_mod.f
+    ${CMAKE_CURRENT_BINARY_DIR}/scf_mod.f
+    ${CMAKE_CURRENT_BINARY_DIR}/iterate_mod.f 
+    response_pd_mod.f
+    sweep_mod.f
+    extrapolate_mod.f
+    response_mod.f
+    response_step_mod.f
+    rpa_mod.f
+    spinodal_mod.f
+)
+
 # Ensure that anything that depends on "common" will be able to find any headers
 # or fortram *.mod module files for linking
 # This is the in-core source dir
-target_include_directories (common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories (pscf_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 # b) this is the out-of-core source dir (i.e., generated sources)
-target_include_directories (common PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories (pscf_lib PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
+target_link_libraries(pscf_lib LINK_PUBLIC ${FFTW_LIBRARIES} ${LAPACK_LIBRARIES})
 
-##### Build subdirs ######
-add_subdirectory(io)
-add_subdirectory(grid)
-add_subdirectory(crystal)
-add_subdirectory(scf)
-add_subdirectory(rpa)
-add_subdirectory(iterate)
-add_subdirectory(response)
 
 ### PREPROCESS THE MAIN FILE ###
 add_custom_command(
@@ -59,7 +89,7 @@ set(APPS ${CMAKE_CURRENT_BINARY_DIR}/pscf${MACOSX_BUNDLE_EXT})
 set(DIRS "")
 
 # TODO: clean up these links
-target_link_libraries(pscf LINK_PUBLIC common io io_field scf scf_aux response rpa iterate)
+target_link_libraries(pscf LINK_PUBLIC pscf_lib)
 
 install(TARGETS pscf
         BUNDLE DESTINATION . COMPONENT Runtime
