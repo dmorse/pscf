@@ -21,7 +21,6 @@ set(FORPEDO ${CMAKE_SOURCE_DIR}/tools/python/preprocess-0.6.1/preprocess.py)
 
 find_package(LAPACK)
 
-
 add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/scf_mod.f
 	COMMAND	${FORPEDO} ${DEVEL} ${CMAKE_CURRENT_SOURCE_DIR}/scf_mod.fp.f > ${CMAKE_CURRENT_BINARY_DIR}/scf_mod.f
@@ -63,13 +62,14 @@ add_library(pscf_lib
     spinodal_mod.f
 )
 
-# Ensure that anything that depends on "common" will be able to find any headers
-# or fortram *.mod module files for linking
+# Ensure that linker can find any headers or fortram *.mod module files,
+# including preprocessor geneerated sources placed in the build directory.
 # This is the in-core source dir
 target_include_directories (pscf_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-# b) this is the out-of-core source dir (i.e., generated sources)
+# This is the out-of-source build dir, with generated sources
 target_include_directories (pscf_lib PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
+# Link to FFTW and Lapack libraries
 target_link_libraries(pscf_lib LINK_PUBLIC ${FFTW_LIBRARIES} ${LAPACK_LIBRARIES})
 
 

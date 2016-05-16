@@ -21,7 +21,9 @@ a more complex makefile.
 See the file doc/user-man/compile-make.rst, or the corresponding page 
 in the web user manual, for instructions for compiling using make, 
 and doc/user-man/compile-cmake.rst for instructions to compile using 
-cmake. For the impatient, brief instructions are:
+cmake. 
+
+For the impatient, brief instructions for compiling with make alone are:
 
 1. Install the open source LAPACK linear algebra library and the 
 FFTW fast fourier transform library. 
@@ -33,11 +35,11 @@ directory) and copy the file config.mk_r to config.mk, by entering
 
 Explanation: The file config.mk_r is a default version of a 
 configuration file that is stored in the git repository. Users can 
-modify the copy named config.mk, but should generally avoid modifying 
-config.mk_r.
+modify the operational configuration file, named config.mk, but should 
+avoid modifying the repository version named config.mk_r.
 
-3. Edit the file config.mk as needed, following comments given in that
-file and and in the user manual.
+3. Edit the file config.mk as needed, following instructions given in 
+comments in that file and in the user manual.
 
 4. To compile, issue the command:
 

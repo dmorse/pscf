@@ -10,77 +10,74 @@ File Name Conventions:
   build directory. See the end of this file for a discussion of the 
   use of a preprocessor.
 
----------------------------------------------------------------------
-! Directories and Files                                             !
----------------------------------------------------------------------
 
-src/
-----
+Main Program     
+-------------
 
 pscf.fp.f
 	Main program (preprocessor input file). Used to generate the 
 	compilable fortran file pscf.f in the build directory.
 
-const_mod
+Utilities
+----------
+
+const_mod.f
 	Defines global variable dim (= # dimensions of space) and 
 	parameter long (=real kind for double precision). Used by
 	all other modules.
 
-src/io/
--------
-
-io/io_mod
+io_mod.f
         Defines generic interfaces for parameter input and output.
 
-io/field_io_mod
+field_io_mod.f
         Routines to input and output fields, as lists of coefficients 
 	of symmetry-adapted basis functions.
 
-io/string_mod
+string_mod.f
 	Utilities to convert integers to strings. Used in io formats.
 
-io/version_mod
+version_mod
         Defines a version_type derived type, with major and minor 
 	integer version numbers, and routines to read and write this.
 	Version numbers are used to specify file format versions.
 
-src/grid/
+FFT Grid
 ---------
 
-grid/fft3_mod.f
+fft3_mod.f
         Fortran 90 wrappers for FFTW Fourier transform functions, 
 	for FFTW version 3 (Either this or fft2_mod.f is linked)
 
-grid/fft2_mod.f
+fft2_mod.f
         Fortran 90 wrappers for FFTW Fourier transform functions,
 	for FFTW version 2 (Either this or fft3_mod.f is linked)
 
-grid/grid_mod.f
+grid_mod.f
         Defines scf data structures on an FFT grid, and routines
 	to allocate, deallocate, and manipulate these structures.
 	Defines ngrid, rho_grid, omega_grid, and ksq_grid. Also 
 	contains several functions for manipulating single FFT 
 	wavevectors, including norm, G_to_fft and G_to_bz.
 
-src/crystal/
-------------
+Crystallography
+----------------
 
-crystal/unit_cell_mod
+unit_cell_mod.f
 	Creates Bravais and reciprocal basis vectors, using user 
 	supplied name of crystal system and cell parameters.  Defines 
 	data structures specifying cell parameters, Bravais and 
 	reciprocal lattice basis vectors, and some related quantities. 
 
-crystal/group_mod
+group_mod.f
         Defines derived types and operations for space group 
 	symmetries and space groups
 
-crystal/space_groups_mod
+space_groups_mod.f
 	Routine space_groups creates space group specified by user 
 	by name or number, using look-up table of all 230 3D space 
 	groups, 17 2D plane groups, and 2 1D groups. 
 
-crystal/basis_mod
+basis_mod.f
         Module to construct basis functions for periodic crystal.
         Defines data structures describing reciprocal wavevectors and 
 	stars. Contains routines to generate reciprocal wavevectors, 
@@ -91,76 +88,77 @@ crystal/basis_mod
 	comment within basis_mod, which is reproduced in the 
         developer/api documentation for the module. 
 
-crystal/grid_basis_mod.f
+grid_basis_mod.f
 	Contains routines to convert between representations of a
 	field as a 1D array of coefficients of symmetry-adpated
 	basis functions and as a set of values defined at points
 	on a regular grid. 
 
-src/scf/
---------
+Self-Consistent Field
+----------------------
 
-scf/chemistry_mod
+chemistry_mod.f
 	Defines data structures required to specify chemistry of an 
 	incompressible polymer blend (chi, Kuhn lengths, block lengths,
 	molecular volume fractions etc.), and routines to input and 
 	output this data. 
 
-scf/scf_mod.fp.f
-	Contains routines to solve diffusion equation by the
-	pseudo-spectral method, and to calculate monomer 
-        concentration fields, the free and energy, and stress.
-	Note: scf/scf_mod.fp.f is a preprocessor input file, which
-	is used to generate file scf_mod.f in the build directory.
-
-scf/step_mod.f
-        Routines to integrate one time step of modified diffusion
-	equation, using the Rasmussen-Kaloskas pseudo-spectral
-	algorithm and extrapolation with respect to contour 
-	length step size.
-
-scf/chain_mod.f
+chain_mod.f
 	Defines a derived type chain_type that contains the
 	q(r,s) =qf and q^{+}(r,s) =qr functions for a chain, and 
 	information about discretization in r and s. Also defines 
 	arrays of chain_types and subroutines to allocate and 
 	destroy these arrays. 
 
-src/iterate
-------------
+step_mod.f
+        Routines to integrate one time step of modified diffusion
+	equation, using the Rasmussen-Kaloskas pseudo-spectral
+	algorithm and extrapolation with respect to contour 
+	length step size.
 
-iterate/iterate_mod.fp.f
+scf_mod.fp.f
+	Contains routines to solve diffusion equation by the
+	pseudo-spectral method, and to calculate monomer 
+        concentration fields, the free and energy, and stress.
+	Note: scf_mod.fp.f is a preprocessor input file, which
+	is used to generate file scf_mod.f in the build directory.
+
+Iteration
+---------
+
+iterate_mod.fp.f
 	Iterates scf equations to convergence. Currently contains
 	Newton-Raphson (NR) algorithm for both fixed and variable 
 	unit cells. Note: File iterate_mod.fp.f is a preprocessor
 	input file, which is used to generate file iterate_mod.f
         in the build directory.
 
-iterate/sweep_mod
+sweep_mod
         Used to conduct a "sweep" along a path through the space 
         of SCF input parameters (i.e., chi, block_lengths, etc).
         Implements 1st and 2nd order continuation of solutions 
         along such a path.
 
-iterate/respond_pd_mod.f
+respond_pd_mod.f
         Calculate response of periodic structures in form needed to
-        construct approximate Jacobian for iterate_mod.f
+        construct approximate Jacobian for quasi-Newton method in
+        iterate_mod.f
 
-src/response/
--------------
+Linear Response
+---------------
 
-response/response_mod.f
+response_mod.f
 	Module for calculating SCF linear response of period structure
 
-response/response_step_mod.f
+response_step_mod.f
 	Routines to integrate inhomogeneous PDE required in the ideal 
 	gas perturbation theory
 
-response/extrapolate_mod.f
+extrapolate_mod.f
 	Implements extrapolation with respect to contour length step 
 	size ds. 
 
-src/attic/
+attic/
 ----------
 
         Random programs, tests and utilities that are not fit for
