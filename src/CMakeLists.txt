@@ -58,7 +58,6 @@ add_library(pscf_lib
     extrapolate_mod.f
     response_mod.f
     response_step_mod.f
-    rpa_mod.f
     spinodal_mod.f
 )
 
