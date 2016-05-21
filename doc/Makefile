@@ -10,7 +10,7 @@ GDOC=../tools/python/GDoc/GDoc.py
 # ====== Target to make html user manual  =======================
 # Note: This requires the python2.7-sphinx python package
 
-user-man:
+user-man: user-man/*.rst
 	cd user-man; make html
 
 # ====== Target to make html developer/api documentation ========
