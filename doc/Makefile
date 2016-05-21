@@ -19,12 +19,12 @@ user-man:
 
 devel-man:	
 	cp $(BLD)/pscf.f $(SRC)/pscf.f
-	cp $(BLD)/scf_mod.f $(SRC)/scf/scf_mod.f
-	cp $(BLD)/iterate_mod.f $(SRC)/iterate/iterate_mod.f
+	cp $(BLD)/scf_mod.f $(SRC)/scf_mod.f
+	cp $(BLD)/iterate_mod.f $(SRC)/iterate_mod.f
 	$(PYTHON) $(GDOC)
 	rm $(SRC)/pscf.f
-	rm $(SRC)/scf/scf_mod.f
-	rm $(SRC)/iterate/iterate_mod.f
+	rm $(SRC)/scf_mod.f
+	rm $(SRC)/iterate_mod.f
 
 .PHONY: clean
 
