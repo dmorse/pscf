@@ -33,14 +33,15 @@ different for different operating systems. We thus give separate
 instructions for Mac OS and different Linux distributions for this part 
 of the process.
 
-To obtain the source code from the github repository in which it is 
-stored one can either:
+To obtain a copy of the source code from the github repository in which 
+it is stored, one can either:
 
     * Download a zip file
     * Use the git version control software to clone the repository
 
-We recommend using git, since this makes it simple to update the code 
-later, but both procedures are described below.
+We recommend using git to clone the repository, since this makes it 
+simple to update the code later, but both procedures are described 
+below.
 
 .. _install-compile-cmake-dependencies-sub:
 
@@ -57,17 +58,18 @@ to compile PSCF, if you plan on using git to obtain the source code:
    * LAPACK linear algebra library
    * FFTW version 3.x fast fourier transform library
 
-You do not need to install git if you plan to simply download the 
-source code rather than using git. On a Mac, some of these packages
-come bundled with the XCode development environment, which must in
-any case be installed before you try to compile software from source
-on Mac OS X. Python is included as part of the most common linux 
+You do not need to install git if you plan to simply download a copy
+of the source code rather than using git. On a Mac, some of the above
+packages come bundled with the XCode development environment, which 
+must in any case be installed before you try to compile software 
+from source on Mac OS X. Python is included with all common linux 
 distributions, and is also bundled with recent versions of Mac OS X. 
 
 In what follows, we will assume that you plan to use free gfortran 
 Fortran compiler, which is part of the Gnu Compiler Collection (gcc) 
-suite of compilers, and give instructions for installing this
-compiler. 
+suite of compilers, and give instructions for installing this 
+fortran compiler. This fortran compiler does not come bundled with 
+any of the operating systems discussed here.
 
 Mac OS X
 ~~~~~~~~~
@@ -76,16 +78,18 @@ Mac OS X
 
 To create an environment in which you can compile from source on OSX, you 
 will generally first need to install the apple XCode development environment.
-XCode is available gratis from the app store, but is a large package that can
-take a long time to install (do this with a good internet connection).  The 
-XCode package contains git, so it is not necessary to install git separately.
-The Mac OS X operating system also appears to come with a version of LAPACK, 
-and the BLAS library upon which it depends. Neither the operating system nor
-XCode provide cmake, gfortran, or FFTW.
+XCode is available gratis from the Apple app store. It is a large package 
+that can take a long time to install, so do this with a good internet 
+connection.  The XCode package contains git, so it is not necessary to 
+install git separately on a Mac. The Mac OS X operating system also appears 
+to come with a version of LAPACK, and the BLAS library upon which it 
+depends. Neither the operating system nor XCode provide cmake, gfortran, 
+or FFTW.
 
 **Checking for Python**
 
-A Python interpreter is included in recent versions of Mac OS X. To check if Python is already installed, enter the command::
+A Python interpreter is included in recent versions of Mac OS X. To check 
+if Python is already installed, enter the command::
 
    > which python
 
@@ -112,9 +116,10 @@ existing system, and do not install the other, because they do not play
 well together.  If neither Homebrew or MacPorts is installed, we have a
 slight preference for Homebrew, which we find makes it slightly easier to 
 install the dependencies required by PSCF. We have succeeded in building 
-PSCF using both package managers on different machines that are running 
-the latest version of Mac OS X (El Capitan, X 10.11) Instructions for 
-both package managers are given separately below.
+PSCF using both of these package managers on machines that are running 
+the latest version of Mac OS X (El Capitan, X 10.11), using different
+package managers on different machines. Instructions for both package 
+managers are given separately below.
 
 **Installing dependencies via Homebrew**
 
@@ -124,7 +129,7 @@ To install from a command line terminal using homebrew::
    > brew install gcc --with-fortran
    > brew install fftw --with-fortran
 
-If python is required, enter::
+If you need to install python (which is unlikely), enter::
 
    > brew install python
 
@@ -206,10 +211,9 @@ To install these packages from the command line, enter::
    > sudo yum install lapack-devel
    > sudo yum install fftw-devel
 
-For Fedora 22 and later, you may use the command "dnf" rather than "yum" 
-to use the an updated version of the yum package manager. Instructions for 
-obtaining source code, compiling and installing are the same as for Mac
-OS X and Ubuntu operating systems.
+For Fedora 22 and later, you may use the command "dnf" rather than 
+"yum" to use the an updated version of the yum package manager. To 
+do so, simply replace "yum" by "dnf" in each of the above commands.
 
 Using Linux Modules
 ~~~~~~~~~~~~~~~~~~~~
@@ -237,8 +241,9 @@ required command is thus::
 
    > cmake -DUSE_INTEL=1 -DCMAKE_INSTALL_PREFIX=/path/to/install ../pscf
 
-More generally, using the "-D" to define USE_INTEL=1 to search for an 
-Intel compiler rather than using gnu fortran, on any operating system.
+More generally, to use the Intel fortran compiler on any operating system 
+(when available), use the "-D" option to define USE_INTEL=1 to instruct 
+cmake search for an Intel compiler rather than using gnu fortran.
 
 .. _install-compile-cmake-getsource-sub:
 
@@ -248,16 +253,18 @@ Obtaining the Source Code
 We assume in what follows that you will use cmake to perform an
 "out-of-source" build, in which all of the files generated during 
 compilation are placed in a directory tree outside the source code tree. 
-To begin, we recommend that you create a directory named pscf/ with a 
-subdirectory named cmake/, by entering::
+To begin, we recommend that you create a directory named pscf/ somewhere
+in your user directory tree, and then create a subdirectory of pscf/
+named named cmake/. To do this, enter::
 
      mkdir pscf
      cd pscf
-     mkdir build
+     mkdir cmake
 
-The directory named cmake/ will be used as the build directory. The source 
-code will be placed in another subdirectory of pscf/, which we will call 
-git/ in this example, since it contains the contents of the git repository.
+The directory named pscf/cmake/ will be used as the build directory. 
+The source code will be placed in another subdirectory of pscf/, which 
+we will call git/ to indicate that it contains the contents of the git 
+repository that contains the source code.
 
 The source code for pscf is stored in a repository on the github.com 
 server, at: 
@@ -275,8 +282,8 @@ To download a zip file:
 
     * Click the "Download ZIP" button near the upper right corner 
       of that web page. On Mac OS X and most linux systems, this will 
-      create a subdirectory named pscf-master with your Downloads 
-      directory.
+      create a subdirectory named pscf-master within your Downloads 
+      folder or directory. 
 
     * Move the pscf-master/ directory into the pscf/ directory that you
       just created.
@@ -315,14 +322,17 @@ Compiling and Installing
 
 **Choose an Install Directory**
 
-After installing all dependencies and obtaining the source code, you are ready 
-to compile PSCF. Before compiling the code, you need to decide where you would 
-like to install the pscf executable, along with several other executable 
-scripts and python files.  The build system created by cmake will install 
-these files in subdirectories of a directory that we will refer to as the 
-install directory that you can specify on the command line of the "cmake"
-command. After installation, the install directory (denoted by install/
-below) will contain the following three subdirectories::
+After installing all dependencies and obtaining the source code, you are 
+ready to compile PSCF. Before compiling the code, you need to decide where 
+you would like to install the pscf executable, along with several other 
+executable scripts and python files. The build system created by cmake will 
+install these files in subdirectories of a directory that we will refer to 
+as the install directory. You can specify the location of the install 
+directory by an option on the command line of the "cmake" command, as 
+discussed in more detail below. 
+
+After installation, the install directory (denoted by install/ below) 
+will contain the following three subdirectories::
 
     install/
        bin/
@@ -331,7 +341,7 @@ below) will contain the following three subdirectories::
 
 After installation, the bin/ subdirectory will contain the pscf executable 
 and other executable files, the lib/ subdirectory will contain python 
-modules and matlabe files and the share/ directory will contain several
+modules and matlab files and the share/ directory will contain several
 text files containing information about the program.
 
 We recommend that you choose one of the three following three possible 
@@ -345,27 +355,32 @@ locations for the install directory for pscf:
 
 If you choose to install software within a standard location within your
 user directory, one common choice for this is a hidden directory of your 
-home directory named .local.
+home directory named ".local" .
 
 One advantage of the first two options listed above is that both install 
-all of the software within your user directory, and thus do not require 
+all executable files within your user directory, and thus do not require 
 adminstrative privileges. This also makes it somewhat easier for you to
-see what you have installed and remove it if ever desired. The further 
-logistical advantage of the first option, of installing within the pscf/ 
-directory that also contains the source code, is that it keeps all of the
-files associated with PSCF in a single directory tree within the user 
-directory.
+see what files you have installed (since these files are not placed in 
+directories containing many files associated with other applications),
+and remove them if you ever desire. The further administrative advantage 
+of the first option, of installing executables within the pscf/ directory 
+that also contains the source code, is that it keeps all of the files 
+associated with PSCF in a single directory tree within the user directory.
 
 The main disadvantage of both the first and second options is that, 
-because both install files within your user directory, they both guarantee 
-that you will have to modify some operating system environment variables 
-in order to allow the operating system to find the PSCF executable and to 
+because both install files within your user directory, they will both 
+require you to modify some operating system environment variables in 
+order to allow the operating system to find the PSCF executable and to 
 allow the python intepreter to find python modules that are provided
-to faciliitate data analysis. Conversely, the advantage of installing 
-in /usr/local is that, because this puts the executable in a standard 
-location, the operating system should be able to automatically find 
-the pscf executable.  Instructions for modifying the relevant environment 
-variables, if necessary, are given below.
+to faciliitate data analysis. Instructions for modifying the relevant 
+environment variables, if necessary, are given below.
+
+The advantage of installing in /usr/local is that, because this puts 
+executables in a standard location, the operating system should be 
+able to automatically find the pscf executable. If you are not an 
+experienced unix programmer, we recommend that you install in a user
+directory (either the pscf/ tree or the user .local directory) rather 
+than in /usr/local.
 
 **Invoke cmake**
 
@@ -382,14 +397,27 @@ root of the install directory.  The last argument, "../git", is the
 relative path to your copy of the source code repository, in pscf/git, 
 from the pscf/cmake directory. 
 
-To install within in the pscf/ directory tree, you would enter::
+To install within in the pscf/ directory tree, you would enter cd to
+pscf/cmake and then::
 
    > cmake -DCMAKE_INSTALL_PREFIX=..  ../git
 
-where ".." represents the pscf/ directory, which is the parent of the
+Here, ".." represents the pscf/ directory, which is the parent of the
 pscf/cmake directory from which the command is issued. This will cause 
 the later creation of bin/, lib/ and share/ subdirectories of the 
-pscf/ directory, alongside the cmake/ and git/ subdirectories.
+pscf/ directory alongside the cmake/ and git/ repository. This method
+thus creates a directory structure::
+
+    pscf/
+       git/
+       cmake/
+       bin/
+       lib/
+       share/
+
+in which all of the files associated with pscf (including source 
+and executable files) are placed in a single directory tree with 
+the users home directory tree.
 
 To install in the .local subdirectory of your home directory, instead
 enter::
@@ -404,7 +432,7 @@ privileges on your machine, and would enter::
    > cmake ../git
 
 No "-DCMAKE_INSTALL_PREFIX=" option is required in this case because 
-/usr/local is the default installation chosen by cmake if no alternative 
+/usr/local is the default installation used by cmake if no alternative 
 is specified.
 
 **Invoke make**
@@ -421,8 +449,9 @@ from the pscf/cmake directory.  The "-j4" option simply instructs the
 make utility to use up to 4 processor cores to compile, if available,
 to speed up compilation. It is not required. The first "make" command
 compiles the code and places all the files generated by compilation 
-in the pscf/cmake directory. The "make install" command installs files 
-in the chosen installation directory.
+in the pscf/cmake directory. The "make install" command then installs 
+the executable and other files files in the bin/, lib/ and share/
+subdirectories of the chosen installation directory.
 
 After the "make install" finishes execution, check that your chosen 
 install directory contains subdirectories named bin/, lib/ and share/, 
