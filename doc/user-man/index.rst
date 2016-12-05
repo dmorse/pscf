@@ -20,6 +20,7 @@ Contents:
    unitcell
    groups
    python
+   visualize
    theory
    memory
    package
