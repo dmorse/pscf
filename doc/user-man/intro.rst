@@ -25,10 +25,10 @@ Features
 *  Canonical and grand-canonical ensembles
 *  Arbitrary 2 or 3D unit cell, with non-orthogonal axes
 *  Imposition of any specified space-group symmetry
-*  Hard-coded "database" of all 230 3D space groups 
-*  Variable unit cell algorithm, in which the unit cell parameters 
-   are adjusted to minimize free energy. 
-*  Continuation of solutions along a line in parameter space.
+*  Hard-coded "database" of all 230 3D space groups and 17 2D plane groups
+*  Variable unit cell algorithm, in which unit cell parameters adjust to
+   minimize free energy
+*  Continuation of solutions along lines in parameter space
 *  Linear response calculations for periodic structures 
 
 Documentation
@@ -36,13 +36,13 @@ Documentation
 
 *  User manual (this file)
 *  Developer/API manual, generated from comments in the source code
-*  A library of examples, in a separate git repository
+*  A library of examples, in a separate git repository located at
 
    http://github.com/dmorse/pscf-examples.git
 
 The developer manual is available online via a link from the program
-home page, and can also can be regenerated (see the file doc/README 
-for instructions).
+home page, and can also can be regenerated from the source code (see 
+the file doc/README for instructions).
 
 Dependencies
 ============
