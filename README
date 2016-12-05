@@ -58,7 +58,7 @@ tools/bin                     - - bash scripts
 attic/                        - unused or unfinished fortran files
 make/                         - build directory for compiling with make
 
-An annotated list of source files is given in the file src/SRC_FILES. 
+An annotated list of source files is given in the file src/README. 
 Before modifying any fortran files, see the note at the end of that 
 file regarding the use of a python preprocessor script to generate 
 some source files.

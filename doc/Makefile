@@ -10,7 +10,7 @@ GDOC=../tools/python/GDoc/GDoc.py
 # ====== Target to make html user manual  =======================
 # Note: This requires the python2.7-sphinx python package
 
-user-man:
+user-man: user-man/*.rst
 	cd user-man; make html
 
 # ====== Target to make html developer/api documentation ========
@@ -19,12 +19,12 @@ user-man:
 
 devel-man:	
 	cp $(BLD)/pscf.f $(SRC)/pscf.f
-	cp $(BLD)/scf_mod.f $(SRC)/scf/scf_mod.f
-	cp $(BLD)/iterate_mod.f $(SRC)/iterate/iterate_mod.f
+	cp $(BLD)/scf_mod.f $(SRC)/scf_mod.f
+	cp $(BLD)/iterate_mod.f $(SRC)/iterate_mod.f
 	$(PYTHON) $(GDOC)
 	rm $(SRC)/pscf.f
-	rm $(SRC)/scf/scf_mod.f
-	rm $(SRC)/iterate/iterate_mod.f
+	rm $(SRC)/scf_mod.f
+	rm $(SRC)/iterate_mod.f
 
 .PHONY: clean
 
