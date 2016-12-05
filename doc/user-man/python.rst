@@ -5,8 +5,8 @@
 Python Tools
 *************
 
-The PSCF is distributed with a set of Python modules that can be used 
-to simplify common data analysis and job preparation tasks.  All of these 
+PSCF is distributed with a set of Python modules that can be used to 
+simplify common data analysis and job preparation tasks.  All of these 
 modules are part of a Python package named pscf. These Python modules 
 are located within the source code repository in a subdirectory named 
 tools/python/pscf of the git repository directory (e.g., of pscf/git). 
