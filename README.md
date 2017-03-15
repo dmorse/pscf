@@ -1,5 +1,7 @@
 # PSCF - Polymer Self-Consistent Field Theory
 
+[![Travis][buildstatus_image_travis]][travisci]
+
 Copyright (2002-2016) Regents of the University of Minnesota
 
 PSCF is a Fortran 90 program for numerically solving the polymer
@@ -64,3 +66,7 @@ file regarding the use of preprocessor to generate some files.
 
 A library of examples is provided in a separate github repository,
 located at https://github.com/dmorse/pscf-examples
+
+
+[buildstatus_image_travis]: https://travis-ci.org/Gjacquenot/pscf.svg?branch=master
+[travisci]: https://travis-ci.org/Gjacquenot/pscf
