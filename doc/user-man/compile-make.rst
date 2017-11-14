@@ -4,11 +4,12 @@
 Compiling from source, using make
 =================================
 
-It is also possible to compile using the unix make utility using a simple
-Makefile that is provided in the make/ directory of the git repository. The 
-instructions for using make to compile from source are same on any unix-like 
-operating system, including Max OS X. The main difference among different 
-unix environments is the locations of the required libraries. 
+It is also possible to compile using the unix make utility alone, using 
+a simple Makefile that is provided in the make/ directory of the git 
+repository. The instructions for using make to compile from source are 
+the same on any unix-like operating system, including Max OS X. The main 
+difference among different unix environments is the locations of the 
+required libraries. 
 
 To compile the code in this way, proceed as follows:
 
@@ -17,16 +18,19 @@ To compile the code in this way, proceed as follows:
      page. You will need to install all dependencies listed there
      except cmake.
 
-   * Follow the directions given in the preceding discussion of
-     :ref:`install-compile-cmake-getsource-sub` to obtain the source
-     code and create an appropriate directory structure.
+   * Follow the directions given in the discussion of
+     :ref:`install-compile-cmake-getsource-sub` on the previous page
+     to create an appropriate directory structure and obtain the 
+     source code. After this step, you should have a directory named
+     pscf/ with a directory named git/ that contains the contents of
+     the git repository. You do not need to create a subdirectory
+     of pscf/ named cmake/ if you are not using cmake.
 
-   * Change the working directory (cd) to the directory pscf/git/make in
-     the directory structure described in the instructions for compiling
-     with cmake.  Note that this is an existing subdirectory of the 
-     pscf/git directory, and is different from the initially empty 
-     pscf/cmake directory from which we recommended that invoke cmake
-     when using cmake to generate makefiles.
+   * Change the working directory (cd) to the directory pscf/git/make .
+     Note that this is an existing subdirectory of the pscf/git 
+     directory, and is different from the initially empty directory
+     pscf/cmake from which we recommended that invoke cmake when using 
+     cmake to compile.
 
    * The pscf/git/make directory will contain files named config.mk_r 
      and Makefile. Make a copy of the file config.mk_r, by entering::
@@ -34,16 +38,19 @@ To compile the code in this way, proceed as follows:
         cd config.mk_r config.mk
 
    * Examine and edit the new config.mk file to reflect your environment, 
-     and to specify an installation directory. The need to manually edit 
-     this configuration file is the main difference between using cmake 
-     to generate makefiles and using the simple makefile distributed with
-     the source code.  See below for further instructions about this step.
+     and to specify an installation directory.  See below for further 
+     instructions about this step.  The need to manually edit this 
+     configuration file is the main difference between using cmake to 
+     generate makefiles and using the simple makefile distributed with
+     the source code.  
 
    * To compile, enter::
 
         > make -j4 all
 
-     from within pscf/git/make. The "-j4" option is not necessary.
+     from within pscf/git/make. The "-j4" option is not necessary, and
+     simply installs make to try to use up to 4 CPU cores during
+     compilation, if available.
 
    * To install in the directory specified by the $(INSTALL) makefile 
      variable (as defined in config.mk), enter::
@@ -58,10 +65,10 @@ Several of these steps are discussed in more detail below.
 
 **Editing the config.mk configfuration file**
 
-In the config.mk file in the src/make directory (which you must create 
-by copying config.mk_r), you will need to set values for a set of macro 
-variables to values appropriate to your system. Makefile variables you 
-may need to reset are:
+In the config.mk file in the src/make directory (which you should have
+created by copying config.mk_r), you will need to set values for several
+macro variables to values appropriate to your system. Makefile variables 
+you may need to reset are:
  
  =========  ========================================================
  F90        path to executable for Fortran 90 compiler
@@ -74,8 +81,8 @@ may need to reset are:
  =========  ========================================================
 
 The INSTALL makefile variable in this makefile is equivalent to the 
-MAKE_INSTALL_PREFIX variable that can be passed to cmake when compiling
-using cmake.
+MAKE_INSTALL_PREFIX variable that can be passed to cmake when using
+cmake to create a makefile.
 
 The file config.mk_r is a default makefile that is stored in the 
 repository. We require you to make an operational copy of this, named 
