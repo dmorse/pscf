@@ -1,14 +1,14 @@
 IF (USE_INTEL)
     set (CMAKE_C_COMPILER "icc")
     set (CMAKE_CXX_COMPILER "icpc")
-ENDIF (USE_INTEL) 
+ENDIF (USE_INTEL)
 
 
 # CMakeLists files in this project can
 # refer to the root source directory of the project as ${PSCF_SOURCE_DIR} and
 # to the root binary directory of the project as ${PSCF_BINARY_DIR}.
 cmake_minimum_required (VERSION 2.8.11)
-project (PSCF)
+project (PSCF Fortran)
 
 #### Based on https://cmake.org/Wiki/CMakeForFortranExamplea ####
 enable_language (Fortran)
@@ -75,17 +75,17 @@ set(CPACK_PACKAGE_VERSION_PATCH "0")
 # TODO: build out components "applications libraries headers" (where headers are the .mod files)
 set(CPACK_COMPONENTS_ALL Unspecified)
 
-# DONE: finish Bundle 
+# DONE: finish Bundle
 # DONE: finish DEB and RPM generators (http://www.vtk.org/Wiki/CMake:Component_Install_With_CPack)
 # TODO: finish NSIS generator (http://www.vtk.org/Wiki/CMake:Component_Install_With_CPack)
 # DONE: test compile and package on Unix and Windows
 if (APPLE)
     if (BUILD_DMG)
-        set(CPACK_GENERATOR 
-            Bundle 
+        set(CPACK_GENERATOR
+            Bundle
         )
     else (BUILD_DMG)
-        set(CPACK_GENERATOR 
+        set(CPACK_GENERATOR
             TGZ
             ZIP
         )
@@ -93,14 +93,14 @@ if (APPLE)
 else (APPLE)
 	if (UNIX)
         if (EXISTS /etc/redhat-release)
-            set(CPACK_GENERATOR 
+            set(CPACK_GENERATOR
                     RPM
                     TGZ
                     ZIP
                )
              set(CPACK_RPM_PACKAGE_REQUIRES "lapack >= 3.0.0, libfft3 >= 3.2.0")
         else()
-            set(CPACK_GENERATOR 
+            set(CPACK_GENERATOR
                     DEB
                     TGZ
                     ZIP
@@ -111,8 +111,8 @@ else (APPLE)
             set(CPACK_PACKAGING_INSTALL_PREFIX "/usr/local")
         endif()
 	else (UNIX)
-		set(CPACK_GENERATOR 
-			NSIS	
+		set(CPACK_GENERATOR
+			NSIS
 			ZIP
 		)
 	endif(UNIX)
@@ -128,7 +128,7 @@ set(CPACK_BUNDLE_STARTUP_COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/bundle/pscf.s
 #set(CPACK_PACKAGE_ICON ${CMAKE_CURRENT_SOURCE_DIR}/tools/bundle/Icon.png)
 
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Evan Bollig") #required for DEB
- 
+
 set(BU_CHMOD_BUNDLE_ITEMS ON)
 set(CPACK_BINARY_DRAGNDROP ON)
 #set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR})
@@ -142,7 +142,7 @@ set(CPACK_RESOURCE_FILE_WELCOME ${CMAKE_SOURCE_DIR}/README)
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${CMAKE_SOURCE_DIR}/README)
 
 if (APPLE AND BUILD_DMG)
-# Force the README up to the DMG root 
+# Force the README up to the DMG root
 INSTALL(FILES ${CMAKE_SOURCE_DIR}/README DESTINATION ../../../Extra RENAME README.txt)
 INSTALL(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION ../../../Extra RENAME LICENSE.txt)
 INSTALL(FILES ${CMAKE_SOURCE_DIR}/tools/bundle/HOWTO_INSTALL_OSX.txt DESTINATION ../../../. RENAME HOWTO_INSTALL_OSX.txt)
@@ -151,7 +151,7 @@ INSTALL(FILES ${CMAKE_SOURCE_DIR}/README DESTINATION share/pscf RENAME README.tx
 INSTALL(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION share/pscf RENAME LICENSE.txt)
 endif (APPLE AND BUILD_DMG)
 
-install(PROGRAMS 
+install(PROGRAMS
         tools/bin/pscf-read-sweep tools/bin/pscf-env
         DESTINATION bin)
 
