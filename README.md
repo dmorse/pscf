@@ -62,7 +62,7 @@ Macromolecules 49, 4675 (2016)
 
 which is available at:
 
-     http://pubs.acs.org/doi/10.1021/acs.macromol.6b00107
+    http://pubs.acs.org/doi/10.1021/acs.macromol.6b00107
 
 # Directory Structure
 
@@ -85,10 +85,10 @@ located at https://github.com/dmorse/pscf-examples
 
 # Links
 
-   Home Page:    https://morse.cems.umn.edu/morse/code/pscf/home.php.html
-   Source Code:  https://github.com/dmorse/pscf
-   Manual:       https://pscf.readthedocs.io
-   CI Server:    https://travis-ci.org/dmorse/pscf
+    -Home Page:    https://morse.cems.umn.edu/morse/code/pscf/home.php.html
+    -Source Code:  https://github.com/dmorse/pscf
+    -Manual:       https://pscf.readthedocs.io
+    -CI Server:    https://travis-ci.org/dmorse/pscf
 
 
 [buildstatus_image_travis]: https://travis-ci.org/dmorse/pscf.svg?branch=master
