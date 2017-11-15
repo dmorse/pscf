@@ -29,9 +29,7 @@ before attempting to compile the program from source.
 
 # User Documentation
 
-A web user manual is available at:
-
-    https://pscf.readthedocs.io
+A web user manual is available at https://pscf.readthedocs.io
 
 Instructions for compiling the program from source, as well as various
 ways to install precompiled executables, are given in the user manual.
@@ -39,10 +37,10 @@ ways to install precompiled executables, are given in the user manual.
 The source files for the user manual are text files that are stored in
 the doc/user-man directory. The relevant files have file extension .rst.
 
-We also recommend that users refer to the 2016 article from the journal
-Macromolecules, cited below. This article provides a brief introduction 
-to SCFT, discusses the algorithms used in the PSCF program, and discusses 
-some issues faced by first time users.
+We also recommend that users refer to the 2016 reference article from the 
+journal Macromolecules, cited below. This article provides a brief introduction 
+to SCFT, discusses some of the algorithms and file formats used in the PSCF 
+program, and discusses some issues and questions faced by first time users.
 
 # Developer Documentation
 
@@ -60,9 +58,7 @@ Materials Discovery", A. Arora, J. Qin, D.C. Morse, K.T. Delaney,
 G.H. Fredrickson, F.S. Bates and K.D. Dorfman, 
 Macromolecules 49, 4675 (2016)
 
-which is available at:
-
-    http://pubs.acs.org/doi/10.1021/acs.macromol.6b00107
+available electronically at http://pubs.acs.org/doi/10.1021/acs.macromol.6b00107
 
 # Directory Structure
 
@@ -85,10 +81,10 @@ located at https://github.com/dmorse/pscf-examples
 
 # Links
 
-    -Home Page:    https://morse.cems.umn.edu/morse/code/pscf/home.php.html
-    -Source Code:  https://github.com/dmorse/pscf
-    -Manual:       https://pscf.readthedocs.io
-    -CI Server:    https://travis-ci.org/dmorse/pscf
+  - Home Page:    https://morse.cems.umn.edu/morse/code/pscf/home.php.html
+  - Source Code:  https://github.com/dmorse/pscf
+  - Manual:       https://pscf.readthedocs.io
+  - CI Server:    https://travis-ci.org/dmorse/pscf
 
 
 [buildstatus_image_travis]: https://travis-ci.org/dmorse/pscf.svg?branch=master
