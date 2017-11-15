@@ -1,6 +1,6 @@
 # PSCF - Polymer Self-Consistent Field Theory
 
-Copyright (2002-2016) Regents of the University of Minnesota
+Copyright (2002-2017) Regents of the University of Minnesota
 
 PSCF is a Fortran 90 program for numerically solving the polymer
 self-consistent field theory (SCFT) for spatially periodic structures 
@@ -11,15 +11,6 @@ This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation. A copy of this license is included in
 the LICENSE file in the top-level PSCF directory.
-
-# Contributors
-
-- David Morse
-- Chris Tyler
-- Jian Qin
-- Amit Ranjan
-- Raghuram Thiagarajan
-- Akash Arora
 
 # Dependencies
 
@@ -90,4 +81,13 @@ located at https://github.com/dmorse/pscf-examples
 An annotated list of source files is given in the file src/SRC_FILES.
 Before modifying any fortran files, see the note at the end of that
 file regarding the use of preprocessor to generate some files.
+
+# Contributors
+
+- David Morse
+- Chris Tyler
+- Jian Qin
+- Amit Ranjan
+- Raghuram Thiagarajan
+- Akash Arora
 
