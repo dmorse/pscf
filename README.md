@@ -60,7 +60,24 @@ Macromolecules 49, 4675 (2016)
 
 available electronically at http://pubs.acs.org/doi/10.1021/acs.macromol.6b00107
 
-# Directory Structure
+# Examples
+
+A library of examples is provided in a separate github repository,
+located at https://github.com/dmorse/pscf-examples
+
+# Links
+
+  - Home Page:    https://morse.cems.umn.edu/morse/code/pscf/home.php.html
+  - Source Code:  https://github.com/dmorse/pscf
+  - CI Server:    https://travis-ci.org/dmorse/pscf
+  - Manual:       https://pscf.readthedocs.io
+
+[buildstatus_image_travis]: https://travis-ci.org/dmorse/pscf.svg?branch=master
+[travisci]: https://travis-ci.org/dmorse/pscf
+
+[![Travis][buildstatus_image_travis]][travisci]
+
+# Repository Directory Structure
 
     src/                          - Fortran 90 source files
     doc/                          - documentation files
@@ -73,22 +90,4 @@ available electronically at http://pubs.acs.org/doi/10.1021/acs.macromol.6b00107
 An annotated list of source files is given in the file src/SRC_FILES.
 Before modifying any fortran files, see the note at the end of that
 file regarding the use of preprocessor to generate some files.
-
-# Examples
-
-A library of examples is provided in a separate github repository,
-located at https://github.com/dmorse/pscf-examples
-
-# Links
-
-  - Home Page:    https://morse.cems.umn.edu/morse/code/pscf/home.php.html
-  - Source Code:  https://github.com/dmorse/pscf
-  - Manual:       https://pscf.readthedocs.io
-  - CI Server:    https://travis-ci.org/dmorse/pscf
-
-
-[buildstatus_image_travis]: https://travis-ci.org/dmorse/pscf.svg?branch=master
-[travisci]: https://travis-ci.org/dmorse/pscf
-
-[![Travis][buildstatus_image_travis]][travisci]
 
