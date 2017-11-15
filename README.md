@@ -56,7 +56,7 @@ If you use PSCF in published work, we request that you cite the paper:
 "Broadly Accessible Self-Consistent Field Theory for Block Copolymer
 Materials Discovery", A. Arora, J. Qin, D.C. Morse, K.T. Delaney,
 G.H. Fredrickson, F.S. Bates and K.D. Dorfman, 
-Macromolecules 49, 4675 (2016)
+*Macromolecules* **49**, 4675 (2016)
 
 available electronically at http://pubs.acs.org/doi/10.1021/acs.macromol.6b00107
 
