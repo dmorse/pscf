@@ -1108,7 +1108,7 @@ contains
    real(long)               :: elm(N-1), elm_cp(N_cell_param)
    real(long)               :: dev_2, omega_2
    real(long)               :: lam_AM, f_old
-   real(long)               :: error1, error2, error_new, error_new_1, error_A, error_B, error_C
+   real(long)               :: error1, error2, error_new, error_new_1
    integer                  :: mm,nn, itr_prev
 
    dev=0
@@ -1188,7 +1188,7 @@ contains
     
      if(domain) dev_cp(itr_prev+1,:) = -stress
 
-    ! Calculating Error
+    ! Calculating Error as defined in Matsen AM Papers
       dev_2   = 0.0
       omega_2 = 0.0
       do alpha = 1,N_monomer
@@ -1205,31 +1205,13 @@ contains
       
       error_new   = (dev_2/omega_2)**0.5
 
-     !! Newly added here from git_modified 
+      !! Calculating Error as Max Residuals
       if(domain)then
-         if(N_monomer==2)then
-            error_A = maxval(abs(dev(itr_prev+1,:,1)))
-            error_B = maxval(abs(dev(itr_prev+1,:,2))) 
-            error1 = max(error_A,error_B)
-         elseif(N_monomer==3)then
-            error_A = maxval(abs(dev(itr_prev+1,:,1)))
-            error_B = maxval(abs(dev(itr_prev+1,:,2))) 
-            error_C = maxval(abs(dev(itr_prev+1,:,3))) 
-            error1 = max(error_A,error_B,error_C)
-         endif
+         error1 = maxval(abs(dev(itr_prev+1,:,:)))
          error2 = maxval(abs(dev_cp(itr_prev+1,:)))
          error  = max(error1, error2*stress_rescale)
       else
-         if(N_monomer==2)then
-            error_A = maxval(abs(dev(itr_prev+1,:,1)))
-            error_B = maxval(abs(dev(itr_prev+1,:,2))) 
-            error1 = max(error_A,error_B)
-         elseif(N_monomer==3)then
-            error_A = maxval(abs(dev(itr_prev+1,:,1)))
-            error_B = maxval(abs(dev(itr_prev+1,:,2))) 
-            error_C = maxval(abs(dev(itr_prev+1,:,3))) 
-            error1 = max(error_A,error_B,error_C)
-         endif
+         error1 = maxval(abs(dev(itr_prev+1,:,:)))
          error = error1
       endif
 
