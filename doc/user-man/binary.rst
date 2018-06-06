@@ -70,11 +70,13 @@ files.  To install from binary on Ubuntu:
 
         - libfftw3-3
         - liblapack3
+        - libatlas-base-dev
 
     To install these packages using apt-get, enter::
 
-        sudo apt-get libfftw3-3
-        sudo apt-get liblapack3
+        sudo apt-get install libfftw3-3
+        sudo apt-get install liblapack3
+        sudo apt-get install libatlas-base-dev
 
   * Download the .deb package from the PSCF home page. This is a file
     with a name of the form pscf-<version>-Linux.deb, where <version>

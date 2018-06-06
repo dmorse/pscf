@@ -5,16 +5,19 @@
 Parameter File
 **************
 
-The main program reads an parameter file containing the parameters and
-instructions for a calculation. This file  is divided into sections,
-each of which contains a different type of information.  Each section
-is preceded by a blank line and starts with a line containing a
-section title in all capital letters (i.e., 'CHEMISTRY', 'UNIT_CELL',
-etc.) Each block may contain values of a sequence of variables. The
-name of each variable appears on a line by itself, followed by the
-value or (for arrays) values on one more subsequent lines.  The
-order in which variables must appear within a section is fixed. The
-program stops when it encounters the block title 'FINISH'.
+The main program reads a parameter file containing the parameters and
+instructions for a calculation. This file is divided into sections, each 
+of which contains a different type of information.  
+
+Each section is preceded by a blank line and starts with a line containing 
+a section title in all capital letters (i.e., 'CHEMISTRY', 'UNIT_CELL',
+etc.) Each section may contain values of a sequence of variables.  The 
+variables within each section must appear in a predetermined (i.e., hard-coded) 
+order. The name of each variable appears on a line by itself, followed by 
+either the variable value or, for array-valued variables, by a sequence of 
+values of the elements of the array on one more subsequent lines.  
+
+The program stops when it encounters the section title 'FINISH'.
 
 .. _example-sec:
 
@@ -28,16 +31,15 @@ the blocks.
 
 The first line of the file identifies the version of the file format
 (in this case, version 1.0).  The remainder of the file is divided into
-sections, each of which begins with a line containing a capitalized label,
-such as MONOMERS, CHAINS, ec. Each section begins with a capitalized 
-section identtifier (MONOMER, CHAINS, etc.) on a line by itself. A single
-line must is left blank between sections. The sections are processed in 
-the order in which the appear in the parameter file. The first few sections 
-in this example simply provide values for physical and computational 
-parameters. An ITERATE section instructs the program to actually perform 
-a SCF calculation, by iteratively solving the SCF equations. A SWEEP 
-section performs a sequence of such calculations along a line in parameter 
-space. Execution of the program stops when a FINISH line is encountered.
+sections.  Each section begins with a capitalized section identtifier 
+(MONOMER, CHAINS, etc.) on a line by itself. A single blank line appears 
+between sections. The sections are processed in the order in which they 
+appear in the parameter file. The first few sections in this example 
+simply provide values for physical and computational parameters. An 
+ITERATE section instructs the program to actually perform a single SCF 
+calculation, by iteratively solving the SCF equations. A SWEEP section 
+performs a sequence of such calculations along a line in parameter space. 
+Execution of the program stops when a FINISH line is encountered.
 
 ::
 
@@ -155,22 +157,28 @@ parameter file section is given below in a discussion of :ref:`param-sections-se
   :ref:`param-finish-sub`          Stop program
   ===============================  ====================================================
 
+**Common Workflows**
+
 Several standard types of computation are possible using the blocks listed above:
 
-   - Iterate: To solve solve SCF equations for a single state point, include
-     all of the listed below sections except the SWEEP and RESPONSE sections.
+   - Iterate: To solve solve the SCF equations for a single state point, include
+     all of the sections above, in the order listed, except SWEEP and RESPONSE 
+     sections, which should not appear. Also exclude the SOLVENTS section if the 
+     system of interest is a polymer melt or a mixture of polymers with no small
+     molecule solvent component.
 
    - Sweep: To compute a sequence of different states along a line in parameter
-     space, include both an ITERATE and SWEEP function, but not a RESPONSE
-     section. The ITERATE section must precede the SWEEP section, and is used
-     to obtain a solution for the initial choice of parameters.
+     space, include all of the sections listed above, in the order listed, except
+     the RESPONSE section.  The ITERATE section must precede the SWEEP section, 
+     and is used to obtain a solution for the initial choice of parameters, which
+     is then used as a starting solution for the rest of the sweep.
 
-   - Response: To compute the self-consistent-field or RPA linear susceptibility of a
-     periodic microstructure, include ITERATE and RESPONSE sections, but do not include
-     a SWEEP section.
+   - Response: To compute the self-consistent-field or RPA linear susceptibility 
+     of a periodic microstructure, include ITERATE and RESPONSE sections, but do 
+     not include a SWEEP section.
 
-The SOLVENTS section may be omitted for calculations on polymer melts, with no small 
-molecule solvent.
+The SOLVENTS section may always be omitted for calculations on systems that do 
+not contain any small molecule solvent.
 
 **Miscellaneous Utilities**
 
@@ -181,13 +189,14 @@ transformations on fields or parameters, or to output additional information.
   Section                        Description
   ============================== ===============================================
   :ref:`param-fieldtorgrid-sub`  Read field file in symmetry-adapated format
-                                 and output file in coordinate grid format
+                                 and output in coordinate grid format
   :ref:`param-rgridtofield-sub`  Read field in coordinate grid file format
                                  and output in symmetry-adapated format
-  :ref:`param-kgridtorgrid-sub`  Read field in k-space and output in r-space
+  :ref:`param-kgridtorgrid-sub`  Read field in k-space grid format and output 
+                                 in r-space coordinate grid format
   :ref:`param-rhotoomega-sub`    Read rho field, compute and output omega field
   :ref:`param-rescale-sub`       Redefine monomer reference volume 
-  :ref:`param-waves-sub`         Output map of waves to basis functions
+  :ref:`param-waves-sub`         Output relationship of waves to basis functions
   :ref:`param-group-sub`         Output all elements of space group
   ============================== ===============================================
 
@@ -212,20 +221,23 @@ or more of the statistical segment lengths is set to unity.
 SCFT also leaves the user some freedom to redefine what he or she means 
 by a "monomer", which need not correspond to a chemical repeat unit.  The 
 choice of values of the parameters block_length, solvent_size, kuhn, and
- chi to represent a particular experimental system all depend on the choice 
-of a value for a monomer reference volume, which in turn defines an effective 
-monomer repeat unit. A monomer of a polymeric species defined to be a length 
-or molar mass of chain that occupies one monomer reference volume in the melt. 
-Each element of the variable block_length represents the number of "monomers" 
-in a block of a block copolymer, defined to be the ratio of the block volume 
-to the monomer reference volume.  Similarly, the variable solvent_size is given 
-by ratio of the solvent volume to the reference volume. The values of the chi 
-parameters are proportional to the reference volume, while kuhn lengths are 
-proportional to the square root of the reference volume. 
+chi to represent a particular experimental system all depend on an implicit
+choice of a value for a monomer reference volume, which defines the mononmer 
+repeat unit that is being used for bookkeeping purposes. One "monomer" of a 
+polymeric species is defined to correspond to length or molar mass of chain 
+that occupies a volume in the melt equal to one reference volume, which may
+or may not correspond to a chemical repeat unit. Each element of the variable 
+block_length represents the number of "monomers" in a block of a block 
+copolymer, which is given by the ratio of the block volume to the monomer 
+reference volume.  Similarly, the variable solvent_size is given by ratio 
+of the solvent volume to the reference volume. 
 
 Note that PSCF does not require the user to input a value for the monomer 
-reference volume - the choice is implicit in the values given for other
-quantities.
+reference volume - the choice of reference volume is implicit in the values 
+given for other quantities. Changes in one's choice of reference volume lead 
+to corresponding changes in the values for the chi parameters, which are
+proportional to the reference volume, and in the kuhn lengths, which are 
+proportional to the square root of the reference volume. 
 
 **Character Strings**
 
@@ -584,7 +596,7 @@ If "itr_algo" is "NR", PSCF uses a quasi-Newton-Raphson iteration
 algorithm that is unique to this program. This algorithm constructs 
 a physically motivated initial approximation for the Jacobian matrix
 in which elements associated with long wavelength components of the
-:\math:`\omega` field are computed numerically and shorter wavelength 
+:math:`\omega` field are computed numerically and shorter wavelength 
 components are estimated. After construction and inversion of this 
 initial estimate, Broyden updates of the inverse Jacobian are used to 
 refine the estimate of the inverse Jacobian. This method requires a 
@@ -769,7 +781,7 @@ the input variable "vref_scale".
   Variable          Type          Description
   ================  ============= ============================
   input_filename    character(60) input omega file name
-  vref_scale        real          scale factor
+  vref_scale        real          scale factor :math:`\lambda'
   ================  ============= ============================
 
 This command applies the following set of transformations to each
@@ -804,19 +816,20 @@ rescaled choice of parameter values. Using the RESCALE command to
 read in a file containing such a converged solution should thus 
 cause the subsequent ITERATE command to terminate immediately,
 since the error should be less than the numerical threshhold on 
-and output the new parameters to an output summary file and the 
-rescaled omega field to an output omega file. 
+input. This would cause the program to immediately output the 
+rescaled parameters to an output summary file and the rescaled 
+omega field to an output omega file. 
 
 .. _param-waves-sub:
 
 OUTPUT_WAVES
 ------------
 
-Output the relationship between plane waves and symmetry-adapted
-basis functions, by outputting a file containing showing which
-star each wavevector belongs to and the coefficients of the 
-plane-wave within a symmetry adapted basis function assocated 
-with that star.
+This command outputs a file that describes the relationship between
+complex exponential plane wave basis functions and symmetry-adapted
+basis functions. The resulting file lists which star each wavevector
+belongs to and the coefficient of the plane-wave within a symmetry 
+adapted basis function assocated with that star.
 
   ================  ============= ============================
   Variable          Type          Description

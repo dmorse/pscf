@@ -356,7 +356,7 @@ module io_mod
    character(1) :: default_mat_sym = 'N'  ! normal (full matrix)
 
    ! Integer field widths for output of comments and data:
-   integer :: com_width   = 20  ! comment field width
+   integer :: com_width   = 40  ! comment field width
    integer :: data_width  = 20  ! data field width (total)
    integer :: frac_width  = 12  ! # digits after decimal
 
@@ -364,7 +364,7 @@ module io_mod
    character(2) :: fmt_ef = 'ES'     ! must = F, E, or ES
 
    ! Output format strings for scalar variables:
-   character(3) :: fmt_c  = 'A20'     ! comment format
+   character(3) :: fmt_c  = 'A40'     ! comment format
    character(3) :: fmt_i  = 'I20'     ! integer format
    character(7) :: fmt_r  = 'ES20.10' ! real format
    character(3) :: fmt_l  = 'L20'     ! logical format
