@@ -55,7 +55,7 @@ add_executable(pscf
    ${CMAKE_CURRENT_BINARY_DIR}/pscf.f 
 )
 
-set(APPS ${CMAKE_CURRENT_BINARY_DIR}/pscf${MACOSX_BUNDLE_EXT})
+set(APPS "${CMAKE_CURRENT_BINARY_DIR}/pscf${MACOSX_BUNDLE_EXT}")
 set(DIRS "")
 
 # TODO: clean up these links
@@ -70,11 +70,11 @@ install(TARGETS pscf
 
 if (BUILD_DMG)
 # Copy libraries into the DMG
-    INSTALL(CODE "
-       include(BundleUtilities)
-       set (BU_CHMOD_BUNDLE_ITEMS ON)
-       fixup_bundle(\"${APPS}\"   \"\"   \"${DIRS}\")
-    " COMPONENT Runtime)
+INSTALL(CODE "
+   include(BundleUtilities)
+   set (BU_CHMOD_BUNDLE_ITEMS ON)
+   fixup_bundle(\"${APPS}\"   \"\"   \"${DIRS}\")
+" COMPONENT Runtime)
 endif (BUILD_DMG)
 
 #install(TARGETS pscf
