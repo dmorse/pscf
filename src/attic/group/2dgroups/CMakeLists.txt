@@ -1,6 +1,6 @@
 add_executable(new_2dgroups
     ${BUILD_MACOSX_BUNDLE} WIN32
-	new_2dgroups.f
+	new_2dgroups.f90
 )
 target_link_libraries(new_2dgroups LINK_PUBLIC common io scf rpa)
 

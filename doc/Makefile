@@ -18,13 +18,13 @@ user-man:
 .PHONY: devel-man 
 
 devel-man:	
-	cp $(BLD)/pscf.f $(SRC)/pscf.f
-	cp $(BLD)/scf_mod.f $(SRC)/scf/scf_mod.f
-	cp $(BLD)/iterate_mod.f $(SRC)/iterate/iterate_mod.f
+	cp $(BLD)/pscf.f90 $(SRC)/pscf.f90
+	cp $(BLD)/scf_mod.f90 $(SRC)/scf/scf_mod.f90
+	cp $(BLD)/iterate_mod.f90 $(SRC)/iterate/iterate_mod.f90
 	$(PYTHON) $(GDOC)
-	rm $(SRC)/pscf.f
-	rm $(SRC)/scf/scf_mod.f
-	rm $(SRC)/iterate/iterate_mod.f
+	rm $(SRC)/pscf.f90
+	rm $(SRC)/scf/scf_mod.f90
+	rm $(SRC)/iterate/iterate_mod.f90
 
 .PHONY: clean
 

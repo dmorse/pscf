@@ -1,6 +1,6 @@
 add_library(rpa
-	rpa_mod.f
-	spinodal_mod.f
+	rpa_mod.f90
+	spinodal_mod.f90
 )
 
 target_include_directories (rpa PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
