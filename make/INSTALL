@@ -29,7 +29,7 @@ FFTW fast fourier transform library.
 2. Change directory (cd) to the pscf/make directory (i.e., this 
 directory) and copy the file config.mk_r to config.mk, by entering
 
->  cp Makefile_r Makefile
+>  cp config.mk_r config.mk
 
 Explanation: The file config.mk_r is a default version of a 
 configuration file that is stored in the git repository. Users can 

@@ -35,7 +35,7 @@ To compile the code in this way, proceed as follows:
    * The pscf/git/make directory will contain files named config.mk_r 
      and Makefile. Make a copy of the file config.mk_r, by entering::
 
-        cd config.mk_r config.mk
+        cp config.mk_r config.mk
 
    * Examine and edit the new config.mk file to reflect your environment, 
      and to specify an installation directory.  See below for further 
@@ -117,6 +117,10 @@ This will install:
    * pscf and other executable files in directory $(INSTALL)/bin/
 
    * python modules in $(INSTALL)/lib/python2.7/site-packages/pscf/
+
+   * matlab scripts in $(INSTALL)/lib/matlab
+
+   * text files in $(INSTALL)/share
 
 where $(INSTALL) denotes the value of the makefile variable defined in 
 the config.mk file.
