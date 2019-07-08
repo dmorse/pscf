@@ -13,10 +13,10 @@ NOPT=-Mfree=f90
 clean:
 	rm -f *.o *.mod 
 
-new_group:	new_group.f \
+new_group:	new_group.f90 \
         ../../unit_cell_mod.o ../../group_mod.o \
 	../../io_mod.o ../../const_mod.o
-	$(F90) $(FAST) -o $(BIN)/new_group new_group.f \
+	$(F90) $(FAST) -o $(BIN)/new_group new_group.f90 \
         ../../unit_cell_mod.o ../../group_mod.o \
 	../../io_mod.o ../../const_mod.o
 

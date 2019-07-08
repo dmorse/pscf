@@ -2,19 +2,19 @@
 
 
 add_executable(nto2
-		nto2.f
+		nto2.f90
 )
 target_link_libraries(nto2 LINK_PUBLIC common )
 
 
 add_executable(nto3
-		nto3.f
+		nto3.f90
 )
 target_link_libraries(nto3 LINK_PUBLIC common )
 
 
 add_executable(switch
-		switch.f
+		switch.f90
 )
 target_link_libraries(switch LINK_PUBLIC common )
 
