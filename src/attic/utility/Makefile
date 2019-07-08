@@ -12,18 +12,18 @@ NOPT=-Mfree=f90
 clean:
 	rm -f *.o *.mod 
 
-switch:	switch.f \
+switch:	switch.f90 \
 	../build/const_mod.o
-	$(F90) $(FAST) -o $(BIN)/switch switch.f \
-	../build/const_mod.o
-
-nto2:	nto2.f \
-	../build/const_mod.o
-	$(F90) $(FAST) -o $(BIN)/nto2 nto2.f \
+	$(F90) $(FAST) -o $(BIN)/switch switch.f90 \
 	../build/const_mod.o
 
-nto3:	nto3.f \
+nto2:	nto2.f90 \
 	../build/const_mod.o
-	$(F90) $(FAST) -o $(BIN)/nto3 nto3.f \
+	$(F90) $(FAST) -o $(BIN)/nto2 nto2.f90 \
+	../build/const_mod.o
+
+nto3:	nto3.f90 \
+	../build/const_mod.o
+	$(F90) $(FAST) -o $(BIN)/nto3 nto3.f90 \
 	../build/const_mod.o
 

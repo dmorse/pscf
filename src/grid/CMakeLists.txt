@@ -1,6 +1,6 @@
 add_library(grid
         ${FFT_FILE}
-        grid_mod.f
+        grid_mod.f90
 )
 
 target_include_directories (grid PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

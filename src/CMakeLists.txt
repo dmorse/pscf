@@ -1,10 +1,10 @@
 # TODO: move these options to the top file
 
 if (USE_FFT3)
-    set (FFT_FILE fft3_mod.f)    
+    set (FFT_FILE fft3_mod.f90)    
     find_package(FFTW)
 else (USE_FFT3)
-    set (FFT_FILE fft2_mod.f)    
+    set (FFT_FILE fft2_mod.f90)    
     find_package(FFTW)
 endif (USE_FFT3)
 
@@ -21,10 +21,10 @@ set(FORPEDO ${CMAKE_SOURCE_DIR}/tools/python/preprocess-0.6.1/preprocess.py)
 
 find_package(LAPACK)
 
-# Create a library called "common", which includes the source file "const_mod.f".
+# Create a library called "common", which includes the source file "const_mod.f90".
 # The extension is already found. Any number of sources could be listed here.
 add_library(common 
-    const_mod.f
+    const_mod.f90
 )
 # Ensure that anything that depends on "common" will be able to find any headers
 # or fortram *.mod module files for linking
@@ -45,14 +45,14 @@ add_subdirectory(response)
 
 ### PREPROCESS THE MAIN FILE ###
 add_custom_command(
-   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/pscf.f 
-   COMMAND  ${FORPEDO} ${DEVEL} ${CMAKE_CURRENT_SOURCE_DIR}/pscf.fp.f > ${CMAKE_CURRENT_BINARY_DIR}/pscf.f 
-   DEPENDS pscf.fp.f
+   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/pscf.f90 
+   COMMAND  ${FORPEDO} ${DEVEL} ${CMAKE_CURRENT_SOURCE_DIR}/pscf.fp.f90 > ${CMAKE_CURRENT_BINARY_DIR}/pscf.f90 
+   DEPENDS pscf.fp.f90
 )
 
 add_executable(pscf 
    ${BUILD_MACOSX_BUNDLE} WIN32
-   ${CMAKE_CURRENT_BINARY_DIR}/pscf.f 
+   ${CMAKE_CURRENT_BINARY_DIR}/pscf.f90 
 )
 
 set(APPS ${CMAKE_CURRENT_BINARY_DIR}/pscf${MACOSX_BUNDLE_EXT})
