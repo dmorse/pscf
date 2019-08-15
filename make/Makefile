@@ -54,17 +54,21 @@ pscf.f90: $(SRC)/pscf.fp.f90
 # ====== Install =================================================
 
 BIN_DIR=$(INSTALL)/bin
-PYTHON_DIR=$(INSTALL)/lib/python2.7/site-packages
+PYTHON_DIR=$(INSTALL)/lib/python2.7/site-packages/pscf
+MATLAB_DIR=$(INSTALL)/lib/matlab
 
 install: pscf
 	mkdir -p $(BIN_DIR)
 	cp pscf $(BIN_DIR)/pscf
 	cp $(REPO)/tools/bin/pscf-env $(BIN_DIR)
 	cp $(REPO)/tools/bin/pscf-read-sweep $(BIN_DIR)
-	mkdir -p $(PYTHON_DIR)/pscf
-	cp $(REPO)/tools/python/pscf/*.py $(PYTHON_DIR)/pscf
+	mkdir -p $(PYTHON_DIR)
+	cp $(REPO)/tools/python/pscf/*.py $(PYTHON_DIR)
+	mkdir -p $(MATLAB_DIR)
+	cp $(REPO)/tools/matlab/*.m $(MATLAB_DIR)
 
 uninstall:
 	rm -rf $(BIN_DIR)/pscf*
-	rm -rf $(PYTHON_DIR)/pscf/*
+	rm -rf $(PYTHON_DIR)/*
+	rm -rf $(MATLAB_DIR)/*
 

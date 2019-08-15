@@ -1,5 +1,19 @@
-# TODO: move these options to the top file
 
+# Preprocess scf_mod module
+add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/scf_mod.f90
+	COMMAND	${FORPEDO} ${DEVEL} ${CMAKE_CURRENT_SOURCE_DIR}/scf_mod.fp.f90 > ${CMAKE_CURRENT_BINARY_DIR}/scf_mod.f90
+	DEPENDS scf_mod.fp.f90
+)
+
+# Preprocess iterate_mod module
+add_custom_command(
+   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/iterate_mod.f90
+   COMMAND ${FORPEDO} ${DEVEL} ${CMAKE_CURRENT_SOURCE_DIR}/iterate_mod.fp.f90 > ${CMAKE_CURRENT_BINARY_DIR}/iterate_mod.f90
+   DEPENDS iterate_mod.fp.f90
+)
+
+# Choose version of wrapper for FFTW library
 if (USE_FFT3)
     set (FFT_FILE fft3_mod.f90)    
     find_package(FFTW)
@@ -8,33 +22,7 @@ else (USE_FFT3)
     find_package(FFTW)
 endif (USE_FFT3)
 
-if (USE_DEVEL)
-    set (DEVEL "-DDEVEL=1")
-endif (USE_DEVEL)
-
-if (BUILD_DMG)
-    set (BUILD_MACOSX_BUNDLE "MACOSX_BUNDLE")
-    set (MACOSX_BUNDLE_EXT ".app")
-endif (BUILD_DMG)
-
-set(FORPEDO ${CMAKE_SOURCE_DIR}/tools/python/preprocess-0.6.1/preprocess.py)
-
-find_package(LAPACK)
-
-add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/scf_mod.f90
-	COMMAND	${FORPEDO} ${DEVEL} ${CMAKE_CURRENT_SOURCE_DIR}/scf_mod.fp.f90 > ${CMAKE_CURRENT_BINARY_DIR}/scf_mod.f90
-	DEPENDS scf_mod.fp.f90
-)
-
-add_custom_command(
-   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/iterate_mod.f90
-   COMMAND ${FORPEDO} ${DEVEL} ${CMAKE_CURRENT_SOURCE_DIR}/iterate_mod.fp.f90 > ${CMAKE_CURRENT_BINARY_DIR}/iterate_mod.f90
-   DEPENDS iterate_mod.fp.f90
-)
-
-# Create a library called "pscf_lib", which includes module source files.
-# The extension is already found. Any number of sources could be listed here.
+# Create library called "pscf_lib" that contains all module files.
 add_library(pscf_lib
     const_mod.f90
     io_mod.f90
@@ -61,41 +49,46 @@ add_library(pscf_lib
     spinodal_mod.f90
 )
 
-# Ensure that linker can find any headers or fortram *.mod module files,
-# including preprocessor geneerated sources placed in the build directory.
-# This is the in-core source dir
+# Add source and build directories to list of include directories
+# used when building pscf_lib.  We add the build directory to ensure 
+# that the compiler/archiver can find fortran module (*.mod) files 
+# and preprocessor generated source (*.f90) files, all of which are 
+# placed in the build directory.
+
+# Add the source directory.
 target_include_directories (pscf_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-# This is the out-of-source build dir, with generated sources
+
+# Add the out-of-source build dir
 target_include_directories (pscf_lib PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
-# Link to FFTW and Lapack libraries
+# Link pscf_lib to FFTW and Lapack libraries
 target_link_libraries(pscf_lib LINK_PUBLIC ${FFTW_LIBRARIES} ${LAPACK_LIBRARIES})
 
-
-### PREPROCESS THE MAIN FILE ###
+# Preprocess the main pscf program
 add_custom_command(
    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/pscf.f90 
    COMMAND  ${FORPEDO} ${DEVEL} ${CMAKE_CURRENT_SOURCE_DIR}/pscf.fp.f90 > ${CMAKE_CURRENT_BINARY_DIR}/pscf.f90 
    DEPENDS pscf.fp.f90
 )
 
+# Build executable pscf from pscf.f90
 add_executable(pscf 
    ${BUILD_MACOSX_BUNDLE} WIN32
    ${CMAKE_CURRENT_BINARY_DIR}/pscf.f90 
 )
 
-set(APPS ${CMAKE_CURRENT_BINARY_DIR}/pscf${MACOSX_BUNDLE_EXT})
-set(DIRS "")
-
-# TODO: clean up these links
 target_link_libraries(pscf LINK_PUBLIC pscf_lib)
 
+# Install target
 install(TARGETS pscf
         BUNDLE DESTINATION . COMPONENT Runtime
         RUNTIME DESTINATION bin COMPONENT Runtime
         LIBRARY DESTINATION lib COMPONENT Runtime
         ARCHIVE DESTINATION lib/static COMPONENT Runtime
 )
+
+set(APPS ${CMAKE_CURRENT_BINARY_DIR}/pscf${MACOSX_BUNDLE_EXT})
+set(DIRS "")
 
 if (BUILD_DMG)
 # Copy libraries into the DMG
@@ -106,8 +99,3 @@ if (BUILD_DMG)
     " COMPONENT Runtime)
 endif (BUILD_DMG)
 
-#install(TARGETS pscf
-#        RUNTIME DESTINATION bin
-#        LIBRARY DESTINATION lib
-#        ARCHIVE DESTINATION lib/static
-#)

@@ -1,26 +1,30 @@
+##### Modifiable options that control version of code ######################
+
+option(USE_FFT3 "Use the fft3_mod file (and FFT3.0). Else, use fft2_mod" ON)
+option(USE_DEVEL "Use the -D DEVEL option with the Fortran preprocessor" OFF)
+option(BUILD_DMG "Build a DMG based application for OSX clients" OFF)
+
+############################################################################
+
 IF (USE_INTEL)
     set (CMAKE_C_COMPILER "icc")
     set (CMAKE_CXX_COMPILER "icpc")
 ENDIF (USE_INTEL)
 
-
-# CMakeLists files in this project can
-# refer to the root source directory of the project as ${PSCF_SOURCE_DIR} and
-# to the root binary directory of the project as ${PSCF_BINARY_DIR}.
 cmake_minimum_required (VERSION 2.8.11)
 project (PSCF Fortran)
 
 #### Based on https://cmake.org/Wiki/CMakeForFortranExamplea ####
 enable_language (Fortran)
 
-option(USE_FFT3 "Use the fft3_mod file (and FFT3.0). Otherwise, use fft2_mod (and FFTW2)" ON)
-option(USE_DEVEL "Use the -D DEVEL option with the Fortran preprocessor" OFF)
-option(BUILD_DMG "Build a DMG based application for OSX clients" OFF)
+# CMakeLists files in this project refer to the root source directory 
+# of the project as ${PSCF_SOURCE_DIR} and to the root build/binary 
+# directory of the project as ${PSCF_BINARY_DIR}.
 
 # Add our extra Find*.cmake modules
 LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/tools/cmake/")
 
-# make sure that the default is a RELEASE
+# Make sure that the default is a RELEASE
 if (NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE RELEASE CACHE STRING
       "Choose the type of build, options are: None Debug Release."
@@ -30,12 +34,13 @@ endif (NOT CMAKE_BUILD_TYPE)
 # default installation
 #get_filename_component (default_prefix ".." ABSOLUTE)
 #set (CMAKE_INSTALL_PREFIX ${default_prefix} CACHE STRING
-#      "Choose the installation directory; by default it installs in the NORMA directory."
+#    "Choose the install prefix; by default it installs in the NORMA directory."
 #      FORCE)
 
-# FFLAGS depend on the compiler
+# Identify fortran compiler name
 get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 
+# Set compiler flags depend on the compiler
 if (Fortran_COMPILER_NAME MATCHES "gfortran.*")
   # gfortran
   set (CMAKE_Fortran_FLAGS_RELEASE "-funroll-all-loops -fno-f2c -O3 -ffree-form")
@@ -44,10 +49,6 @@ elseif (Fortran_COMPILER_NAME MATCHES "ifort.*")
   # ifort (untested)
   set (CMAKE_Fortran_FLAGS_RELEASE "-O3 -free")
   set (CMAKE_Fortran_FLAGS_DEBUG   "-free -O0 -g")
-elseif (Fortran_COMPILER_NAME MATCHES "g77")
-  # g77
-  set (CMAKE_Fortran_FLAGS_RELEASE "-funroll-all-loops -fno-f2c -O3 -m32")
-  set (CMAKE_Fortran_FLAGS_DEBUG   "-fno-f2c -O0 -g -m32")
 else (Fortran_COMPILER_NAME MATCHES "gfortran.*")
   message ("CMAKE_Fortran_COMPILER full path: " ${CMAKE_Fortran_COMPILER})
   message ("Fortran compiler: " ${Fortran_COMPILER_NAME})
@@ -57,12 +58,21 @@ else (Fortran_COMPILER_NAME MATCHES "gfortran.*")
 endif (Fortran_COMPILER_NAME MATCHES "gfortran.*")
 #### End based on https://cmake.org/Wiki/CMakeForFortranExamplea ####
 
+if (USE_DEVEL)
+    set (DEVEL "-DDEVEL=1")
+endif (USE_DEVEL)
 
-# Recurse into the "PSCF" subdirectory. This does not actually
-# cause another cmake executable to run. The same process will walk through
-# the project's entire directory structure.
+if (BUILD_DMG)
+    set (BUILD_MACOSX_BUNDLE "MACOSX_BUNDLE")
+    set (MACOSX_BUNDLE_EXT ".app")
+endif (BUILD_DMG)
+
+set(FORPEDO ${CMAKE_SOURCE_DIR}/tools/python/preprocess-0.6.1/preprocess.py)
+
+find_package(LAPACK)
+
+# Recurse into the "src" subdirectory. 
 add_subdirectory (src)
-
 
 # Setup the packaging
 set(CPACK_PACKAGE_NAME "pscf")

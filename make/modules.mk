@@ -1,4 +1,3 @@
-# ====== Modules =================================================
 
 # Utility modules
 
@@ -23,7 +22,7 @@ grid_mod.o: $(SRC)/grid_mod.f90 const_mod.o\
 $(FFT_FILE).o: $(SRC)/$(FFT_FILE).f90 const_mod.o
 	$(F90) $(FAST) -c $(SRC)/$(FFT_FILE).f90
 
-# crystallography modules
+# Crystallography modules
 
 group_mod.o: $(SRC)/group_mod.f90 const_mod.o version_mod.o
 	$(F90) $(FAST) -c $(SRC)/group_mod.f90
@@ -51,7 +50,7 @@ field_io_mod.o: $(SRC)/field_io_mod.f90 const_mod.o io_mod.o\
 	$(FFT_FILE).o grid_basis_mod.o
 	$(F90) $(FAST) -c $(SRC)/field_io_mod.f90
 
-# scft modules
+# SCFT modules
 
 chemistry_mod.o: $(SRC)/chemistry_mod.f90 const_mod.o io_mod.o
 	$(F90) $(FAST) -c $(SRC)/chemistry_mod.f90
@@ -76,7 +75,7 @@ spinodal_mod.o: $(SRC)/spinodal_mod.f90 const_mod.o io_mod.o\
 	response_pd_mod.o chemistry_mod.o
 	$(F90) $(FAST) -c $(SRC)/spinodal_mod.f90
 
-# iteration modules
+# Iteration modules
 
 iterate_mod.f90: $(SRC)/iterate_mod.fp.f90
 	$(FORPEDO) $(DEVEL) $(SRC)/iterate_mod.fp.f90 > iterate_mod.f90
@@ -95,7 +94,8 @@ sweep_mod.o: $(SRC)/sweep_mod.f90 const_mod.o io_mod.o\
 	chemistry_mod.o unit_cell_mod.o basis_mod.o
 	$(F90) $(FAST) -c $(SRC)/sweep_mod.f90
 
-# response directory
+# Linear response modules
+
 response_step_mod.o: $(SRC)/response_step_mod.f90\
 	chemistry_mod.o $(FFT_FILE).o
 	$(F90) $(FAST) -c $(SRC)/response_step_mod.f90
