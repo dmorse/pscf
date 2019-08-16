@@ -124,7 +124,7 @@ contains
    !     
    ! SOURCE
    !-------------------------------------------------------------------
-   subroutine space_groups(group_name,g,found_arg)
+   subroutine space_groups(group_name, g, found_arg)
 
    character(len=*), intent(INOUT)  :: group_name
    type(group_type), intent(OUT)    :: g           ! group
@@ -41612,129 +41612,7 @@ contains
 
       endif
    
-!   else if (dim == 2) then
-!   
-!      select case(trim(group_name))
-!
-!      ! Note: Most 2D space groups not yet implemented
-!
-!      case('P 1')  
-!
-!         g%order   =  1
-!         do i=1, g%order
-!            g%s(i)%m = 0.0_long
-!            g%s(i)%v = 0.0_long
-!         enddo
-!
-!         g%s(1)%m(1,1)   =  1.00
-!         g%s(1)%m(2,2)   =  1.00
-!
-!      case('P -1')  
-!
-!         g%order   =  2
-!         do i=1, g%order
-!            g%s(i)%m = 0.0_long
-!            g%s(i)%v = 0.0_long
-!         enddo
-!
-!         g%s(1)%m(1,1)   =  1.00
-!         g%s(1)%m(2,2)   =  1.00
-!
-!         g%s(2)%m(1,1)   = -1.00
-!         g%s(2)%m(2,2)   = -1.00
-!
-!      case('P 6 m m','17') ! Hexagonal group
-!
-!         g%order   =  12
-!         do i=1, g%order
-!            g%s(i)%m = 0.0_long
-!            g%s(i)%v = 0.0_long
-!         enddo
-!
-!         g%s(1)%m(1,1)   =  1.00
-!         g%s(1)%m(2,2)   =  1.00
-!
-!         g%s(2)%m(1,2)   = -1.00
-!         g%s(2)%m(2,1)   =  1.00
-!         g%s(2)%m(2,2)   = -1.00
-!
-!         g%s(3)%m(1,1)   = -1.00
-!         g%s(3)%m(2,2)   = -1.00
-!
-!         g%s(4)%m(1,2)   = -1.00
-!         g%s(4)%m(2,1)   = -1.00
-!
-!         g%s(5)%m(1,1)   = -1.00
-!         g%s(5)%m(1,2)   =  1.00
-!         g%s(5)%m(2,1)   = -1.00
-!
-!         g%s(6)%m(1,2)   =  1.00
-!         g%s(6)%m(2,1)   = -1.00
-!         g%s(6)%m(2,2)   =  1.00
-!
-!         g%s(7)%m(1,1)   =  1.00
-!         g%s(7)%m(2,1)   =  1.00
-!         g%s(7)%m(2,2)   = -1.00
-!
-!         g%s(8)%m(1,2)   =  1.00
-!         g%s(8)%m(2,1)   =  1.00
-!
-!         g%s(9)%m(1,1)   =  1.00
-!         g%s(9)%m(1,2)   = -1.00
-!         g%s(9)%m(2,1)   =  1.00
-!
-!         g%s(10)%m(1,1)  = -1.00
-!         g%s(10)%m(1,2)  =  1.00
-!         g%s(10)%m(2,2)  =  1.00
-!
-!         g%s(11)%m(1,1)  = -1.00
-!         g%s(11)%m(2,1)  = -1.00
-!         g%s(11)%m(2,2)  =  1.00
-!
-!         g%s(12)%m(1,1)  =  1.00
-!         g%s(12)%m(1,2)  = -1.00
-!         g%s(12)%m(2,2)  = -1.00
-!
-!
-!      case('P 4 m m') ! square 
-!
-!         g%order   =  8
-!         do i=1, g%order
-!            g%s(i)%m = 0.0_long
-!            g%s(i)%v = 0.0_long
-!         enddo
-!
-!         g%s(1)%m(1,1)   =  1.00
-!         g%s(1)%m(2,2)   =  1.00
-!
-!         g%s(2)%m(1,1)   = -1.00
-!         g%s(2)%m(2,2)   = -1.00
-!
-!         g%s(3)%m(1,2)   =  1.00
-!         g%s(3)%m(2,1)   = -1.00
-!
-!         g%s(4)%m(1,2)   = -1.00
-!         g%s(4)%m(2,1)   =  1.00
-!
-!         g%s(5)%m(1,1)   = -1.00
-!         g%s(5)%m(2,2)   =  1.00
-!
-!         g%s(6)%m(1,1)   =  1.00
-!         g%s(6)%m(2,2)   = -1.00
-!
-!         g%s(7)%m(1,2)   =  1.00
-!         g%s(7)%m(2,1)   =  1.00
-!
-!         g%s(8)%m(1,2)   = -1.00
-!         g%s(8)%m(2,1)   = -1.00
-!
-!      case default
-!
-!         found = .false.
-!
-!      end select 
-   
-   else
+   else ! (if dim != 1, 2 or 3)
 
       write(6,*) "Invalid value of dim in space_groups: dim=", dim
       stop
@@ -41765,6 +41643,5 @@ contains
 
    end subroutine space_groups
    !===================================================================
-
 
 end module space_groups_mod
