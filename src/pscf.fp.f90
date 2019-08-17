@@ -735,6 +735,21 @@ program pscf
          call output_group(group,field_unit)
          close(field_unit)
 
+      case ('OUTPUT_GROUP_CPP')
+
+         ! Check preconditions (Needs group created in BASIS block)
+         if (.not. basis_flag) then
+            write(6,*) "Error: Must read BASIS before OUTPUT_GROUP"
+            exit op_loop
+         end if
+         iterate_flag = .FALSE.
+         omega_flag = .FALSE.
+
+         call input(output_filename,'output_filename')
+         open(unit=field_unit,file=trim(output_filename), status='replace')
+         call output_group(group,field_unit, 2)
+         close(field_unit)
+
       case ('OUTPUT_WAVES')
 
          ! Check preconditions (Needs BASIS)

@@ -101,7 +101,6 @@ module group_mod
       real(long)   :: v(3)    ! translation vector
    end type symmetry_type
    !***
-  
 
    !------------------------------------------------------------------
    !****t group_mod/group_type
@@ -318,66 +317,230 @@ contains
    !===================================================================
 
 
+
    !-------------------------------------------------------------------
    !****p group_mod/output_symmetry
    ! SUBROUTINE
-   !    output_symmetry(s,iunit)
+   !    output_symmetry(s, iunit, mode_arg)
    ! PURPOSE
    !    Write symmetry s to file iunit 
    ! SOURCE
    !-------------------------------------------------------------------
-   subroutine output_symmetry(s,iunit)
-   type(symmetry_type), intent(in):: s
-   integer           :: iunit
+   subroutine output_symmetry(s, iunit, mode_arg)
+   type(symmetry_type), intent(in) :: s
+   integer                         :: iunit
+   integer, intent(in), optional   :: mode_arg
    !***
-   integer                   :: i, j
+   integer :: i, j, mode
 
+   ! Set output format mode
+   if (present(mode_arg)) then
+      mode = mode_arg
+   else
+      mode = 1
+   end if
+
+   if (mode == 1) then
+
+      ! Output in native (fortran pscf) format
+      do i=1, dim
+         if (dim == 3) then
+            write(iunit,FMT='(3F8.3,5X,F8.3)') &
+                 (s%m(i,j),j=1, dim), s%v(i)
+         else if (dim == 2) then
+            write(iunit,FMT='(2F8.3,5X,F8.3)') &
+                 (s%m(i,j),j=1, dim), s%v(i)
+         else if (dim == 1) then
+            write(iunit,FMT='(F8.3,5X,F8.3)') &
+                 (s%m(i,j),j=1, dim), s%v(i)
+         else
+            write(iunit,*) 'Invalid dim in output_symmetry'
+         endif
+      enddo
+      write(iunit,*)
+
+   else if (mode == 2) then
+
+      ! Output in pscfpp (c++ code) format
+      call output_symmetry_c(s, iunit);
+
+   end if
+
+   end subroutine output_symmetry
+   !===================================================================
+
+
+   !-------------------------------------------------------------------
+   !****p group_mod/output_symmetry_c
+   ! SUBROUTINE
+   !    output_symmetry_c(s,iunit)
+   ! PURPOSE
+   !    Write symmetry s to file iunit in format of C++ pscfpp code.
+   ! SOURCE
+   !-------------------------------------------------------------------
+   subroutine output_symmetry_c(s, iunit)
+   type(symmetry_type), intent(in) :: s
+   integer                         :: iunit
+   !***
+   real(long) :: r, q
+   integer :: i, j, k, d, n
+   integer :: rot(3,3)  ! point group matrix
+   integer :: den(3)    ! denominator of translation fraction
+   integer :: num(3)    ! numerator of translation fraction
+   integer :: trial(4)  ! allowed values of denominator
+   logical :: found
+
+   ! Convert elements of matrix m to nearest integers
    do i=1, dim
-     if (dim == 3) then
-        write(iunit,FMT='(3F8.3,5X,F8.3)') &
-             (s%m(i,j),j=1, dim),s%v(i)
-     else if (dim == 2) then
-        write(iunit,FMT='(2F8.3,5X,F8.3)') &
-             (s%m(i,j),j=1, dim),s%v(i)
-     else if (dim == 1) then
-        write(iunit,FMT='(F8.3,5X,F8.3)') &
-             (s%m(i,j),j=1, dim),s%v(i)
-     else
-        write(iunit,*) 'invalid dim in output_symmetry'
-     endif
+      do j=1, dim
+         r = anint(s%m(i, j))
+         if (dabs(r - s%m(i,j)) > epsilon) then
+            write(iunit,*) 'Rotation matrix element is non-integer'
+            return
+         else
+            rot(i, j) = nint(r)
+         endif
+      enddo
+   enddo
+ 
+   ! Create allowed values of denominator
+   trial(1) = 2 
+   trial(2) = 3 
+   trial(3) = 4 
+   trial(4) = 6
+ 
+   ! Convert elements of vector s%v to nearest fractions
+   do i=1, dim
+      found = .false.
+      r = anint(s%v(i))
+      if (abs(r - s%v(i)) < 1.0E-3) then
+         found = .true.
+         num(i) = 0
+         den(i) = 1
+      else
+         do j=1, 4
+            k = trial(j)
+            q = k*s%v(i)
+            r = anint(q)
+            if (abs(r - q) < 1.0E-3) then
+               found = .true.
+               den(i) = k
+               num(i) = nint(q)
+               q = real(num(i))/real(den(i))
+               if (abs(q - s%v(i)) > 1.0E-2) then
+                  write(iunit,*) 'Incorrect conversion to fraction'
+                  write(iunit,*) 'Translation element = ', s%v(i)
+                  write(iunit,*) 'Numerator   = ', num(i)
+                  write(iunit,*) 'Denominator = ', den(i)
+                  return
+               endif
+               exit
+            endif
+         enddo
+         if (den(i) < 2) then
+            write(iunit,*) 'Invalid denominator'
+            write(iunit,*) 'Translation element = ', s%v(i)
+            write(iunit,*) 'Numerator   = ', num(i)
+            write(iunit,*) 'Denominator = ', den(i)
+            return
+         endif
+      endif
+
+      if (.not.found) then
+         write(iunit,*) 'Translation element = ', s%v(i)
+         write(iunit,*) 'Translation element is not small fraction'
+         return
+      endif
+
+   enddo
+
+   ! Write rotation matrix
+   do i=1, dim
+      if (dim == 3) then
+         write(iunit,FMT='(3I6)') (rot(i,j), j=1, dim)
+      else if (dim == 2) then
+         write(iunit,FMT='(2I6)') (rot(i,j), j=1, dim)
+      else if (dim == 1) then
+         write(iunit,FMT='(I6)') (rot(i,j), j=1, dim)
+      else
+         write(iunit,*) 'Invalid dim in output_symmetry'
+      endif
+   enddo
+
+   ! Write translation vector
+   do i=1, dim
+      if (num(i) == 0) then
+         write(iunit,FMT='(I6)', advance="no") 0
+      else
+         write(iunit,FMT='(I4,"/",I1)', advance="no") num(i), den(i)
+      endif
    enddo
    write(iunit,*)
-   end subroutine output_symmetry
+
+   write(iunit,*)
+   end subroutine output_symmetry_c
    !===================================================================
 
 
    !-------------------------------------------------------------------
    !****p group_mod/output_group
    ! SUBROUTINE
-   !    output_group(g,iunit)
+   !    output_group(g,iunit,mode_arg)
    ! PURPOSE
    !    Write group g to file iunit 
    ! SOURCE
    !-------------------------------------------------------------------
-   subroutine output_group(g,iunit)
-   type(group_type), intent(IN) :: g
-   integer, intent(IN)          :: iunit
+   subroutine output_group(g,iunit,mode_arg)
+   type(group_type), intent(IN)  :: g
+   integer, intent(IN)           :: iunit
+   integer, intent(IN), optional :: mode_arg
    !***
 
    type(version_type) :: version
+   integer :: mode 
    integer :: i
 
-   version%major = 1
-   version%minor = 0
-   call output_version(version, iunit)
-   write(iunit,FMT="(A9,' = basis')") g%s(1)%basis
-   write(iunit,FMT="(i9,' = dimension')") dim
-   write(iunit,FMT="(i9,' = # of symmetries')") g%order
-   write(iunit,*)
-   do i=1, g%order
-      write(iunit,FMT='(i3)') i
-      call output_symmetry(g%s(i),iunit)
-   enddo
+   ! Check for optional mode argument
+   if (present(mode_arg)) then
+      mode = mode_arg
+   else
+      mode = 1
+   end if
+
+   ! Output preamble (if any)
+   if (mode == 1) then
+
+      ! Write preamble
+      version%major = 1
+      version%minor = 0
+      call output_version(version, iunit)
+      write(iunit,FMT="(A9,' = basis')") g%s(1)%basis
+      write(iunit,FMT="(i9,' = dimension')") dim
+      write(iunit,FMT="(i9,' = # of symmetries')") g%order
+      write(iunit,*)
+
+      ! Write symmetry elements
+      do i=1, g%order
+         write(iunit,FMT='(i3)') i
+         call output_symmetry(g%s(i),iunit, mode)
+      enddo
+
+   else if (mode == 2) then
+
+      ! Write number of symmetry elements
+      write(iunit,FMT="(i9)") g%order
+      write(iunit,*)
+
+      ! Write symmetry elements
+      do i=1, g%order
+         call output_symmetry(g%s(i),iunit, mode)
+      enddo
+
+   else
+
+      write(iunit, *) "Incorrect mode format number = ", mode
+
+   endif
 
    end subroutine output_group
    !===================================================================
