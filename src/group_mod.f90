@@ -457,11 +457,11 @@ contains
    ! Write rotation matrix
    do i=1, dim
       if (dim == 3) then
-         write(iunit,FMT='(3I6)') (rot(i,j), j=1, dim)
+         write(iunit,FMT='(3I3)') (rot(i,j), j=1, dim)
       else if (dim == 2) then
-         write(iunit,FMT='(2I6)') (rot(i,j), j=1, dim)
+         write(iunit,FMT='(2I3)') (rot(i,j), j=1, dim)
       else if (dim == 1) then
-         write(iunit,FMT='(I6)') (rot(i,j), j=1, dim)
+         write(iunit,FMT='(I3)') (rot(i,j), j=1, dim)
       else
          write(iunit,*) 'Invalid dim in output_symmetry'
       endif
@@ -470,9 +470,9 @@ contains
    ! Write translation vector
    do i=1, dim
       if (num(i) == 0) then
-         write(iunit,FMT='(I6)', advance="no") 0
+         write(iunit,FMT='(I3)', advance="no") 0
       else
-         write(iunit,FMT='(I4,"/",I1)', advance="no") num(i), den(i)
+         write(iunit,FMT='(I3,"/",I1)', advance="no") num(i), den(i)
       endif
    enddo
    write(iunit,*)

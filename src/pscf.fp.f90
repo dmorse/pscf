@@ -73,6 +73,7 @@ program pscf
                              N_cell_param, cell_param, &
                              make_unit_cell, R_basis, G_basis
    use group_mod,     only : output_group
+   use space_groups_mod, only : write_space_groups
    use grid_mod,      only : ngrid, input_grid, allocate_grid, make_ksq
    use basis_mod,     only : N_wave, N_star, group, &
                              make_basis, output_waves, release_basis
@@ -187,6 +188,7 @@ program pscf
 
    ! File format version numbers
    type(version_type) :: version      ! input script format
+   integer            :: mode         ! file format identifier
    !------------------------------------------------------------------
 
    call cpu_time(start_time)
@@ -749,6 +751,13 @@ program pscf
          open(unit=field_unit,file=trim(output_filename), status='replace')
          call output_group(group,field_unit, 2)
          close(field_unit)
+
+      case ('WRITE_GROUPS')
+
+         call input(input_filename,'input_filename')
+         call input(output_prefix,'output_prefix')
+         call input(mode,'mode')
+         call write_space_groups(input_filename, output_prefix, mode)
 
       case ('OUTPUT_WAVES')
 

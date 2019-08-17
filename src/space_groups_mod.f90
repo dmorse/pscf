@@ -12,7 +12,7 @@
 ! MODULE
 !   space_groups_mod
 ! PURPOSE
-!   Module contains only the subroutine space_groups, which returns 
+!   Module contains the subroutine space_groups, which returns 
 !   a space group if passed a standard Hermann-Mauguin symbol or 
 !   space group number, or if passed the name of a file containing 
 !   the group elements.
@@ -35,9 +35,9 @@ contains
    !   This routine is essentially a hard-coded database of the standard
    !   crystallographic space groups.
    ! ARGUMENTS
-   !   character(*)     :: group_name  
-   !   type(group_type) :: g           ! group
-   !   logical          :: found_arg   ! returns true if found (optional)
+   !   character(*)     :: group_name ! string identifier for group 
+   !   type(group_type) :: g          ! group
+   !   logical          :: found_arg  ! returns true if found (optional)
    ! COMMENT
    !   On input:
    !      group_name = an International Hermann-Mauguin symbol or number
@@ -41642,6 +41642,181 @@ contains
    endif
 
    end subroutine space_groups
+   !===================================================================
+
+   !-------------------------------------------------------------------
+   !****p* space_groups_mod/write_space_groups
+   ! SUBROUTINE
+   !   write_space_groups(input_filename, output_prefix, mode)
+   ! PURPOSE
+   !   Reads a file containing a list of space groups, and write each
+   !   to a file with a name constructed from the space group name.
+   ! ARGUMENTS
+   !   character(len=*), intent(IN)  :: input_filename
+   !   character(len=*), intent(IN)  :: output_prefix
+   !   integer, intent(IN)           :: mode
+   !
+   ! SOURCE
+   !-------------------------------------------------------------------
+   subroutine write_space_groups(input_filename, output_prefix, mode)
+
+   character(len=*), intent(IN)  :: input_filename
+   character(len=*), intent(IN)  :: output_prefix
+   integer, intent(IN)  :: mode
+   !***
+  
+   ! Local variables
+   integer            :: iunit, ounit, ierr
+   integer            :: group_number    ! group number, as read from file
+   character(len=40)  :: group_name      ! group name, as read from file
+   character(len=100) :: group_filename  ! normalized file name
+   type(group_type)   :: g               ! space group object
+   logical            :: found           ! true if group is found 
+   iunit = 65
+   ounit = 66
+
+   ! Open file containing space group names
+   open(iunit,file = trim(input_filename), status = 'old')
+
+   ! Loop over groups in input file (end loop at end of file)
+   do 
+
+      read(65,FMT='(I3)', advance='NO', iostat=ierr) group_number
+      ! Check for end of file
+      if (ierr < 0) then
+         exit
+      endif
+      read(65, FMT='(A30)') group_name
+      group_name = adjustl(group_name)
+
+      ! Convert group name to a valid unix file name
+      call make_group_filename(group_name, group_filename, ierr)
+
+      ! Check if name conversion was successful
+      if (ierr == 0) then 
+
+         ! Open output file with name output_prefix//group_filename
+         group_filename = adjustl(group_filename)
+         group_filename = trim(adjustl(output_prefix))//trim(group_filename)
+         write(*,*) group_number, " |", trim(group_name), "|", trim(group_filename), "|"
+         open(ounit, file = trim(group_filename), status = 'new')
+
+         ! Attempt to find group by name in database
+         call space_groups(group_name, g, found)
+
+         ! If group was found, write to file
+         if (found) then
+            call output_group(g, ounit, mode)
+         else
+            write(*,*) "Space group not found"
+            write(*,*)
+         endif
+         close(ounit)
+
+      else ! if (ierr != 0)
+
+         write(*,*) "Space group file name conversion failed"
+         write(*,*)
+
+      endif
+
+   enddo ! loop over groups
+   close(iunit)
+
+   end subroutine write_space_groups
+   !===================================================================
+
+
+   !-------------------------------------------------------------------
+   !****p* space_groups_mod/make_group_filename
+   ! SUBROUTINE
+   !   make_group_filename(group_name, group_filename, ierr)
+   ! PURPOSE
+   !   Converts a space group name argument group_name that is
+   !   given in the format used by pscf to a unix filename 
+   !   named group_filename that contains no spaces or slashes.
+   !
+   !   Conversion rules:
+   !      - Spaces around a colon that sets of a setting are removed.
+   !      - Spaces between other elements are converted to underscores.
+   !      - Slashes are converted to percent (%) symbols
+   !
+   ! ARGUMENTS
+   !   character(len=30), intent(in)  :: group_name  
+   !   character(len=30), intent(out) :: group_filename
+   !   integer, intent(out)           :: ierr
+   !
+   ! SOURCE
+   !-------------------------------------------------------------------
+   subroutine make_group_filename(group_name, group_filename, ierr)
+
+   character(*), intent(in)  :: group_name
+   character(*), intent(out) :: group_filename
+   integer, intent(out)           :: ierr
+   !***
+  
+   ! Local variables
+   integer           :: i, j, n
+   character(len=1)  :: group_setting
+   logical           :: has_setting, back
+
+   group_filename = trim(adjustl(group_name))
+   n = len_trim(group_filename)
+   ierr = 1
+
+   ! Search for trailing colon and setting character, if any
+   group_setting = ""
+   has_setting = .false.
+   i = index(group_filename, ":")
+   if (i > 0) then
+      if (i > n) then
+         write(*,*) "index of colon character out of range"
+         ierr = 1
+         return
+      endif
+      back = .true.
+      j = scan(group_filename, "12HR", back)
+      if (j > 0) then
+         if (j > n) then
+            write(*,*) "index of setting character out of range"
+            ierr = 1
+            return
+         endif
+         has_setting = .true.
+         group_setting = group_filename(j:j)
+         group_filename = group_filename(1:i-1)
+         n = len_trim(group_filename)
+      else
+         write(*,*) "No setting character found after colon"
+         ierr = 1
+         return
+      endif
+   endif
+
+   ! Change remaining spaces to underlines
+   do i = 1, n
+      if (group_filename(i:i) == " ") then
+         group_filename(i:i) = "_"
+      endif
+   enddo
+
+   ! Change all slashes to percent symbols (%)
+   do i = 1, n
+      if (group_filename(i:i) == "/") then
+         group_filename(i:i) = "%"
+      endif
+   enddo
+
+   ! Add setting string, if any
+   if (has_setting) then
+      group_filename(n+1:n+1) = ":"
+      group_filename(n+2:n+2) = group_setting
+   endif
+
+   ! Normal completion
+   ierr = 0
+
+   end subroutine make_group_filename
    !===================================================================
 
 end module space_groups_mod
