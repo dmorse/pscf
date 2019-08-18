@@ -5,7 +5,6 @@ language: fortran
 branches:
   only:
     - master
-    - devel
 
 matrix:
   include:
