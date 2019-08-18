@@ -527,8 +527,8 @@ contains
 
    else if (mode == 2) then
 
-      ! Write number of symmetry elements
-      write(iunit,FMT="(i9)") g%order
+      write(iunit,FMT="('dim  ', i3)") dim
+      write(iunit,FMT="('size ', i3)") g%order
       write(iunit,*)
 
       ! Write symmetry elements
