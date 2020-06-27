@@ -2,10 +2,17 @@
 
 Copyright (2002-2017) Regents of the University of Minnesota
 
-PSCF is a Fortran 90 program for numerically solving the polymer
-self-consistent field theory (SCFT) for spatially periodic structures 
-formed by block copolymer melts and mixtures of block copolymers with
-linear homopolymers and/or small molecule solvents.
+PSCF is a program for numerically solving the polymer self-consistent 
+field theory (SCFT) for spatially periodic structures formed by block 
+copolymer melts and mixtures of block copolymers with linear 
+homopolymers and/or small molecule solvents.
+
+The version of the PSCF package provided here is the original version,
+which was written in Fortran 90. A newer C++/Cuda version that allows
+use of GPU acceleration, is available in a separate github repository 
+at https://github.com/dmorse/pscfpp. Currently, the C++/Cuda version 
+and Fortran versions of PSCF each contain a few features that are not 
+available in the other code.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,16 +29,18 @@ before attempting to compile the program from source.
 
 A web user manual is available at https://pscf.readthedocs.io
 
-Instructions for compiling the program from source, as well as various
-ways to install precompiled executables, are given in the user manual.
+Instructions for compiling the program from source, as well how to
+install a precompiled executable on some systems, are given in the 
+user maual.
 
 The source files for the user manual are text files that are stored in
 the doc/user-man directory. The relevant files have file extension .rst.
 
-We also recommend that users refer to the 2016 reference article from the 
-journal Macromolecules, cited below. This article provides a brief introduction 
-to SCFT, discusses some of the algorithms and file formats used in the PSCF 
-program, and discusses some issues and questions faced by first time users.
+We recommend that users also refer to the 2016 reference article from the 
+journal Macromolecules, cited below. This article provides a brief 
+introduction to SCFT, discusses some of the algorithms and file formats 
+used in the PSCF program, and discusses some issues and questions faced 
+by first time users.
 
 # Developer Documentation
 
@@ -42,26 +51,29 @@ The resulting html pages are installed in the doc/devel-man directory.
 
 # Reference Article 
 
-If you use PSCF in published work, we request that you cite the paper:
+If you use either version of PSCF in published work, we request that you 
+cite the paper:
 
 "Broadly Accessible Self-Consistent Field Theory for Block Copolymer
 Materials Discovery", A. Arora, J. Qin, D.C. Morse, K.T. Delaney,
 G.H. Fredrickson, F.S. Bates and K.D. Dorfman, 
 *Macromolecules* **49**, 4675 (2016)
 
-available electronically at http://pubs.acs.org/doi/10.1021/acs.macromol.6b00107
+available electronically at 
+http://pubs.acs.org/doi/10.1021/acs.macromol.6b00107
 
 # Examples
 
-A library of examples is provided in a separate github repository,
+A library of examples is provided in a separate github repository, 
 located at https://github.com/dmorse/pscf-examples
 
 # Links
 
-  - Home Page:    https://morse.cems.umn.edu/morse/code/pscf/home.php.html
+  - Home Page:    https://pscf-home.cems.umn.edu/
   - Source Code:  https://github.com/dmorse/pscf
   - CI Server:    https://travis-ci.org/dmorse/pscf
-  - Manual:       https://pscf.readthedocs.io
+  - User Manual:  https://pscf.readthedocs.io
+  - API Manual:   https://dmorse.github.io/pscf-devel-man/toc.html
 
 [buildstatus_image_travis]: https://travis-ci.org/dmorse/pscf.svg?branch=master
 [travisci]: https://travis-ci.org/dmorse/pscf
@@ -91,3 +103,7 @@ file regarding the use of preprocessor to generate some files.
 - Raghuram Thiagarajan
 - Akash Arora
 
+# Support 
+
+Development of PSCF has been supported by National Science Foundation 
+grants NSF-DMR097338 and NSF-DMR130436.
