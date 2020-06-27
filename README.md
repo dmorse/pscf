@@ -73,7 +73,7 @@ located at https://github.com/dmorse/pscf-examples
   - Source Code:  https://github.com/dmorse/pscf
   - CI Server:    https://travis-ci.org/dmorse/pscf
   - User Manual:  https://pscf.readthedocs.io
-  - API Manual:   https://dmorse.github.io/pscf-devel-man/toc.html
+  - API Manual:   https://dmorse.github.io/pscf-dev-man/toc.html
 
 [buildstatus_image_travis]: https://travis-ci.org/dmorse/pscf.svg?branch=master
 [travisci]: https://travis-ci.org/dmorse/pscf
