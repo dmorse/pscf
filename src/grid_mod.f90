@@ -268,7 +268,7 @@ contains
 
    contains ! internal subroutine choose
 
-     !-----------------------------------------
+      !-----------------------------------------
       subroutine choose
       real(long), parameter :: delta=1.0E-8
       real(long)            :: Gsq
@@ -278,21 +278,23 @@ contains
          Gsq_min      = Gsq 
       endif
       end subroutine choose
-     !-----------------------------------------
+      !-----------------------------------------
 
    end function G_to_bz
    !==============================================================
 
+
+   !------------------------------------------------------------------
    function Greal_to_bz(Greal)
    use unit_cell_mod, only : G_basis
    implicit none
-   real(long)                :: Greal_to_bz(3)
-   real(long),intent(IN)     :: Greal(:)         ! wave vector index
+   real(long)              :: Greal_to_bz(3)
+   real(long), intent(IN)  :: Greal(:)         ! wave vector index
 !   real(long),intent(IN)  :: G_basis(:,:)
 
 !  local variables
    integer, parameter :: mup=1, mdn=-1
-   real(long)            :: G_min(3),G_try(3)
+   real(long)         :: G_min(3),G_try(3)
    integer            :: i1,i2,i3
    real(long)         :: Gsq_min
 
@@ -329,7 +331,8 @@ contains
    Greal_to_bz=G_min
 
    contains      ! internal subroutine
-     !-----------------------------------------
+
+      !-----------------------------------------
       subroutine choose
         use group_mod,only: operator(.dot.)
       real(long), parameter :: delta=1.0E-8
@@ -348,12 +351,10 @@ contains
          Gsq_min      = Gsq 
       endif
       end subroutine choose
-     !-----------------------------------------
+      !-----------------------------------------
 
-    end function Greal_to_bz
-! ==============================================================
-
-
+   end function Greal_to_bz
+   !==============================================================
 
 
    !--------------------------------------------------------------   
@@ -361,7 +362,8 @@ contains
    ! SUBROUTINE
    !   max_Gabs
    ! PURPOSE
-   !   calculate the max magniture of vectors in FFT grid
+   !   Calculate the maximum magnitude of vectors in an FFT grid,
+   !   after shifting each to to its minimum image (i.e., 1st BZ).
    ! SOURCE
    !--------------------------------------------------------------   
    function max_Gabs(G_basis)
