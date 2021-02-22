@@ -21,7 +21,7 @@
 !
 !    David Morse (2002) Original version, for specral algorithm
 !    Chris Tyler (2002-2003) various corrections and additions
-!    Jian Qin (2006-2007) modified for pseudo-spectral algorithm
+!    Jian Qin (2005-2007) modified for pseudo-spectral algorithm
 !
 ! SOURCE
 !-----------------------------------------------------------------------
@@ -451,17 +451,17 @@ contains
    ! Temporary arrays to store index and values of wave, and Gsq
    integer,    allocatable, dimension(:)   :: index
    integer,    allocatable, dimension(:,:) :: wave_temp
-   ! real(long), allocatable, dimension(:)   :: Gsq_temp
 
    ! Compute Gabs_max = maximum of |G| on the FFT grid, shifted to BZ
    Gabs_max = max_Gabs(G_basis)  ! function grid_mod/max_Gabs
 
-   ! Note: Computing Gabs_max from knowledge of the FFT grid presumes that
-   ! we are using the pseudo-spectral method, rather than a spectral method.
-   ! Blocks of code remaining from when pscf supported the spectral method
-   ! have thus become obsolete. These blocks are also bypassed in practice,
-   ! because make_basis is now always called with grid_flag = .TRUE.
-   ! TODO: Clean up or remove code intended to allow spectral convention.
+   ! Note: Computing Gabs_max from knowledge of the FFT grid presumes we
+   ! are using the pseudo-spectral method, rather than a spectral method.
+   ! Blocks of code intended only to support the spectral method have 
+   ! thus become obsolete. These blocks are also always bypassed, because
+   ! make_basis is now always called with grid_flag = .TRUE. 
+   ! TODO: Clean up or remove code vestigial code for the spectral 
+   ! method, then remove grid_flag and grid.
 
    ! Calculate array G_max(dim) : maximum wavevector indices in the BZ.
    ! The components of G_Max are used as dimensions of which_wave
@@ -723,14 +723,15 @@ contains
    real(long), parameter :: epsilon  = 1.0E-7_long
 
    ! Local variables
-   integer    :: list(3, max_list), star(3, max_star), G1(3), G2(3)
+   integer    :: list(3, max_list), star(3, max_star)
    real(long) :: star_phase(max_star)
    real(long) :: Gsq_max, twopi
    integer    :: list_index(max_list), star_index(max_star)
+   integer    :: G1(3), G2(3)
    integer    :: first_list, last_list, list_N, star_N
    integer    :: i, j, k, l, i_index, i_star, root, invert_flag
    integer    :: i1, i2
-   complex(long)    :: c_norm, c1, c2, d
+   complex(long) :: c_norm, c1, c2, d
    logical    :: new_list, cancel
 
    ! Arrays to store index and temporary values of wave, and Gsq
@@ -743,18 +744,6 @@ contains
    allocate(index(N_wave), stat=info)
    if ( info /= 0 ) then
       write(6,*) "index(N_wave) allocation error: N_wave = ", N_wave
-      stop
-   end if
-
-   allocate(wave_temp(dim,N_wave), stat=info)
-   if ( info /= 0 ) then
-      write(6,*) "wave_temp(dim,N_wave) allocation error: N_wave = ", N_wave
-      stop
-   end if
-
-   allocate(Gsq_temp(N_wave), stat=info)
-   if ( info /= 0 ) then
-      write(6,*) "Gsq_temp(N_wave) allocation error: N_wave = ", N_wave
       stop
    end if
 
@@ -781,18 +770,17 @@ contains
    invert_flag  = 0          ! invert_flag value of the previous star
 
    !--------------------------------------------------------------------
-   ! Loop over wavevectors:                                       
-   ! Identify "lists" by finding where value of Gsq changes.        
-   ! A "list" is collection of vectors of equal magnitude |G|  
-   ! This loop creates index, star_of_wave, which_wave, and coeff.
-   ! The array index is used later to reorder wave and Gsq
+   ! Loop over wavevectors:     
+   ! Define: a "list" is collection of vectors of equal magnitude |G|.
+   ! Identify lists by finding where value of |G|^{2} changes.        
+   ! This loop creates arrays index, star_of_wave, which_wave, and coeff.
+   ! The array index is used later to reorder wave and Gsq.
    !--------------------------------------------------------------------
-
    do i = 2, N_wave + 1
 
       !----------------------------------------------------------------
       ! Test for end of "list", due to increase in Gsq or end of array.
-      ! If the end of a list is found, set new_list == .true. 
+      ! If end of a list is found, set last_list and new_list == .true. 
       !----------------------------------------------------------------
       if (i > N_wave) then
          new_list = .false.
@@ -822,14 +810,15 @@ contains
 
       !--------------------------------------------------------------
       ! If new_list == true (i.e., if a new list was completed):
-      !   last_list is index of last vector in this completed list
+      !   last_list is index of last vector in the completed list
       !   first_list is index of first vector in the completed list
-      !   Gsq_max is value for first wave of a new list, if any
+      ! If a change in |G|^2 was detected, then Gsq_max is the
+      !   value of |G|^2 for the next list. 
       ! Note: 
       !   first_list will be reset to i after processing this list
       !--------------------------------------------------------------
 
-      ! Begin processing completed list
+      ! Begin processing the completed list, if any
       if (new_list) then
 
         ! Compute number list_N of vectors in list
@@ -844,7 +833,7 @@ contains
            stop
         endif
 
-        ! Initialize list and list_index array
+        ! Initialize local arrays list and list_index
         list = 0
         do j = first_list, last_list
            k = j - first_list + 1
@@ -861,7 +850,7 @@ contains
         ! Sort list and list_index by Miller indices (highest first)
         call G_sort(list_N, list, list_index)
 
-        ! Output list_N with first and last waves (diagnostic)
+        ! Output list_N, first and last waves (diagnostic)
         ! write(6,*) "  "
         ! write(6,*) "Processing list of ", list_N
         ! write(6,*) "list(1)      = ", list(:,1)
@@ -878,7 +867,8 @@ contains
         ! Repeat if the remaining "list" is not empty.
         !----------------------------------------------------------
         root = 1
-    10  call get_star(root, &
+        do while (list_N > 0)
+           call get_star(root, &
                       list, list_index, list_N, &
                       star, star_index, star_N, star_phase)
            ! Check that star is not empty
@@ -923,15 +913,11 @@ contains
            G1 = star(:,1)
            cancel = vector_cancel(G1)
 
-           if (cancel) then
-              write(6,*) "Found cancelled star in make_stars"
-           endif
-
            ! Check that entire star is either cancelled or not cancelled
            do j=1, star_N
               if (cancel .NEQV. vector_cancel(star(:,j))) then
                  write(6,*) 'Inconsistent results for cancellation:'
-                 write(6,*) 'star(:,1), cancel=',G1,cancel
+                 write(6,*) 'star(:,1), cancel=', G1, cancel
                  cancel = vector_cancel(star(:,j))
                  write(6,*) 'j, star(:,j), cancel=',star(:,j),cancel
                  stop
@@ -992,28 +978,31 @@ contains
            ! the second star in a pair.
            !---------------------------------------------------------
         
-           !------------------------------------------------------
-           ! Set invert_flag for this star & root for next star:
+           !---------------------------------------------------------
+           ! Set invert_flag for this star & root id for next star:
            !
-           ! Look for the inverse of the first vector in the star:
+           ! Look for negation of the first vector of this star:
            !   - In this star or, if not in this star, them
            !   - In the remaining list
            !
            ! If star is closed under inversion (invert_flag = 0),
            !    or is second star of pair related by inversion
-           !    (invert_flag = -1), set root of next star to the
-           !    first vector in remaining "list" :  root = 1
+           !    (invert_flag = -1), set root = 1, so the first
+           !    vector of the remaining list will be used as the
+           !    root vector of the next star.
            !
-           ! If star is not closed under inversion, and is 1st star
-           !    in pair related by inversion (invert_flag=1), set
-           !    root of next star to be the inverse of first vector
-           !    in the current star, so the next star will be related
-           !    to the current one by inversion.
-           !------------------------------------------------------
-           G1 = -1.0_long*star(:,1)
-           if (grid) G1 = G_to_bz(G1)
+           ! If star is not closed under inversion, and is the 
+           !    1st star in pair related by inversion (invert_flag=1), 
+           !    set root to the id within the remaining list of the 
+           !    negation -G1 of the root vector G1 of the current 
+           !    star, so that -G1 is used as the root of the next
+           !    star.
+           !---------------------------------------------------------
+           G1 = star(:,1)
+           G2 = -G1
+           if (grid) G2 = G_to_bz(G2)
 
-           if (in_list(G1, star, star_N) /= 0) then
+           if (in_list(G2, star, star_N) /= 0) then
               ! This star is closed
               if (invert_flag == 1) then
                  ! Expect second star in pair, shouldn't be closed'
@@ -1033,8 +1022,8 @@ contains
            else
               ! This is the first open star in a pair
               invert_flag = 1
-              ! Find the index of G1 in the remaining list
-              root = in_list(G1, list, list_N)
+              ! Find the index of -G1 in the remaining list
+              root = in_list(G2, list, list_N)
               if (root == 0) then
                  write(6,*) 'Error: -G1 in neither in star nor list'
                  stop
@@ -1049,8 +1038,8 @@ contains
            !                        by inversion
            !---------------------------------------------------------
 
-        if (list_N > 0) go to 10
-        ! End loop over stars within list of G's with equal |G|
+        end do ! while (list_N > 0)
+        ! End loop over stars within list of G's of equal |G|
 
         ! Set first member of next list = i
         first_list = i
@@ -1077,15 +1066,31 @@ contains
       stop
    endif
 
-   ! Now use index array to re-order wave and Gsq arrays
+   ! Allocate work arrays wave_temp and Gsq_temp 
+   allocate(wave_temp(dim,N_wave), stat=info)
+   if ( info /= 0 ) then
+      write(6,*) "wave_temp(dim,N_wave) allocation error: N_wave =", N_wave
+      stop
+   end if
+   allocate(Gsq_temp(N_wave), stat=info)
+   if ( info /= 0 ) then
+      write(6,*) "Gsq_temp(N_wave) allocation error: N_wave =", N_wave
+      stop
+   end if
+
+   ! Use index array to re-order wave and Gsq arrays
    wave_temp = wave
    Gsq_temp  = Gsq
    do i=1, N_wave
       j = index(i)
       wave(:,i) = wave_temp(:, j)
       Gsq(i)= Gsq_temp(j)
-      ! write(6,*) i, j, star_of_wave(i), wave_temp(:,j), Gsq_temp(j)
    enddo
+
+   ! De-allocate temporary arrays used to re-order wave and Gsq
+   if (allocated(index)) deallocate(index)
+   if (allocated(wave_temp)) deallocate(wave_temp)
+   if (allocated(Gsq_temp)) deallocate(Gsq_temp)
 
    ! Check consistency of wave and which_wave
    do i=1, N_wave
@@ -1103,8 +1108,10 @@ contains
 
    !-------------------------------------------------------------------
    ! At this point:
-   !   wave, Gsq, star_of_wave, & coeff are complete & consistent
-   !   which_wave is complete and consistent with wave
+   !   wave, Gsq, star_of_wave, coeff and which_wave are complete 
+   !   wave, Gsq, star_of_wave, and coeff use the same indexing,
+   !      in which waves in the same star are in a single block
+   !   which_wave is consistent with wave
    !-------------------------------------------------------------------
 
    ! Allocate arrays that are indexed by star id
@@ -1127,7 +1134,10 @@ contains
    if (allocated(star_cancel)) deallocate(star_cancel)
    allocate(star_cancel(N_star))
 
+   !----------------------------------------------------------------
    ! Loop over waves to construct star_begin, star_end, star_count
+   ! by detecting changes in star_of_wave(i) with increasing i
+   !----------------------------------------------------------------
    i_star = star_of_wave(1)
    star_begin(i_star) = 1
    do i=2, N_wave
@@ -1146,7 +1156,9 @@ contains
       endif
    enddo
 
-   ! Check star_begin, star_end, star_count
+   !---------------------------------------------------------------
+   ! Check consistency of star_begin, star_end, star_count
+   !---------------------------------------------------------------
    i_star = 0
    do i=1, N_star
       i_star = i_star + star_count(i)
@@ -1183,7 +1195,7 @@ contains
          call assign_ivec(star(:,j), wave(:,k))
       enddo
 
-      ! Set G1 (root) to first star in wave, G2 = -G1
+      ! Set G1 (root) to first wave in this star, set G2 = -G1
       G1 = star(:,1)
       G2 = -G1
       if (grid) G2 = G_to_bz(G2)
@@ -1212,6 +1224,7 @@ contains
             star_invert(i) = 0
             wave_of_star(:,i) = wave(:,star_begin(i))
 
+            ! Identify global index i2 of -G2 within wave
             i2 = i1 + k - 1
             if (i2 /= which_wave(G2(1), G2(2), G2(3))) then
                write(6,*) 'Error: Inconsistent id i2, last wave in star'
@@ -1271,10 +1284,6 @@ contains
       endif
 
    enddo ! end loop over stars
-
-   if (allocated(index)) deallocate(index)
-   if (allocated(wave_temp)) deallocate(wave_temp)
-   if (allocated(Gsq_temp)) deallocate(Gsq_temp)
 
    end subroutine make_stars
    !====================================================================
