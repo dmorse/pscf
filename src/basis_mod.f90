@@ -7,26 +7,27 @@
 ! This program is free software; you can redistribute it and/or modify
 ! it under the terms of the GNU General Public License as published by
 ! the Free Software Foundation. A copy of this license is included in
-! the LICENSE file in the top-level PSCF directory. 
+! the LICENSE file in the top-level PSCF directory.
 !-----------------------------------------------------------------------
 !****m* scf/basis_mod
 ! MODULE
 !    basis_mod - create symmetry-adapted basis functions
 !
 ! PURPOSE
-!    Define data structures and procedures involving reciprocal 
+!    Define data structures and procedures involving reciprocal
 !    lattice vectors, stars, and symmetry-adapted basis functions
 !
 ! AUTHOR
 !
-!    David Morse (2002) 
+!    David Morse (2002) Original version, for specral algorithm
 !    Chris Tyler (2002-2003) various corrections and additions
+!    Jian Qin (2006-2007) modified for pseudo-spectral algorithm
 !
 ! SOURCE
-!----------------------------------------------------------------------
-module basis_mod 
+!-----------------------------------------------------------------------
+module basis_mod
    use const_mod  ! Defines constant long, and variable dim=1, 2, or 3
-   use io_mod,        only : output 
+   use io_mod,        only : output
    use string_mod,    only : int_string
    use version_mod,   only : version_type, output_version
    use unit_cell_mod, only : G_basis, make_G_basis, output_unit_cell
@@ -34,24 +35,24 @@ module basis_mod
    use space_groups_mod, only : space_groups
    use grid_mod   ! Utilities for fft grids
    implicit none
- 
+
    private
 
-   ! Public procedures 
+   ! Public procedures
    public:: make_basis, make_dGsq ! needed by scf
    public:: make_waves, make_stars, release_basis
    public:: f_basis
-   public:: reorder_basis 
+   public:: reorder_basis
    public:: scattering_intensity
    public:: output_waves
 
    ! Public variables
    public:: group
-   public:: N_star 
+   public:: N_star
    public:: N_wave, wave, star_of_wave, coeff
    public:: G_max, which_wave
    public:: star_begin, star_end, star_count
-   public:: star_cancel, star_invert, basis_sign
+   public:: star_cancel, star_invert
    public:: wave_of_star
    public:: sort
    public:: valid_wave
@@ -62,141 +63,135 @@ module basis_mod
    integer    :: N_wave           ! # of reciprocal lattice G vectors
    integer    :: N_star           ! # of stars
    integer    :: G_max(3)         ! maximum of values G(1), G(2), G(3)
-   integer    :: wave(:,:)        ! (dim,N_wave) list of G vectors
+   integer    :: wave(:,:)        ! (dim, N_wave) list of G vectors
+                                  ! components in BZ, grouped by star
    real(long) :: Gsq(:)           ! (N_wave) list of values of |G|^{2}
    complex(long):: coeff(:)       ! (N_wave) coefficient of wave in star
-   integer    :: star_of_wave(:)  ! (N_wave) index of star containing wave
+   integer    :: star_of_wave(:)  ! (N_wave) index of star containing
+                                  !          this wave
    integer    :: which_wave(:,:,:)! (-G_max(1):G_max(1), ..., ... )
-                                  ! indices of waves listed by components
-
+                                  ! wave id listed by components in BZ
    integer    :: star_begin(:)    ! (N_star) index of first wave in star
    integer    :: star_end(:)      ! (N_star) index of last  wave in star
    integer    :: star_count(:)    ! (N_star) # of G vectors in star
-   integer    :: wave_of_star(:,:)! (dim,N_star) components of one wave from
-                                  !              the star, serves as a label
+   integer    :: wave_of_star(:,:)! (dim,N_star) components of one wave
+                                  ! from the star, serves as a label
    logical    :: star_cancel(:)   ! (N_star) see wave_format
    integer    :: star_invert(:)   ! (N_star) see wave_format
-   integer    :: basis_sign(:)    ! (N_star) see wave_format
    !***
 
    allocatable :: wave, Gsq, coeff, star_of_wave, which_wave
    allocatable :: star_begin, star_end, star_count, wave_of_star
-   allocatable :: star_invert, star_cancel, basis_sign
+   allocatable :: star_invert, star_cancel
 
    ! private parameters
-   integer, parameter  :: max_star = 48   ! Max. # of G vectors in star
-   integer, parameter  :: max_list =110592! Max # of G vecs in a list
+   integer, parameter :: max_star = 48   ! Max. # of G vectors in star
+   integer, parameter :: max_list = 512  ! Max # of G vecs in a list
 
    ! private variables
    logical  :: grid             ! true if PS method is used
 
    ! Documentation headers for public global variables
-   !----------------------------------------------------------------
+   !--------------------------------------------------------------------
    !****v basis_mod/N_wave
    ! VARIABLE
    ! integer N_wave = # of G vectors (reciprocal lattice vectors)
-   !*** ------------------------------------------------------------
+   !*** ----------------------------------------------------------------
    !****v basis_mod/N_star
    ! VARIABLE
    ! integer N_star = # of stars
-   !*** ------------------------------------------------------------
+   !*** ----------------------------------------------------------------
    !****v basis_mod/G_max
    ! VARIABLE
    ! integer G_max(3) = Max values of components of integer waves
-   !*** ------------------------------------------------------------
+   !*** ----------------------------------------------------------------
    !****v basis_mod/wave
    ! VARIABLE
    ! integer wave(:,:)       - allocatable, dimension(dim,N_wave)
    !         wave(1:dim, i)  = integer wavevectors # i, Bravais basis
-   !*** ------------------------------------------------------------
+   !*** ----------------------------------------------------------------
    !****v basis_mod/Gsq
    ! VARIABLE
    ! real(long) Gsq(:)       - allocatable, dimension(N_wave)
    !            Gsq(i)       = value of |G|^{2} for wavevector i
-   !*** ------------------------------------------------------------
+   !*** ----------------------------------------------------------------
    !****v basis_mod/coeff
    ! VARIABLE
    ! complex(long) coeff(:)  - allocatable, dimension(N_wave)
-   !               coeff(i)  = complex coefficients of wavevector i 
-   !                            in symmetry adapted function for star 
-   !*** ------------------------------------------------------------
+   !               coeff(i)  = complex coefficients of wavevector i
+   !                            in symmetry adapted function for star
+   !*** ----------------------------------------------------------------
    !****v basis_mod/star_of_wave
    ! VARIABLE
    ! integer star_of_wave(:) - allocatable, dimension(N_wave)
    !         star_of_wave(i) = index of star containing wave i
-   !*** ------------------------------------------------------------
+   !*** ----------------------------------------------------------------
    !****v basis_mod/which_wave
    ! VARIABLE
    ! integer which_wave(G1,G2,G3) = index of wavevector G=(G1,G2,G3)
    !
    ! If wave(i) = (G1,G2,G3), then which_wave(G1,G2,G3) = i
-   ! allocatable, dimension( -G_max(1):G_max(1) , ... , ... ) 
-   !*** ------------------------------------------------------------
+   ! allocatable, dimension( -G_max(1):G_max(1) , ... , ... )
+   !*** ----------------------------------------------------------------
    !****v basis_mod/star_begin
    ! VARIABLE
-   ! integer star_begin(:)   - allocatable, dimension(N_star) 
+   ! integer star_begin(:)   - allocatable, dimension(N_star)
    !         star_begin(i)   = index of first G in star i
-   !*** ------------------------------------------------------------
+   !*** ----------------------------------------------------------------
    !****v basis_mod/star_end
    ! VARIABLE
-   ! integer star_end(:)     - allocatable, dimension(N_star) 
+   ! integer star_end(:)     - allocatable, dimension(N_star)
    !         star_end(i)     =  index of last G in star i
-   !*** ------------------------------------------------------------
+   !*** ----------------------------------------------------------------
    !****v basis_mod/star_count
    ! VARIABLE
-   ! integer star_count(:)   - allocatable, dimension(N_star) 
+   ! integer star_count(:)   - allocatable, dimension(N_star)
    !         star_count(i)   = # of G vectors in star i
-   !*** ------------------------------------------------------------
+   !*** ----------------------------------------------------------------
    !****v basis_mod/star_invert
    ! VARIABLE
-   ! integer star_invert(:)  - allocatable, dimension(N_star) 
+   ! integer star_invert(:)  - allocatable, dimension(N_star)
    !         star_invert(i)  = invert flag for star i, values (0,1,-1)
    !                           See discussion of wave_format
-   !*** ------------------------------------------------------------
-   !****v basis_mod/basis_sign
-   ! VARIABLE
-   ! integer basis_sign(:)   - allocatable, dimension(N_star) 
-   !         basis_sign(i)   = sign of basis function i under inversion
-   !                           +1 -> even under inversion
-   !                           -1 -> odd under inversion
-   !                           See discussion of wave_format
-   !*** ------------------------------------------------------------
+   !*** ----------------------------------------------------------------
    !****v basis_mod/wave_of_star
    ! VARIABLE
-   ! integer wave_of_star(:,:) - dimension(dim, N_star) 
+   ! integer wave_of_star(:,:) - dimension(dim, N_star)
    !         wave_of_star(:,i) = G vector from star i, serves as a label
    !                             See discussion of wave_format
-   !*** ------------------------------------------------------------
+   !*** ----------------------------------------------------------------
    !****v basis_mod/star_cancel
    ! VARIABLE
    ! logical  star_cancel(:) - allocatable, dimension(N_star)
    !          star_cancel(i) = true if star i is cancelled
-   !*** ------------------------------------------------------------
+   !*** ----------------------------------------------------------------
 
 
-   !-----------------------------------------------------------------------
+   !--------------------------------------------------------------------
    !****c* basis_mod/wave_format
    ! COMMENT
-   !  
-   !     i) G vectors are listed in the array wave in non-decreasing 
-   !        order of eigen (for some G_basis passed to make_waves), 
-   !        and (after output from make_stars) are grouped by stars, 
-   !        each of which forms contiguous block of wave vectors. 
-   !  
+   !
+   !     i) G vectors are listed in the array wave in non-decreasing
+   !        order of |G|^2 (for some G_basis passed to make_waves),
+   !        and (after output from make_stars) are grouped by stars,
+   !        each of which forms contiguous block of wave vectors.
+   !        Components of each wave are image within the first BZ,
+   !        the aliased image that minimizes |G|^{2}.
+   !
    !    ii) Cancelled waves and stars are included in lists of waves
-   !        and stars only if logical variable keep_cancel is passed to 
-   !        make_waves with a value .true.  If keep_cancel = true, then
-   !        cancelled waves are asigned coeff()=0.0 and cancelled 
-   !        stars are assigned star_cancel = true. If keep_cancel is 
-   !        false, then cancelled waves and stars are excluded from 
-   !        these arrays, and star_cancel is false for all stars that 
+   !        and stars only if logical variable keep_cancel is passed to
+   !        make_waves with a value .true.  If keep_cancel is true, 
+   !        then cancelled waves are asigned coeff= 0.0 and cancelled
+   !        stars are assigned star_cancel = true. If keep_cancel is
+   !        false, then cancelled waves and stars are excluded from
+   !        these arrays, and star_cancel is false for all stars that
    !        are retained.
-   !  
-   !   iii) Within each star, vectors are listed in "descending" order, 
+   !
+   !   iii) Within each star, vectors are listed in "descending" order,
    !        if vectors in wave are read as dim=1, 2, or 3 digit numbers,
-   !        with more significant digits on the left. For example the 
+   !        with more significant digits on the left. For example the
    !        [111] star of a cubic structure is listed in the order:
-   !  
+   !
    !           1  1  1  (first)
    !           1  1 -1
    !           1 -1  1
@@ -205,125 +200,95 @@ module basis_mod
    !          -1  1 -1
    !          -1 -1  1
    !          -1 -1 -1  (last)
-   ! 
-   !    iv) If star number i is closed under inversion, so that the 
-   !        negative -G of each wave G in the star is also an element 
-   !        of that star, then we assign star_invert(i) = 0. For 
-   !        space groups that contain inversion symmetry (i.e., for 
-   !        centro-symmetric groups), all stars must be closed under 
+   !
+   !    iv) If star number i is closed under inversion, so that the
+   !        negative -G of each wave G in the star is also an element
+   !        of that star, then we assign star_invert(i) = 0. For
+   !        space groups that contain inversion symmetry (i.e., for
+   !        centro-symmetric groups), all stars must be closed under
    !        inversion.
    !
    !     v) For non-centrosymmetric space groups, pairs of stars may be
    !        related by inversion, so that the -G of each vector in star
    !        number i is found not in star i but in a second star. Such
-   !        pairs of stars that are related by inversion are always 
+   !        pairs of stars that are related by inversion are always
    !        listed consecutively. The first star in each such a pair is
-   !        assigned star_invert(i) = 1, and the second is assigned 
-   !        star_invert(i+1) = -1. 
-   !  
-   !    vi) The combination of conventions (iii) and (v) implies that 
-   !        the inverse of the first vector in a star with 
+   !        assigned star_invert(i) = 1, and the second is assigned
+   !        star_invert(i+1) = -1.
+   !
+   !    vi) The combination of conventions (iii) and (v) implies that
+   !        the inverse of the first vector in a star with
    !        star_invert = 1 is the  last vector in the next star, which
-   !        is the partner star with star_invert = -1. More generally, 
-   !        the inverse of the ith member of the first star in such a 
+   !        is the partner star with star_invert = -1. More generally,
+   !        the inverse of the ith member of the first star in such a
    !        pair is the ith to last vector of the partner star.
-   !  
-   !   vii) wave_of_star is the first wave in a star with star_invert=0 
+   !
+   !   vii) wave_of_star is the first wave in a star with star_invert=0
    !        or 1, and the last wave in a star with star_invert=-1
-   !  
-   !  viii) The absolute magnitudes of the coefficients in array coeff()
-   !        for (un-cancelled) stars are chosen so that each star yields
-   !        an orthonormal but generally complex function, i.e., values 
-   !        of coeff() have absolute magnitude 1.0/sqrt(N_in_star).
-   !  
-   !    ix) The phases of the coefficients in the array coeff() are 
-   !        chosen such that the coefficient of wave_of_star is 
-   !        positive and real.  This is sufficient to guarantee that 
-   !        a vector -G has a value of coeff that is the complex 
-   !        conjugate of the coeff for G, whether G and -G are in the 
-   !        same star star (for star_invert = 0) or in two consecutive 
-   !        stars (for star_invert = +-1). It also guarantees that the 
-   !        star basis function generated by the first star in an 
-   !        inversion-related pair is the complex conjugate of  that
-   !        generated by the second star in the pair. As a result, if
-   !        the first star in a pair with star_invert = +-1 is 
-   !        multiplied by a coefficient and the second by the complex 
-   !        conjugate of this coefficient, the resulting sum of plane 
-   !        waves will yield a real basis function. 
-   !  
-   !        A star with star_invert = 0 will yield a normalized real 
-   !        basis function, while two linearly independent real basis 
-   !        functions may be constructed out of a consecutive pair of 
-   !        stars with star_invert=1 and -1, by multiplying both by 
-   !        1/sqrt(2) to obtain a cosine-like function, and by 
-   !        multiplying the first star by i/sqrt(2) and the second by 
-   !        -i/sqrt(2), to obtain a sine-like real function. The 
-   !        number of real basis functions will thus be exactly equal 
-   !        to the number of stars N_star.
-   ! 
-   !    x)  The stars are used to construct N_star real basis functions
-   !        f_1(r), ... , f_{N_star}(r), which are defined and indexed 
-   !        as follows: 
-   !  
-   !        For stars that are closed under inversion, with 
-   !        star_invert=0, and a real star basis function phi_j(r), we 
-   !        create a single real basis function that is is equal to the
-   !        normalized star basis function
-   !   
-   !           f_j(r) = phi_j(r)  ,
-   !  
-   !        and that is assigned a basis function index equal to star 
-   !        index of the star. 
-   !  
-   !        For pairs of stars that are related by inversion, with star 
-   !        indices j and j+1, with associated star basis functions 
-   !        phi_{j}(r) and phi_{j+1}(r) we construct one "cosine-like"
-   !        basis function, with basis index i, given by the sum 
-   !  
+   !
+   !  viii) The elements of the array coeff() are complex numbers that
+   !        have the same absolute magnitude for waves in the same star,
+   !        with absolute magnitude 1.0/sqrt(star_count) for a start
+   !        containing star_count distinct wavevectors. Each star 
+   !        generates an associated normalized basis function, referred
+   !        to as a star function, given by a linear of complex plane 
+   !        waves exp(i G.r) in which each such plane wave is multipled 
+   !        by the corresponding element of array coeff.
+   !
+   !    ix) For any star that is closed under inversion (start_invert=0), 
+   !        values of coeff associated with any vector G and its negation 
+   !        -G are complex conjugates, so that the corresponding star
+   !        function is a real function of position. For centro-symmetric 
+   !        groups, all elements of coeff are positive and real, and all
+   !        star functions are real, functions of position with even 
+   !        parity.
+   !
+   !        For non-centrosymmetric groups and pairs of stars that are
+   !        related by inverse, the coefficients of the first wave of
+   !        the first star (star_invert = 1) and the last wave of the 
+   !        second star (star_invert = -1) are chosen to be real and 
+   !        positive. This is sufficient to guarantee that if G is a 
+   !        vector in the first star and -G is a corresponding vector 
+   !        in the second, the coefficients of G and -G are complex 
+   !        conjugates. It also guarantees that the star functions
+   !        generated by the first and second stars in such an 
+   !        inversion-related pair are complex conjugates of one
+   !        another.
+   !
+   !    x)  The N_star stars are used to construct N_star real basis 
+   !        functions, denoted here by f_1(r), ... , f_{N_star}(r).
+   !        These real basis functions are defined and indexed as 
+   !        follows:
+   !
+   !        For each star that is closed under inversion, with star
+   !        index j and star_invert(j) =- 0, we create a single real 
+   !        star function phi_j(r) and use this as a basis function
+   !
+   !           f_j(r) = phi_j(r)  
+   !
+   !        that is assigned a basis function index equal to the star
+   !        index j.
+   !
+   !        For each pairs of stars that are related by inversion, 
+   !        with star indices j and j+1 and associated star functions
+   !        phi_{j}(r) and phi_{j+1}(r), we construct one "cosine-like"
+   !        basis function, with basis index j, given by the sum
+   !
    !           f_j(r) = [ phi_{j}(r) + phi_{j+1}(r) ]/sqrt(2) ,
-   !  
-   !        which is even under inversion, and a second "sine-like" 
-   !        basis function, with a basis index j+1, given by
-   !   
-   !           f_{j+1}(r) = [ phi_{j}(r) - phi_{j+1}(r) ]/sqrt(-2)
-   !  
-   !        which is odd under inversion. Note that sqrt(-2) is a pure
-   !        imaginary number. 
    !
-   !        WARNING: The follow comment appears to be based on an 
-   !        incorrect assumption, which we are in the process of 
-   !        figuring out how to fix.
-   !  
-   !    xi) For non-centrosymmetric groups, basis functions may be 
-   !        either either even or odd under inversion. These two cases 
-   !        are distinguished by the value of variable basis_sign:
+   !        and a second "sine-like" basis function, with a basis 
+   !        index j+1, given by
    !
-   !            basis_sign(i) =  1 implies f_{i}(r) = + f_{i}(-r)
-   !            basis_sign(i) = -1 implies f_{i}(r) = - f_{i}(-r)
+   !           f_{j+1}(r) = -i[ phi_{j}(r) - phi_{j+1}(r) ]/sqrt(2)
    !
-   !        In a centro-symmetric group basis_sign(i) = 1 for all basis
-   !        functions.
+   !        where -i = sqrt(-1). 
    !
-   !        In a non-centrosymmetric group, a basis function that is
-   !        closed under inversion, so that star_invert(i) = 0, may 
-   !        be either even or odd or under inversion, and may thus
-   !        have either value of basis_sign(i). This is why we need
-   !        to distinguish basis_sign from star_invert.
-   !         
-   !        In a non-centrosymmetric group, pairs of sine-like and
-   !        cosine-like basis functions that are made constructed 
-   !        from a pairs of inversion-related stars are indexed such 
-   !        that:
-   !
-   !           If star_invert(i) =  1, then basis_sign(i) = 1
-   !           If star_invert(i) = -1, then basis_sign(i) = 1
-   !        
    !***
-   !-------------------------------------------------------------------
+   !--------------------------------------------------------------------
 
-contains 
+contains
 
-   !-------------------------------------------------------------------
+   !--------------------------------------------------------------------
    !****p basis_mod/release_basis
    !
    ! SUBROUTINE
@@ -370,14 +335,11 @@ contains
    if (allocated(star_cancel)) deallocate(star_cancel,stat=error)
    if (error /= 0) stop "star_cancel deallocation error!"
 
-   if (allocated(basis_sign)) deallocate(basis_sign,stat=error)
-   if (error /= 0) stop "basis_sign deallocation error!"
-
    end subroutine release_basis
    !====================================================================
 
 
-   !-------------------------------------------------------------------
+   !--------------------------------------------------------------------
    !****p basis_mod/make_basis
    ! SUBROUTINE
    !
@@ -387,17 +349,17 @@ contains
    !
    ! Generates information about basis functions needed by scf code:
    !   i) Calls make_G_basis to generate reciprocal lattice basis vector
-   !      array G_basis, using R_basis (Bravais basis vectors) as an 
+   !      array G_basis, using R_basis (Bravais basis vectors) as an
    !      input
    !  ii) Calls space_groups to create a group identified by the string
    !      identifier group_name
    !      function space_groups
-   ! iii) Calls make_waves and make_stars to generate all waves 
+   ! iii) Calls make_waves and make_stars to generate all waves
    !      and stars with |G| < Gabs_max, excluding cancelled stars
    !
    ! SOURCE
    !--------------------------------------------------------------------
-   subroutine make_basis(         & 
+   subroutine make_basis(         &
                       R_basis,    &! real lattice basis vectors
                       G_basis,    &! reciprocal lattice basis vectors
                       group_name, &! file for generators of space group
@@ -406,16 +368,15 @@ contains
                       )
 
    logical,      intent(IN)    :: grid_flag
-   real(long),   intent(IN)    :: R_basis(:,:)   ! real lattice basis 
-   real(long),   intent(OUT)   :: G_basis(:,:)   ! Reciprocal basis 
+   real(long),   intent(IN)    :: R_basis(:,:)   ! real lattice basis
+   real(long),   intent(OUT)   :: G_basis(:,:)   ! Reciprocal basis
    character(*), intent(INOUT) :: group_name     ! file for group
    integer,      intent(IN)    :: N_grids(3)     ! # of grid points
    !***
 
    ! Local variables
-   integer          :: i,j,k,l
-   logical          :: keep_cancel 
-   !logical, SAVE   :: first_time = .true.
+   integer            :: i,j,k,l
+   logical            :: keep_cancel
    character(len = 3) :: Nchar
 
    ! Set module variable grid equal to input variable grid_flag
@@ -426,7 +387,7 @@ contains
 
    ! Select a space group by name, return as variable group
    ! First look for the identifier group_name in the hard-coded database,
-   ! otherwise try to read elements from a file with name group_name 
+   ! otherwise try to read elements from a file with name group_name
 
    call space_groups(group_name, group)
 
@@ -437,9 +398,9 @@ contains
    keep_cancel = .false.
 
    ! Make all waves, discarding cancelled waves
-   ! On return, arrays wave and Gsq are filled with all non-cancelled 
-   ! waves listed in non-descending order, starting with the zero wave 
-   call make_waves(         & 
+   ! On return, arrays wave and Gsq are filled with all non-cancelled
+   ! waves listed in non-descending order, starting with the zero wave
+   call make_waves(         &
                 G_basis,    &!  (dim,dim), basis for reciprocal lattice
                 R_basis,    &!  (dim,dim), basis for Bravais lattice
                 N_grids,    &!  (3), # of grid points
@@ -480,13 +441,13 @@ contains
    integer,    intent(IN)  :: N_grids(3)
    logical                 :: keep_cancel
    !***
- 
+
    ! local variables
-   real(long) :: Gabs_max         
+   real(long) :: Gabs_max
    real(long) :: Gsq_new, Gsq_max, G_vec(3), twopi, a_abs
    integer    :: i1, i2, i3, i_vec(3), i, j, k
    logical    :: cancel
- 
+
    ! Temporary arrays to store index and values of wave, and Gsq
    integer,    allocatable, dimension(:)   :: index
    integer,    allocatable, dimension(:,:) :: wave_temp
@@ -497,12 +458,12 @@ contains
 
    ! Note: Computing Gabs_max from knowledge of the FFT grid presumes that
    ! we are using the pseudo-spectral method, rather than a spectral method.
-   ! Blocks of code remaining from when we supported the spectral method 
-   ! has thus become obsolete. These blocks are also bypassed in practice,
+   ! Blocks of code remaining from when pscf supported the spectral method
+   ! have thus become obsolete. These blocks are also bypassed in practice,
    ! because make_basis is now always called with grid_flag = .TRUE.
    ! TODO: Clean up or remove code intended to allow spectral convention.
 
-   ! Calculate array G_max(dim) : maximum wavevector indices in the BZ
+   ! Calculate array G_max(dim) : maximum wavevector indices in the BZ.
    ! The components of G_Max are used as dimensions of which_wave
    Gsq_max = Gabs_max*Gabs_max
    twopi   = 4.0_long*acos(0.0_long)
@@ -512,10 +473,10 @@ contains
       G_max(i) = int( Gabs_max * a_abs / twopi ) + 1
    enddo
 
-   ! Calculate number of plane waves 
+   ! Calculate number of plane waves
    N_wave = 0
 
-   if ( .not. grid ) then  
+   if ( .not. grid ) then
 
       ! Use spectral method convention, keep all waves |G|^{2} < Gsq_max.
       ! This is an obsolete block that is bypassed because grid = .TRUE.
@@ -526,7 +487,7 @@ contains
             G_vec= i_vec .dot. G_basis
             Gsq_new = G_vec .dot. G_vec
             if ( Gsq_new <= Gsq_max ) then
-               cancel = vector_cancel(i_vec) 
+               cancel = vector_cancel(i_vec)
                if ((.not.cancel).or.keep_cancel) then
                   N_wave = N_wave + 1
                endif
@@ -538,7 +499,7 @@ contains
                   G_vec= i_vec .dot. G_basis
                   Gsq_new = G_vec .dot. G_vec
                   if ( Gsq_new <= Gsq_max ) then
-                     cancel = vector_cancel(i_vec) 
+                     cancel = vector_cancel(i_vec)
                      if ((.not.cancel).or.keep_cancel) then
                         N_wave = N_wave + 1
                      endif
@@ -550,12 +511,12 @@ contains
                      Gsq_new  = G_vec .dot. G_vec
                      ! write(6,*) i_vec(1),i_vec(2),i_vec(3), Gsq_new
                      if (Gsq_new <= Gsq_max) then
-                        cancel = vector_cancel(i_vec) 
+                        cancel = vector_cancel(i_vec)
                         if ((.not.cancel).or.keep_cancel) then
                            N_wave = N_wave + 1
                         endif
                      endif
-                  enddo 
+                  enddo
                endif
             enddo
          endif
@@ -570,15 +531,14 @@ contains
             do i3 = 0, N_grids(3) - 1
                i_vec(3) = i3
                i_vec = G_to_bz(i_vec)
-               cancel= vector_cancel(i_vec) 
-               if ( (.not.cancel) .or. keep_cancel ) N_wave = N_wave+1
+               cancel = vector_cancel(i_vec)
+               if ((.not.cancel).or.keep_cancel) N_wave = N_wave+1
             enddo
          enddo
       enddo
 
    end if !  basis if-then
 
- 
    ! Allocate module arrays
    if (allocated(wave)) deallocate(wave)
    allocate(wave(dim,N_wave), stat = j)
@@ -600,14 +560,13 @@ contains
    if (allocated(coeff)) deallocate(coeff)
    allocate(coeff(N_wave),stat=j)
    if (j.ne.0) stop 'Make_basis coef allocate error)'
- 
+
    ! Allocate temporary arrays
    allocate(wave_temp(dim,N_wave))
-   ! allocate(Gsq_temp(N_wave))
    allocate(index(N_wave))
- 
-   ! Make wave, and Gsq
-   if ( .not. grid ) then  
+
+   ! Construct wave and Gsq arrays
+   if ( .not. grid ) then
 
       ! Use spectral method convention.
       ! Note: This is an obsolete block that is always bypassed.
@@ -620,13 +579,11 @@ contains
             G_vec= i_vec .dot. G_basis
             Gsq_new = G_vec .dot. G_vec
             if (Gsq_new <= Gsq_max) then
-               cancel = vector_cancel(i_vec) 
+               cancel = vector_cancel(i_vec)
                if ((.not.cancel).or.keep_cancel) then
                   j = j + 1
                   Gsq(j) = Gsq_new
-                  !do k=1, dim
-                  !   wave(k,j) = i_vec(k)
-                  !enddo
+                  ! Set wave(:,j) = i_vec
                   call assign_ivec(wave(:,j),i_vec)
                endif
             endif
@@ -637,13 +594,11 @@ contains
                   G_vec= i_vec .dot. G_basis
                   Gsq_new = G_vec .dot. G_vec
                   if (Gsq_new <= Gsq_max) then
-                     cancel = vector_cancel(i_vec) 
+                     cancel = vector_cancel(i_vec)
                      if ((.not.cancel).or.keep_cancel) then
                         j = j + 1
                         Gsq(j) = Gsq_new
-                        !do k=1, dim
-                        !   wave(k,j) = i_vec(k)
-                        !enddo
+                        ! Set wave(:,j) = i_vec
                         call assign_ivec(wave(:,j),i_vec)
                      endif
                   endif
@@ -653,17 +608,15 @@ contains
                      G_vec= i_vec .dot. G_basis
                      Gsq_new = G_vec .dot. G_vec
                      if (Gsq_new <= Gsq_max) then
-                        cancel = vector_cancel(i_vec) 
+                        cancel = vector_cancel(i_vec)
                         if ((.not.cancel).or.keep_cancel) then
                            j = j + 1
                            Gsq(j) = Gsq_new
-                           !do k=1, dim
-                           !   wave(k,j) = i_vec(k)
-                           !enddo
+                           ! Set wave(:,j) = i_vec
                            call assign_ivec(wave(:,j),i_vec)
                         endif
                      endif
-                  enddo 
+                  enddo
                endif
             enddo
          endif
@@ -672,17 +625,18 @@ contains
    else  ! use shifted fft grid to generate wave
 
       j = 0
-      do i1=0,N_grids(1)-1
+      do i1=0, N_grids(1) - 1
          i_vec(1)=i1
-         do i2=0,N_grids(2)-1
+         do i2=0, N_grids(2) - 1
             i_vec(2)=i2
-            do i3=0,N_grids(3)-1
-               i_vec(3)=i3
+            do i3=0, N_grids(3) - 1
+               i_vec(3) = i3
                i_vec = G_to_bz(i_vec)
-               cancel= vector_cancel(i_vec) 
+               cancel = vector_cancel(i_vec)
                if ( (.not.cancel) .or. keep_cancel ) then
                   j = j + 1
                   Gsq(j) = norm(i_vec, G_basis)
+                  ! Set wave(:,j) = i_vec
                   call assign_ivec(wave(:,j),i_vec)
                endif
             enddo
@@ -690,16 +644,16 @@ contains
       enddo
 
    end if  ! grid if--then
- 
+
    ! Create ordered index
    do i=1, N_wave
       index(i)=i
    enddo
- 
-   ! Sort Gsq in asending order, and reorder index accordingly
+
+   ! Sort Gsq in ascending order, and reorder index accordingly
    call sort(N_wave, Gsq, index)
- 
-   ! Use reordered index to re-order wave
+
+   ! Use reordered index to re-order wave array
    do i=1, N_wave
       wave_temp(:,i) = wave(:,index(i))
    enddo
@@ -707,21 +661,20 @@ contains
 
    ! Deallocate temporary arrays
    deallocate(wave_temp)
-   ! deallocate(Gsq_temp)
    deallocate(index)
 
    end subroutine make_waves
-   !===================================================================
- 
- 
-   !-------------------------------------------------------------------
+   !====================================================================
+
+
+   !--------------------------------------------------------------------
    !****ip basis_mod/make_stars
    ! SUBROUTINE
    !    make_stars
    ! PURPOSE
-   !    Given output of make_waves, the subroutine divides the list of 
-   !    G vectors first into "lists" of G vectors with equal values of 
-   !    Gsq and then into "stars" of vectors that are related by the 
+   !    Given output of make_waves, the subroutine divides the list of
+   !    G vectors first into "lists" of G vectors with equal values of
+   !    Gsq and then into "stars" of vectors that are related by the
    !    symmetry operations of the group.
    !
    ! On input:
@@ -730,8 +683,8 @@ contains
    !   nondecreasing values of Gsq, but not yet grouped into stars.
    !
    ! On output:
-   !    1)  Gsq, wave are reordered so that members of each star are
-   !        listed consecutively
+   !    1)  Arrays wave and Gsq are reordered so that members of each
+   !        star are listed consecutively
    !    2)  star_of_wave(i) contains index of star for wave i
    !    3)  coeff(i) contains complex coefficient for wave i
    !    4)  wave(which_wave(G(1),G(2),G(3))) = G for any wave in list
@@ -741,11 +694,11 @@ contains
    !        about effect of inversion upon star i (see below)
    !    7)  star_cancel(i) = .true. if star i is cancelled.
    !        (Relevant only if make_waves left cancelled waves in lists)
-   !-------------------------------------------------------------------
+   !--------------------------------------------------------------------
    ! Stars related by inversion, and the value of star_invert:
    !
-   !    1) Stars that are closed under inversion (i.e., that contain 
-   !       the inverse -G of every vector G in the star) have 
+   !    1) Stars that are closed under inversion (i.e., that contain
+   !       the inverse -G of every vector G in the star) have
    !
    !          star_invert(i) = 0
    !
@@ -758,36 +711,34 @@ contains
    !          star_invert(i)   =  1 for for the 1st star in the pair
    !          star_invert(i+1) = -1 for the 2nd
    !
-   !       Such inversion-related pairs of stars can exist only for 
+   !       Such inversion-related pairs of stars can exist only for
    !       non-centrosymmetric groups
    !
    ! SOURCE
-   !-------------------------------------------------------------------
+   !--------------------------------------------------------------------
    subroutine make_stars
    !***
 
-   ! Parameter 
-   real(long), parameter :: epsilon  = 1.0E-7_long 
+   ! Parameter
+   real(long), parameter :: epsilon  = 1.0E-7_long
 
    ! Local variables
-   integer    :: list(3,max_list), star(3,max_star), G1(3), G2(3)
+   integer    :: list(3, max_list), star(3, max_star), G1(3), G2(3)
    real(long) :: star_phase(max_star)
    real(long) :: Gsq_max, twopi
    integer    :: list_index(max_list), star_index(max_star)
    integer    :: first_list, last_list, list_N, star_N
    integer    :: i, j, k, l, i_index, i_star, root, invert_flag
-   integer    :: i_first, i_last
-   complex(long)    :: c_norm
+   integer    :: i1, i2
+   complex(long)    :: c_norm, c1, c2, d
    logical    :: new_list, cancel
- 
+
    ! Arrays to store index and temporary values of wave, and Gsq
    integer     :: index(:)            ! (N_wave)
    integer     :: wave_temp(:,:)      ! (dim, N_wave)
    real(long)  :: Gsq_temp(:)         ! (N_wave)
    allocatable :: index, wave_temp, Gsq_temp
    integer     :: info
-
-   real(long) :: c1, c2
 
    allocate(index(N_wave), stat=info)
    if ( info /= 0 ) then
@@ -806,197 +757,264 @@ contains
       write(6,*) "Gsq_temp(N_wave) allocation error: N_wave = ", N_wave
       stop
    end if
- 
+
    twopi       = 4.0_long*acos(0.0_long)
    which_wave  = 0
- 
-   ! Loop over Gsq identifying places where value changes
-   i_index      = 0
-   i_star       = 0
-   first_list   = 1
-   invert_flag  = 0
-   Gsq_max    = 0.0_long
 
-   !-----------------------------------------------------------------! 
-   ! This loop creates star_of_wave, which_wave, and index
-   ! The array index is subsequently used to reorder wave
-   !-----------------------------------------------------------------! 
-   ! Begin loop over wavevectors
+   ! Check that the first vector in wave & Gsq is the zero vector
+   do k = 1, dim
+      if (wave(k, 1) /= 0) then
+         write(6,*) "Error: wave(k, 1) neq 0, for k = ", k
+         stop
+      endif
+   enddo
+   if (Gsq(1) > epsilon) then
+      write(6,*) "Error: Gsq(1) > 0.0"
+      stop
+   endif
 
+   ! Set initial values for variables used in loop over wavevectors
+   first_list   = 1          ! first list begins with index 1
+   Gsq_max      = 0.0_long   ! first vector has |G| = 0
+   i_index      = 0          ! new index of this wave, after reordering
+   i_star       = 0          ! index of this star
+   invert_flag  = 0          ! invert_flag value of the previous star
 
-   do i = 2, N_wave+1
- 
-      !--------------------------------------------------------------!
-      ! Check for end of a list, due to change in Gsq or if i=N_wave !
-      ! A "list" is set of vectors of equal magnitude |G|            ! 
-      !--------------------------------------------------------------!
+   !--------------------------------------------------------------------
+   ! Loop over wavevectors:                                       
+   ! Identify "lists" by finding where value of Gsq changes.        
+   ! A "list" is collection of vectors of equal magnitude |G|  
+   ! This loop creates index, star_of_wave, which_wave, and coeff.
+   ! The array index is used later to reorder wave and Gsq
+   !--------------------------------------------------------------------
 
-      if ( i > N_wave ) then
+   do i = 2, N_wave + 1
+
+      !----------------------------------------------------------------
+      ! Test for end of "list", due to increase in Gsq or end of array.
+      ! If the end of a list is found, set new_list == .true. 
+      !----------------------------------------------------------------
+      if (i > N_wave) then
          new_list = .false.
-         if ( first_list == N_wave ) then
+         if (first_list == N_wave) then
             new_list = .true.
             last_list = N_wave
          endif
       else
+         if (Gsq(i) < 0) then
+            write(6,*) 'Error in make_stars: Gsq < 0'
+            stop
+         endif
+         if (Gsq(i) < Gsq_max - epsilon) then
+            write(6,*) 'Error in make_stars: unordered Gsq array'
+            stop
+         endif
          new_list = .false.
          if (Gsq(i) > Gsq_max + epsilon) then
             Gsq_max = Gsq(i)
-            last_list = i - 1 
+            last_list = i - 1
             new_list  = .true.
          else if (i == N_wave) then
             last_list = N_wave
             new_list  = .true.
-         else if (Gsq(i) < Gsq_max - epsilon) then
-            write(6,*) 'Error in make_stars: unordered Gsq array'
-            stop
-         endif
+         end if
       end if
+
+      !--------------------------------------------------------------
+      ! If new_list == true (i.e., if a new list was completed):
+      !   last_list is index of last vector in this completed list
+      !   first_list is index of first vector in the completed list
+      !   Gsq_max is value for first wave of a new list, if any
+      ! Note: 
+      !   first_list will be reset to i after processing this list
+      !--------------------------------------------------------------
 
       ! Begin processing completed list
       if (new_list) then
+
+        ! Compute number list_N of vectors in list
         list_N = last_list - first_list + 1
-        !Extract list
-        if ( list_N > max_list) then
+
+        ! Check that list_N <= max_list
+        if (list_N > max_list) then
            write(6,*) 'Error: list_N > max_list in make_stars'
            write(6,*) last_list, first_list, max_list, N_wave
            write(6,'(3i5)') list(:,first_list-1)
            write(6,'(3i5)') list(:,first_list:last_list)
            stop
         endif
+
+        ! Initialize list and list_index array
         list = 0
-        do j=first_list, last_list
-           k = j - first_list + 1 
-           !do l=1, dim
-           !   list(l,k) = wave(l,j)
-           !enddo
-           call assign_ivec(list(:,k),wave(:,j))
+        do j = first_list, last_list
+           k = j - first_list + 1
+           call assign_ivec(list(:,k), wave(:,j))
            list_index(k) = j
         enddo
- 
-        ! Sort vectors in list
-        call G_sort(list_N,list,list_index)
- 
-        !-------------------------------------------------------
+
+        !----------------------------------------------------------
+        ! For index k = 1, ... , list_N
+        !   list(:,k) contains a wave in the list
+        !   list_index(k) is "old" index of that wave in wave, Gsq
+        !----------------------------------------------------------
+
+        ! Sort list and list_index by Miller indices (highest first)
+        call G_sort(list_N, list, list_index)
+
+        ! Output list_N with first and last waves (diagnostic)
+        ! write(6,*) "  "
+        ! write(6,*) "Processing list of ", list_N
+        ! write(6,*) "list(1)      = ", list(:,1)
+        ! write(6,*) "list(list_N) = ", list(:,list_N)
+        ! write(6,*) "  "
+
+        !----------------------------------------------------------
         ! Begin loop over stars within list:
         ! Pass list to routine get_star, which outputs a "star"
-        !    constructed from vector # root in input list, and 
+        !    constructed from vector # root in input list, and
         !    remaining "list" containing vectors from input list
         !    that are not in this star
-        ! Add the resulting star to global arrays. 
+        ! Add the resulting star to global arrays.
         ! Repeat if the remaining "list" is not empty.
-        !-------------------------------------------------------
+        !----------------------------------------------------------
         root = 1
-     10 call get_star(root, &
-                      list,list_index,list_N, &
-                      star,star_index,star_N,star_phase) 
+    10  call get_star(root, &
+                      list, list_index, list_N, &
+                      star, star_index, star_N, star_phase)
            ! Check that star is not empty
            if (star_N == 0) then
-              write(6,*) ' star_N <= 0 in make_star'
+              write(6,*) ' star_N == 0 in make_star'
               stop
            endif
 
            ! Update i_star (index of new star)
            i_star = i_star  + 1
 
-           ! Sort vectors in star and in remaining list
-           call G_sort(star_N,star,star_index,reorder_real = star_phase )
+           ! Sort vectors in star and star_phase arrays
+           call G_sort(star_N, star, star_index, reorder_real=star_phase)
 
-           call G_sort(list_N,list,list_index)
- 
-           ! Output contents of star and remaining list (diagnostic)
-           !write(6,*)
-           !write(6,*) 'star ='
-           !do j=1, star_N
-           !   write(6,FMT='(2I5,3X,3I5)') j, star_index(j), star(:,j) 
-           !enddo
-           !write(6,*)
-           !write(6,*) 'remaining list='
-           !do j=1, list_N
-           !   write(6,FMT='(2I5,3X,3I5)') j, list_index(j), list(:,j) 
-           !enddo
- 
+           !------------------------------------------------------------
+           ! At this point:
+           !   array star holds an ordered star
+           !   array star_phase holds phases in rads, relative to root
+           !------------------------------------------------------------
+
+           ! Sort vectors in remaining list
+           call G_sort(list_N, list, list_index)
+
+           ! Output contents of star & remaining list (diagnostic)
+           ! write(6,*)
+           ! write(6,*) 'i_star =', i_star
+           ! write(6,*) 'star_N =', star_N
+           ! write(6,*) 'star ='
+           ! do j=1, star_N
+           !   write(6,FMT='(2I5,3X,3I5)') j, star_index(j), star(:,j)
+           ! enddo
+           ! write(6,*)
+           ! if (list_N > 0) then
+           !   write(6,*) 'list_N =', list_N
+           !   write(6,*) 'remaining list='
+           !   do j=1, list_N
+           !      write(6,FMT='(2I5,3X,3I5)') j, list_index(j), list(:,j)
+           !   enddo
+           ! endif
+
            ! Check for cancellation of first vector in star
            G1 = star(:,1)
-           cancel = vector_cancel(G1) 
- 
+           cancel = vector_cancel(G1)
 
-           ! Check that entire star is cancelled or not cancelled
+           if (cancel) then
+              write(6,*) "Found cancelled star in make_stars"
+           endif
+
+           ! Check that entire star is either cancelled or not cancelled
            do j=1, star_N
               if (cancel .NEQV. vector_cancel(star(:,j))) then
                  write(6,*) 'Inconsistent results for cancellation:'
                  write(6,*) 'star(:,1), cancel=',G1,cancel
-                 cancel = vector_cancel(star(:,j)) 
+                 cancel = vector_cancel(star(:,j))
                  write(6,*) 'j, star(:,j), cancel=',star(:,j),cancel
                  stop
               endif
            enddo
- 
-           !---------------------------------------------------------
-           ! Calculate normalizing denominator for un-cancelled stars:
+
+           !------------------------------------------------------
+           ! Compute normalization for un-cancelled stars:
            ! Coefficient of last wave in star is positive real if
            !    invert_flag == 1 for previous star, so that the
            !    current star is the 2nd star in an inversion pair
-           ! Otherwise, star_invert = 0 or 1 for current star, and
-           !    the coefficient of first wave is positive real
-           ! In either case abs(c_norm) = sqrt(star_N)
-           !---------------------------------------------------------
+           ! Otherwise, star_invert = 0 or 1 for current star,
+           !    and the coefficient of 1st wave is positive real
+           ! In either case, abs(c_norm) = sqrt(star_N)
+           !------------------------------------------------------
            if (.not.cancel) then
-
               if (invert_flag == 1) then
                   c_norm = exp((0.0_long,1.0_long)*star_phase(star_N))
                else
                   c_norm = exp((0.0_long,1.0_long)*star_phase(1))
               endif
-
               c_norm = c_norm * sqrt(real(star_N))
-
            endif
- 
-           !------------------------------------------------------
+
+           !---------------------------------------------------------
            ! Add star to global arrays that are indexed by wave:
-           !   Append star_index to index, 
-           !   Add values to star_of_wave and which_wave
-           !   Calculate coeff for star
-           !------------------------------------------------------
+           !   Set block of values of index to old wave indices
+           !   Add values to star_of_wave, which_wave, & coeff
+           !---------------------------------------------------------
            do j=1, star_N
- 
-              ! Update i_index (global index of new wave)
+
+              ! Increment i_index (new global index of this wave)
               i_index = i_index + 1
- 
-              index(i_index)         = star_index(j)
+
+              ! Set next element of index to old global index of wave
+              index(i_index) = star_index(j)
+
+              ! Set next element of star_of_wave to star index
               star_of_wave(i_index)  = i_star
- 
+
+              ! Set next element of which_wave
               G1 = star(:,j)
               which_wave(G1(1),G1(2),G1(3)) = i_index
 
-              if (cancel) then ! coeff = zero
+              ! Set next element of coeff
+              if (cancel) then 
                  coeff(i_index) = (0.0_long,0.0_long)
-              else 
+              else
                  coeff(i_index) = &
                      exp( (0.0_long,1.0_long)*star_phase(j) )/c_norm
               endif
 
            end do
+           !---------------------------------------------------------
+           ! Note: coeff is set postive real for the wave of star,
+           ! i.e., for the first wave for closed star or first star 
+           ! in pair related by inversion, or for the last wave in 
+           ! the second star in a pair.
+           !---------------------------------------------------------
+        
            !------------------------------------------------------
            ! Set invert_flag for this star & root for next star:
            !
-           ! If star is closed under inversion (invert_flag = 0), 
+           ! Look for the inverse of the first vector in the star:
+           !   - In this star or, if not in this star, them
+           !   - In the remaining list
+           !
+           ! If star is closed under inversion (invert_flag = 0),
            !    or is second star of pair related by inversion
            !    (invert_flag = -1), set root of next star to the
            !    first vector in remaining "list" :  root = 1
            !
            ! If star is not closed under inversion, and is 1st star
-           !    in pair related by inversion (invert_flag=1), set 
-           !    root of next star to be the inverse of first vector 
+           !    in pair related by inversion (invert_flag=1), set
+           !    root of next star to be the inverse of first vector
            !    in the current star, so the next star will be related
            !    to the current one by inversion.
            !------------------------------------------------------
            G1 = -1.0_long*star(:,1)
-
            if (grid) G1 = G_to_bz(G1)
 
-           !write(6,*) '-G1=',G1
-           if (in_list(G1,star,star_N) /= 0) then
+           if (in_list(G1, star, star_N) /= 0) then
+              ! This star is closed
               if (invert_flag == 1) then
                  ! Expect second star in pair, shouldn't be closed'
                  write(6,*) &
@@ -1008,17 +1026,18 @@ contains
                  !write(6,*) 'Parity flag =0, -G1 in star'
               endif
            else if (invert_flag == 1) then
+              ! This is the second open star in a pair
               invert_flag = -1
               root        =  1
               !write(6,*) 'Parity flag = -1'
            else
+              ! This is the first open star in a pair
               invert_flag = 1
-              root        = in_list(G1,list,list_N)
+              ! Find the index of G1 in the remaining list
+              root = in_list(G1, list, list_N)
               if (root == 0) then
                  write(6,*) 'Error: -G1 in neither in star nor list'
                  stop
-              else
-                 !write(6,*) 'invert_flag = 1, -G1 in remaining list'
               endif
            endif
            !---------------------------------------------------------
@@ -1032,55 +1051,63 @@ contains
 
         if (list_N > 0) go to 10
         ! End loop over stars within list of G's with equal |G|
- 
+
         ! Set first member of next list = i
         first_list = i
 
-        if ( last_list == N_wave )  first_list = 0
- 
-     endif
-     !end processing of a complete list
- 
+        ! Special case - completed processing of all waves
+        if (last_list == N_wave) then
+           first_list = 0
+        endif
+
+      endif
+      ! End processing of a complete list
+
    enddo
    ! End loop over all wavevectors
- 
+
    ! Set N_star = total number of stars = final value of i_star
    N_star = i_star
 
-     !   write(6,*) 'N_star=',N_star
-     !   write(6,*) wave
-  
-   ! Check that all wavevectors are accounted for 
+   ! Check that all wavevectors are accounted for
    if (i_index /= N_wave) then
       write(6,*) 'Error: i_index /= N_wave after all stars made'
-      write(6,*) 'i_index=',i_index
-      write(6,*) 'N_wave =',N_wave
+      write(6,*) 'i_index=', i_index
+      write(6,*) 'N_wave =', N_wave
       stop
    endif
-   
-   ! Use index to re-order wave, Gsq
+
+   ! Now use index array to re-order wave and Gsq arrays
    wave_temp = wave
    Gsq_temp  = Gsq
    do i=1, N_wave
       j = index(i)
-      wave(:,i) = wave_temp(:,j)
-      Gsq(i)    = Gsq_temp(j)
+      wave(:,i) = wave_temp(:, j)
+      Gsq(i)= Gsq_temp(j)
+      ! write(6,*) i, j, star_of_wave(i), wave_temp(:,j), Gsq_temp(j)
    enddo
- 
+
    ! Check consistency of wave and which_wave
    do i=1, N_wave
-      !G1 = 0
-      !do j = 1, dim
-      !   G1(j) = wave(j,i)
-      !enddo
-      call assign_ivec(G1,wave(:,i))
-
-      if (i /= which_wave(G1(1),G1(2),G1(3))) then
+      call assign_ivec(G1, wave(:,i))
+      j = which_wave(G1(1), G1(2), G1(3))
+      if (i /= j) then
          write(6,*) &
               'Error: Inconsistent wave & which_wave in make_stars'
+         write(6,*) "wave(i) = ", G1
+         write(6,*) "i = ", i
+         write(6,*) "which_wave(G) = ", j
          stop
       endif
    enddo
+
+   !-------------------------------------------------------------------
+   ! At this point:
+   !   wave, Gsq, star_of_wave, & coeff are complete & consistent
+   !   which_wave is complete and consistent with wave
+   !-------------------------------------------------------------------
+
+   ! Allocate arrays that are indexed by star id
 
    if (allocated(star_begin)) deallocate(star_begin)
    allocate(star_begin(N_star))
@@ -1094,12 +1121,8 @@ contains
    if (allocated(star_invert)) deallocate(star_invert)
    allocate(star_invert(N_star))
 
-   if ( allocated(basis_sign)) deallocate(basis_sign)
-   allocate(basis_sign(N_star))
-   basis_sign = 0
-   
    if (allocated(wave_of_star)) deallocate(wave_of_star)
-   allocate(wave_of_star(dim,N_star))
+   allocate(wave_of_star(dim, N_star))
 
    if (allocated(star_cancel)) deallocate(star_cancel)
    allocate(star_cancel(N_star))
@@ -1107,7 +1130,7 @@ contains
    ! Loop over waves to construct star_begin, star_end, star_count
    i_star = star_of_wave(1)
    star_begin(i_star) = 1
-   do i=2, N_wave  
+   do i=2, N_wave
       if (i_star /= star_of_wave(i)) then
          star_end(i_star)   = i-1
          star_count(i_star) = star_end(i_star) - star_begin(i_star) + 1
@@ -1121,7 +1144,7 @@ contains
          star_end(i_star)   = N_wave
          star_count(i_star) = star_end(i_star) - star_begin(i_star) + 1
       endif
-   enddo         
+   enddo
 
    ! Check star_begin, star_end, star_count
    i_star = 0
@@ -1146,34 +1169,36 @@ contains
       write(6,*) 'Error in make_stars: star_end(N_star) /= N_wave'
       stop
    endif
-      
+
    !---------------------------------------------------------------
    ! Loop over stars to make star_cancel, star_invert, wave_of_star
    !---------------------------------------------------------------
    invert_flag = 0
-   do i=1, N_star   ! loop over stars
- 
-      ! Fill array star with corresponding block of larger array wave
+   do i = 1, N_star   ! loop over stars
+
+      ! Fill array star with corresponding block of array wave
       star = 0
       do j=1, star_count(i)
          k = star_begin(i) + j - 1
-         !do l=1, dim
-         !   star(l,j) = wave(l,k)
-         !enddo
-         call assign_ivec(star(:,j),wave(:,k))
+         call assign_ivec(star(:,j), wave(:,k))
       enddo
- 
-      ! Determine star_cancel(i)
+
+      ! Set G1 (root) to first star in wave, G2 = -G1
       G1 = star(:,1)
-      star_cancel(i) = vector_cancel(G1) 
- 
-      ! Determine star_invert(i)
-      G1 = -1.0_long * G1
+      G2 = -G1
+      if (grid) G2 = G_to_bz(G2)
 
-      if (grid) G1 = G_to_bz(G1)
+      i1 = star_begin(i)
+      if (i1 /= which_wave(G1(1), G1(2), G1(3))) then
+         write(6,*) 'Error: Inconsistent id i1, first wave in star'
+      endif
 
+      ! Assign star_cancel(i)
+      star_cancel(i) = vector_cancel(G1)
 
-      if (in_list(G1,star,star_count(i)) /= 0) then
+      ! Search for negation of first wave in this star
+      k = in_list(G2, star, star_count(i))
+      if (k /= 0) then
 
          if (invert_flag == 1) then
 
@@ -1185,69 +1210,66 @@ contains
 
             invert_flag    = 0
             star_invert(i) = 0
+            wave_of_star(:,i) = wave(:,star_begin(i))
 
-            ! Check if closed star is cosine-like or sine-like
-            G1 = star(:,1)
-            G2 = -star(:,1)
-
-            if (grid) G2 = G_to_bz(G2)
-
-            i_first = which_wave( G1(1), G1(2), G1(3) )
-            i_last  = which_wave( G2(1), G2(2), G2(3) )
-            ! Check that coefficients for first and last are real
-            if ( abs(aimag(coeff(i_first))) > 1.0e-8 ) then
-               print *, &
-                  'Error: First coefficient in closed star has imaginary part'
-            else
-               c1 = real(coeff(i_first),long)
+            i2 = i1 + k - 1
+            if (i2 /= which_wave(G2(1), G2(2), G2(3))) then
+               write(6,*) 'Error: Inconsistent id i2, last wave in star'
             endif
-            if ( abs(aimag(coeff(i_last))) > 1.0e-8 ) then
-               print *, &
-                 'Error: Last coefficient in closed star has imaginary part'
-               print *, coeff(i_last)
-            else
-               c2 = real(coeff(i_last),long)
-            endif
-            if ( abs(c1+c2) < 1.0e-8 ) then  ! sine like function
-               basis_sign(i) = -1
-               coeff(star_begin(i):star_end(i)) = & 
-               coeff(star_begin(i):star_end(i)) * ( 0.0D0 , -1.0D0 ) 
-               ! coeff(star_begin(i):star_end(i)) * ( 0.0_long , -1.0_long ) - changed for Intel
-            else if ( abs(c1-c2) < 1.0e-8 ) then  ! cosine like function
-               basis_sign(i) = 1
-            else
-               write(6,*) &
-               'Error: Closed star is neither sine-like or cosine-like'
-               stop
+
+            ! If star is not cancelled, check and modify coefficients
+            if (.not. star_cancel(i)) then
+
+               c1 = coeff(i1)  ! Coeff of G1
+               c2 = coeff(i2)  ! Coeff of G2
+   
+               ! Check that coefficient of 1st wave is real & positive
+               if ( abs(aimag(coeff(i1))) > 1.0e-8 ) then
+                  print *, &
+                     'Error: 1st coeff in closed star is not real'
+               else if ( real(coeff(i1)) < 0.0 ) then
+                  print *, &
+                     'Error: 1st coeff in closed star is negative'
+               endif
+   
+               ! Check if G1 and G2 are complex conjugates
+               ! If not, force them to become conjugates
+               d = c1 - conjg(c2)
+               if (abs(d) > 1.0e-8) then  
+                  d = c2/abs(c2)
+                  d = sqrt(d)
+                  if (abs(aimag(d)) > 1.0E-5) then
+                     if (aimag(d) < 0.0) then
+                        d = -d
+                     endif
+                  endif
+                  do j = star_begin(i), star_end(i)
+                     coeff(j) = coeff(j)/d
+                  enddo 
+               endif
+   
             endif
 
          endif
 
       else if (invert_flag == 1) then
 
+         ! This is the second star in a pair related by inversion
          invert_flag    = -1
          star_invert(i) = -1
-         basis_sign(i)  = -1
+         wave_of_star(:,i) = wave(:,star_end(i))
 
       else
 
+         ! If this star is not closed, and the previous star was not 
+         ! the first star of a pair, this must be the first of a pair
+
          invert_flag    = 1
          star_invert(i) = 1
-         basis_sign(i)  = 1
-
-      endif
- 
-      ! Determine wave_of_star(i)
-      if (star_invert(i) == -1) then
-
-         wave_of_star(:,i) = wave(:,star_end(i))
-
-      else ! (if star_invert(i) = 0 or 1 )
-
          wave_of_star(:,i) = wave(:,star_begin(i))
 
       endif
- 
+
    enddo ! end loop over stars
 
    if (allocated(index)) deallocate(index)
@@ -1255,22 +1277,27 @@ contains
    if (allocated(Gsq_temp)) deallocate(Gsq_temp)
 
    end subroutine make_stars
-   !===================================================================
- 
- 
+   !====================================================================
+
+
    !--------------------------------------------------------------------
    !****ip basis_mod/get_star
    ! SUBROUTINE
    !     get_star
    ! PURPOSE
-   ! Takes an array "list" of list_N vectors, and generates a star by   
-   ! applying all elements of "group" to vector # root in input list. 
+   ! Takes an array "list" of list_N vectors, and generates a star by
+   ! applying all elements of "group" to vector # root in input list.
    ! Note: Algorithm assumes that no duplicates exist in input list.
+   !
+   ! The list_index is an arbitrary list of integer labels that is
+   ! divided and re-ordered the same way as the lists of wavevectors,
+   ! so that the correspondence between a wave an integer label is
+   ! maintained.
    !
    ! SYNPOSIS
    !    get_star(root, &
-   !             list,list_index,list_N,  &
-   !             star,star_index,star_N,star_phase)
+   !             list, list_index, list_N,  &
+   !             star, star_index, star_N, star_phase)
    ! ARGUMENTS
    !
    !    Inputs:
@@ -1279,20 +1306,20 @@ contains
    !
    !    Outputs:
    !    star       = the vectors of the resulting star
-   !    star_index = indices of vectors of the resulting star 
+   !    star_index = indices of vectors of the resulting star
    !    star_N     = number of vectors in the resulting star
    !    list       = repacked list of set of vectors from the
    !                 input list that are not in the star
    !    list_index = indices of vectors of output list
-   !    list_N     = # of vectors in output list 
+   !    list_N     = # of vectors in output list
    !
    ! SOURCE
    !--------------------------------------------------------------------
    subroutine get_star(root,  &
-                       list,list_index,list_N,  &
-                       star,star_index,star_N,star_phase)
+                       list, list_index, list_N,  &
+                       star, star_index, star_N,star_phase)
    integer, intent(IN)       :: root
-   integer, intent(INOUT)    :: list(3,max_list)
+   integer, intent(INOUT)    :: list(3, max_list)
    integer, intent(INOUT)    :: list_index(max_list)
    integer, intent(INOUT)    :: list_N
    integer, intent(OUT)      :: star(3,max_star)
@@ -1300,21 +1327,18 @@ contains
    integer, intent(OUT)      :: star_N
    real(long), intent(OUT)   :: star_phase(max_star)
    !***
- 
+
    ! Local variables
    real(long)  :: twopi
-   integer     :: g1(3), g2(3), temp(3,max_list)
+   integer     :: g1(3), g2(3), temp(3, max_list)
    integer     :: i, j, k, temp_index(max_list)
    logical     :: in_star(max_list)
-
-
-       integer  :: g1fft(3)
 
    ! Debug variable
    integer :: check(max_star)
    ! End Debug
- 
-   ! Error Checking
+
+   ! Check precondition
    if ( list_N > max_list ) then
       write(6,*) 'Error: list_N > max_list in get_star'
       stop
@@ -1323,45 +1347,60 @@ contains
    twopi   = 4.0_long*acos(0.0_long)
    star_N  = 0
    in_star = .false.
-   star    = 0
-   g1      = list(:,root)
+   star = 0
+
+   ! g1 is the root wavevector of the new star
+   g1 = list(:,root)
 
    do i=1, group%order
-      g2 = g1.dot.group%s(i)
 
+      ! Generate wavevector related by symmmetry element group%s(i)
+      g2 = g1.dot.group%s(i)
       if (grid) g2 = G_to_bz(g2)
 
+      ! Search for wavevector g2 in list. If not found, then j == 0.
       j = in_list(g2, list, list_N)
-      if ( j /= 0) then 
-         in_star(j) = .true.
-         k = in_list(g2,star,star_N)
-         if ( k == 0) then
-            star_N = star_N + 1
-            star(:,star_N) = g2
 
-            star_phase(star_N) = twopi*g1.dot.group%s(i)%v
-!            g1fft = G_to_fft( g1 )
-!            star_phase(star_N) = twopi*g1fft.dot.group%s(i)%v
+      if (j == 0) then ! Failure to find g2 in remaining list is fatal 
 
-            star_index(star_N) = list_index(j)
-
-            ! Debug Line
-            check(star_N) = i
-            ! End Debug
-
-         endif
-      else 
          write(6,*) 'Error: list does not contain entire star'
          write(6,*) 'g1 =',g1
          write(6,*) 'g2 =',g2
          write(6,*) in_list(g2,list,list_N), list_N
          write(6,'(3(i3))') list(:,:list_N)
          stop
+
+      else ! Process symmetry related wavevector g2
+
+         in_star(j) = .true.
+
+         ! Search for g2 in the current star array
+         k = in_list(g2, star, star_N)
+
+         ! If g2 is not already in the star, add it
+         if (k == 0) then
+
+            ! Add to end of star and star_index arrays
+            star_N = star_N + 1
+            star(:, star_N) = g2
+            star_index(star_N) = list_index(j)
+
+            ! Compute phase and add to end of star_phase
+            star_phase(star_N) = twopi*g1.dot.group%s(i)%v
+
+            ! Debug Line
+            check(star_N) = i
+            ! End Debug
+
+         endif
+
       endif
    enddo
 
-   j    = 0
+   ! Make compressed list, list_index of waves that are not in this star
    temp = 0
+   temp_index = 0
+   j = 0
    do i=1, list_N
       if (.not.in_star(i)) then
          j = j + 1
@@ -1370,7 +1409,7 @@ contains
       endif
    enddo
    list_N = j
-   list   = temp 
+   list = temp
    list_index = temp_index
 
    !!$ ! Debug Printing
@@ -1382,8 +1421,8 @@ contains
 
    end subroutine get_star
    !====================================================================
- 
- 
+
+
    !--------------------------------------------------------------------
    !****ip basis_mod/vector_cancel
    ! FUNCTION
@@ -1393,19 +1432,19 @@ contains
    ! RETURN
    !    True if cancellation occurs for vector G, False otherwise
    ! ALGORITHM
-   !    Operate on G with all members of group. 
+   !    Operate on G with all members of group.
    !    The function is true if any symmetry in the group both:
-   !      1) Leaves G invariant (i.e., G.m = G), and 
+   !      1) Leaves G invariant (i.e., G.m = G), and
    !      2) Produces a nonzero phase, such that modulo(G.v, twopi) /= 0
    ! SOURCE
    !--------------------------------------------------------------------
    logical function vector_cancel(G)
    integer, intent(IN)             :: G(3)    ! reciprocal wavevector
    !***
- 
+
    integer    :: i, Gp(3)
    real(long) :: phase, twopi
- 
+
    vector_cancel = .false.
    do i=1, group%order
       Gp = G .dot. group%s(i)
@@ -1426,12 +1465,12 @@ contains
    enddo
    end function vector_cancel
    !====================================================================
- 
- 
+
+
    !--------------------------------------------------------------------
    !****ip basis_mod/in_list
    ! FUNCTION
-   !    integer in_list(g,list,n) 
+   !    integer in_list(g,list,n)
    ! PURPOSE
    !    Searches for vector "g" in list of n vectors "list"
    ! RETURN
@@ -1439,16 +1478,16 @@ contains
    !    in_list = 0 if g is not in list(i) for i <= n
    !***
    !--------------------------------------------------------------------
-   integer function in_list(g,list,n) 
+   integer function in_list(g,list,n)
    integer   :: g(:),list(:,:),n
    integer   :: i
- 
+
    ! Check array dimensions
    if (size(g) /= size(list,1)) then
       write(6,*) 'Incompatible array dimensions in in_list'
       stop
    endif
- 
+
    in_list = 0
    if (n == 0) return
    do i=1, n
@@ -1457,11 +1496,11 @@ contains
          return
       endif
    enddo
- 
+
    end function in_list
    !====================================================================
- 
- 
+
+
    !--------------------------------------------------------------------
    !****ip basis_mod/sort
    ! SUBROUTINE
@@ -1469,17 +1508,20 @@ contains
    ! ARGUMENTS
    !     integer    n         - # of elements
    !     real(long) a(:)      - array to be sorted
-   !     integer    index(:)  - original indices of elements 
+   !     integer    index(:)  - original indices of elements
    ! PURPOSE
-   !    Sort an array a(n) by Shell variant of insertion
-   !    Source: Numerical recipes in F77, pg. 323,
-   !         Modified by D.M. to produce index
-   !    On output, 
+   !    Sort an array a(n) by Shell variant of insertion.
+   !    Algorithm: Based on Numerical Recipes in F77, pg. 323,
+   !         Modified by D.M. to apply the permutation to an index
+   !    On output,
    !       a is sorted in ascending order, a(1) <= a(2),...
-   !       index(i) contains original index of a(i),
-   !           i.e., a_output(i) = a_input(index(i))
+   !       The same permuation has been applied to a(n) and index(n)
+   !
+   !       If on input, array index was ordered, with index(i) = i, 
+   !       then on output index(i) contains original index of a(i),
+   !       such that a_output(i) = a_input(index(i))
    ! SOURCE
-   !------------------------------------------------------------
+   !--------------------------------------------------------------------
    subroutine sort(n,a,index)
    integer    :: n, index(:)
    real(long) ::    a(:)
@@ -1518,27 +1560,27 @@ contains
    !****ip basis_mod/G_sort
    !
    ! SUBROUTINE
-   !    G_sort(n,a,index, reorder_real )
+   !    G_sort(n, a, index, reorder_real )
    !
    ! PURPOSE
    !
    !    Same as sort, except that a is an array of integer vectors
    !
-   !    Sort an array a of integer vectors by Shell variant 
-   !    of insertion, using the module function G_lt to define 
+   !    Sort an array a of integer vectors by Shell variant
+   !    of insertion, using the module function G_lt to define
    !    a logical operator "less than" for two integer vectors
    !
    !    Source: Numerical recipes in F77, pg. 323,
    !            Modified by D.M. to produce index
    !            Modified by D.M. to order vectors
    !
-   !    On output, 
+   !    On output,
    !       a is sorted descending, a(:,1) >= a(:,2),...
    !       index(i) contains original index of a(:,i),
    !           i.e., a_output(i) = a_input(index(i))
    ! SOURCE
    !--------------------------------------------------------------------
-   subroutine G_sort(n,a,index, reorder_real )
+   subroutine G_sort(n, a, index, reorder_real)
    integer, intent(INOUT)    :: n, a(:,:), index(:)
    !***
 
@@ -1550,7 +1592,7 @@ contains
    integer, allocatable :: temp_int(:)
    integer, allocatable :: temp_wave(:,:)
 
-   ! Check dimension of array a and array index 
+   ! Check dimension of array a and array index
    dim_a = size(a,1)
    if ((dim_a < 0).or.(dim_a > 3)) then
        write(6,*) 'Invalid dim in G_sort'
@@ -1578,7 +1620,7 @@ contains
       do i=inc+1, n
          v=a(:,i)
          k=index(i)
-         if (PRESENT(reorder_real))  reorder_index = reorder_real(i)
+         if (PRESENT(reorder_real)) reorder_index = reorder_real(i)
          j=i
  3       if (G_lt(a(:,j-inc),v)) then
             a(:,j)=a(:,j-inc)
@@ -1595,8 +1637,6 @@ contains
    if (inc.gt.1) goto 2
 
    return
-
-      
    end subroutine G_sort
    !====================================================================
 
@@ -1634,7 +1674,7 @@ contains
          else if (g1(2).gt.g2(2)) then
             G_lt = .false.
             return
-         else 
+         else
             if (dim == 3) then
                if (g1(3).lt.g2(3)) then
                   G_lt = .true.
@@ -1648,21 +1688,21 @@ contains
       endif
    endif
    end function G_lt
-   !===================================================================
+   !====================================================================
 
 
-   !----------------------------------------------------------------
-   ! Utilities: 
+   !--------------------------------------------------------------------
+   ! Utilities:
    !
    !  function f_basis:    returns value of basis function at point R
    !  routine assign_ivec: equates 3 and dim dimensional int vectors
    !  routine assign_rvec: equates 3 and dim dimensional real vectors
    !  function valid_wave: true if a wave in list
    !
-   !----------------------------------------------------------------
+   !--------------------------------------------------------------------
 
 
-   !----------------------------------------------------------------
+   !--------------------------------------------------------------------
    !****p basis_mod/f_basis
    ! FUNCTION
    !    real(long) f_basis(i_basis,G_basis,R)
@@ -1670,7 +1710,7 @@ contains
    !    Value of basis function i_basis at Cartesian position R(3)
    !    a crystal with reciprocal basis vector array G_basis(3,3)
    ! SOURCE
-   !----------------------------------------------------------------
+   !--------------------------------------------------------------------
    real(long) function f_basis(  &
                   i_basis,       &! index for basis function
                   G_basis,       &! reciprocal basis vectors
@@ -1682,7 +1722,7 @@ contains
    !***
 
    ! Parameter
-   real(long) :: sqrt2 
+   real(long) :: sqrt2
 
    ! Local variables
    integer      :: i_wave, i_star, iG(3)
@@ -1709,18 +1749,18 @@ contains
       end select
    enddo
    end function f_basis
-   !================================================================
+   !====================================================================
 
 
-   !----------------------------------------------------------------
+   !--------------------------------------------------------------------
    ! SUBROUTINE
    !    assign_ivec(v1,v2)
    ! PURPOSE
    !    Sets v1 = v2, for int vectors with variable dimensions
-   !----------------------------------------------------------------
+   !--------------------------------------------------------------------
    subroutine assign_ivec(v1,v2)
-   integer, intent(IN)  :: v2(:) 
-   integer, intent(OUT) :: v1(:) 
+   integer, intent(IN)  :: v2(:)
+   integer, intent(OUT) :: v1(:)
    integer :: dim1, dim2
    dim1 = size(v1)
    dim2 = size(v2)
@@ -1729,22 +1769,22 @@ contains
       v1(1:dim2) = v2
    else if (dim1 < dim2) then
       v1 = v2(1:dim1)
-   else 
+   else
       v1 = v2
    endif
    end subroutine assign_ivec
-   !================================================================
+   !====================================================================
 
 
-   !----------------------------------------------------------------
+   !--------------------------------------------------------------------
    ! SUBROUTINE
    !    assign_rvec(v1,v2)
    ! PURPOSE
    !    Sets v1 = v2, for real vectors with variable dimensions
-   !----------------------------------------------------------------
+   !--------------------------------------------------------------------
    subroutine assign_rvec(v1,v2)
-   real(long), intent(IN)  :: v2(:) 
-   real(long), intent(OUT) :: v1(:) 
+   real(long), intent(IN)  :: v2(:)
+   real(long), intent(OUT) :: v1(:)
    integer :: dim1, dim2
    dim1 = size(v1)
    dim2 = size(v2)
@@ -1753,17 +1793,17 @@ contains
       v1(1:dim2) = v2
    else if (dim1 < dim2) then
       v1 = v2(1:dim1)
-   else 
+   else
       v1 = v2
    endif
    end subroutine assign_rvec
-   !================================================================
+   !====================================================================
 
 
    logical function valid_wave(wave_k)
-   !----------------------------------------------------------------
+   !--------------------------------------------------------------------
    ! True if vector wave_k is listed in which_wave
-   !----------------------------------------------------------------
+   !--------------------------------------------------------------------
    integer, intent(IN) :: wave_k(3)
    integer :: k, stark
    valid_wave = .true.
@@ -1772,27 +1812,27 @@ contains
       return
    endif
    k = which_wave(wave_k(1),wave_k(2),wave_k(3))
-   if ( k == 0 ) then
+   if (k == 0) then
       valid_wave = .false.
       return
    endif
-   if ( (k < 1).or.(k > N_wave) ) then
+   if ((k < 1).or.(k > N_wave)) then
       write(6,*)'Error in valid_wave: Invalid wave index =', k
       stop
    endif
    stark = star_of_wave(k)
-   if ( ( stark < 1 ).or.( stark > N_star ) ) then
+   if ((stark < 1).or.(stark > N_star)) then
       write(6,*)'Error in valid_wave: Invalid star index'
       stop
    endif
    end function valid_wave
-   !==================================================================
- 
-   !------------------------------------------------------------------
-   ! Output routines: output_waves, output_stars
-   !------------------------------------------------------------------
+   !====================================================================
 
-   !------------------------------------------------------------------
+   !--------------------------------------------------------------------
+   ! Output routines: output_waves, output_stars
+   !--------------------------------------------------------------------
+
+   !--------------------------------------------------------------------
    !****p basis_mod/output_waves
    ! SUBROUTINE
    !    output_waves(wave_port)
@@ -1802,7 +1842,7 @@ contains
    !    Output list of waves to file unit io_port
    !    Format: i, wave, star_of_wave, |coeff|, coeff/|coeff|, |G|
    ! SOURCE
-   !------------------------------------------------------------------
+   !--------------------------------------------------------------------
    subroutine output_waves(wave_port, group_name)
 
    integer      :: wave_port
@@ -1835,10 +1875,10 @@ contains
    end do
 
    end subroutine output_waves
-   !==================================================================
+   !====================================================================
 
 
-   !------------------------------------------------------------------
+   !--------------------------------------------------------------------
    !****p basis_mod/output_stars
    ! SUBROUTINE
    !    output_stars(o_port,keep_cancel)
@@ -1849,9 +1889,9 @@ contains
    !    Format: i, wave_of_star, star_count, star_invert
    !    If keep_cancel = .true., then also print cancel
    ! SOURCE
-   !------------------------------------------------------------------
+   !--------------------------------------------------------------------
    subroutine output_stars(o_unit,keep_cancel)
-   use io_mod,     only : output 
+   use io_mod,     only : output
    use string_mod, only : int_string
 
    integer, optional   :: o_unit
@@ -1881,7 +1921,7 @@ contains
       endif
    enddo
    end subroutine output_stars
-   !==================================================================
+   !====================================================================
 
 
    !--------------------------------------------------------------------
@@ -1889,11 +1929,11 @@ contains
    ! SUBROUTINE
    !    reorder_basis(new_basis,old_wave,old_basis,swap,new_stars)
    ! PURPOSE
-   !    Reorders basis functions in new_wave to match ordering in 
+   !    Reorders basis functions in new_wave to match ordering in
    !    old_wave.
    ! COMMENT
    !    Assumes each wave in new_wave and old_wave corresponds to
-   !    a single basis function, and that there are no repeats in 
+   !    a single basis function, and that there are no repeats in
    !    old_wave or new_wave
    ! SOURCE
    !--------------------------------------------------------------------
@@ -1952,15 +1992,15 @@ contains
    !!$        cycle
    !!$     endif
    !!$     k = star_of_wave( which_wave(G(1), g(2), g(3) ))
-   !!$     
+   !!$
    !!$     if ( (k<= N_new) .and. (k > 0) ) then
    !!$        new_basis(:,k) = old_basis(:,i)
    !!$        filled(k) = .true.
-   !!$        
+   !!$
    !!$        l_swap(k) = i
    !!$     endif
    !!$  enddo
-   
+
 
    ! print *, 'old loop', dim
    do i = 1,N_old
@@ -1978,7 +2018,7 @@ contains
       endif
    enddo
 
-      
+
    !!$  ! Check that all of new_basis is filled
    !!$  if ( .not. all(filled)) then
    !!$     ! Check which is the first not filled
@@ -2008,26 +2048,26 @@ contains
    deallocate(l_swap)
    deallocate(new)
    end subroutine reorder_basis
-   !==================================================================
+   !====================================================================
 
 
-   !------------------------------------------------------------------
+   !--------------------------------------------------------------------
    !****p basis_mod/make_dGsq
    ! SUBROUTINE
    !    make_dGsq(dGsq,dGG)
    ! PURPOSE
    !    Calculate dGsq given dGG_basis
    ! SOURCE
-   !------------------------------------------------------------------
+   !--------------------------------------------------------------------
    subroutine make_dGsq( dGsq, dGG)
    real(long), intent(OUT) :: dGsq(:)
    real(long), intent(IN) :: dGG(:,:)
    !***
-   
+
    !Local Variabls
    integer :: star, j, k
    real(long), dimension(dim) :: Gvec
-   
+
    dGsq = 0.0_long
    ! loop over all stars
    do star = 1,N_star
@@ -2039,21 +2079,21 @@ contains
          enddo
       enddo
    enddo
-   
+
    end subroutine make_dGsq
    !====================================================================
 
 
-   !-------------------------------------------------------------------
+   !--------------------------------------------------------------------
    !****p basis_mod/scattering_intensity
    ! SUBROUTINE
    !   scattering_intensity( G_basis, field, contrast, q, scat )
    ! PURPOSE
    !   Calculate the scattering intensities give a set of fields
-   !   (e.g. density fields of SCFT solution ) and some  scattering 
+   !   (e.g. density fields of SCFT solution ) and some  scattering
    !   densities (e.g. electron densities)
    ! SOURCE
-   !-------------------------------------------------------------------
+   !--------------------------------------------------------------------
    subroutine scattering_intensity( G_basis, field, contrast, q, scat )
    implicit none
    real(long), intent(IN), dimension(:,:) :: G_basis
@@ -2062,67 +2102,67 @@ contains
    real(long), intent(OUT), dimension(:) :: q
    real(long), intent(OUT), dimension(:) :: scat
    !***
-   
+
    ! Local variables
    integer :: i, j, k
    integer :: N
    integer :: alpha, N_blocks, beta
    real(long), dimension(dim) :: vector
-   
+
    N = min(N_star,size(q))
    N_blocks = size(field,1)
-   
+
    ! Calculate q for each star
    do i = 1,N
       vector = wave_of_star(:,i) .dot. G_basis
       q(i) = sqrt( vector .dot. vector )
    enddo
-   
+
    print *, 'contrast'
    print *, contrast
-   
+
    ! Calculate the scattering intensity for each star
    scat = 0.0_long
    do i = 1,N
       do alpha = 1, N_blocks
          do beta = alpha+1,N_blocks
             scat(i) = ( field(i,alpha) * contrast(alpha) - &
-                        field(i,beta) * contrast(beta)      ) ** 2 &
+                        field(i,beta) * contrast(beta) ) ** 2 &
                       + scat(i)
          enddo
       enddo
       ! correct for normalization conventions
       ! Basis functions are normalized such that <f_i | f_i > = 1
       ! Scattering is normalized so that <f_i | f_i > = starcount(i)
-   
+
       scat(i) = scat(i) * star_count(i)
    enddo
-   
+
    end subroutine scattering_intensity
-   !==================================================================
+   !====================================================================
 
 
-   !------------------------------------------------------------------
-   ! Array access functions: 
+   !--------------------------------------------------------------------
+   ! Array access functions:
    !
-   ! These functions access elements of arrays, and have names given 
+   ! These functions access elements of arrays, and have names given
    ! by the corresponding array names prefixed by "fn_". The functions
-   ! may used as replacements for the arrays themselves, to provide 
+   ! may used as replacements for the arrays themselves, to provide
    ! array access with automatic check of bounds of both the array
-   ! indices and (when possible) the desired array element. 
-   !   
+   ! indices and (when possible) the desired array element.
+   !
    ! Syntactical subtleties:
    ! i)  fn_wave_of_star returns array of dimension 3, rather than dim
-   ! ii) fn_which_wave requires an integer array with dimension 3, 
-   !     rather than 3 integer scalars, as its input. 
+   ! ii) fn_which_wave requires an integer array with dimension 3,
+   !     rather than 3 integer scalars, as its input.
    !
-   !------------------------------------------------------------------
-  
- 
+   !--------------------------------------------------------------------
+
+
    integer function fn_star_invert(i)
-   !--------------------------------------------------------------
+   !--------------------------------------------------------------------
    !  Returns array element star_invert(i), after checking bounds
-   !--------------------------------------------------------------
+   !--------------------------------------------------------------------
    integer, intent(IN) :: i
    if  ( (i >= 1) .and. (i <= N_star) ) then
       fn_star_invert = star_invert(i)
@@ -2135,13 +2175,13 @@ contains
       stop
    endif
    end function fn_star_invert
-   !==============================================================
+   !====================================================================
 
- 
+
    integer function fn_star_of_wave(i)
-   !--------------------------------------------------------------
+   !--------------------------------------------------------------------
    !  Returns array element star_of_wave(i), after checking bounds
-   !--------------------------------------------------------------
+   !--------------------------------------------------------------------
    integer, intent(IN) :: i
    if  ( (i >= 1) .and. (i <= N_wave) ) then
       fn_star_of_wave = star_of_wave(i)
@@ -2154,17 +2194,17 @@ contains
       stop
    endif
    end function fn_star_of_wave
-   !===============================================================
+   !====================================================================
 
 
    function fn_wave_of_star(i)
-   !----------------------------------------------------------------
+   !--------------------------------------------------------------------
    !  Returns array element wave_of_star(i), after checking bounds
    !
    !  Note: function has fixed dimension 3, whereas vectors in array
    !    wave have dimension dim, because array is allocatable, but
    !    F90 requires array functions to have a constant dimension.
-   !----------------------------------------------------------------
+   !--------------------------------------------------------------------
    integer              :: fn_wave_of_star(3)
    integer, intent(IN)  :: i
    fn_wave_of_star = 0.0_long
@@ -2178,14 +2218,14 @@ contains
       write(6,*) 'Error: Invalid fn_wave_of_star=', fn_wave_of_star
    endif
    end function fn_wave_of_star
-   !===============================================================
+   !====================================================================
 
 
    integer function fn_which_wave(vec)
-   !---------------------------------------------------------------
-   !  Returns array element which_wave(vec(1),vec(2),vec(3)), 
+   !--------------------------------------------------------------------
+   !  Returns array element which_wave(vec(1),vec(2),vec(3)),
    !  after checking for validity of vec and bounds on result
-   !---------------------------------------------------------------
+   !--------------------------------------------------------------------
    integer, intent(IN) :: vec(3)
    if (valid_wave(vec)) then
       fn_which_wave = which_wave(vec(1),vec(2),vec(3))
@@ -2197,7 +2237,7 @@ contains
       write(6,*) 'Error: fn_which_wave =', fn_which_wave
    endif
    end function fn_which_wave
-   !==============================================================
+   !====================================================================
 
 
 end module basis_mod
