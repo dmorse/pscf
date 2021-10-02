@@ -575,6 +575,7 @@ contains
    !       f_comp(2) = conformational energy of first block
    !       f_comp(3) = conformational energy of last  block
    !       f_comp(4) = junction translational energy (diblock)
+   !       f_comp(5) = combinatoric contribution.
    !
    !    b) Calculation of junction translational entropy is correct
    !       only for diblocks, for which there is only one junction
@@ -695,16 +696,18 @@ contains
    !## end do
    !## fjct  = fjct  / rnodes
    ! --------------------------------------------
+   fcomb = 0.0_long
    fjct = 0.0_long
    do i=1, N_chain
-      fjct = fjct + phi_chain(i) / chain_length(i)
+      fcomb = fcomb + phi_chain(i) / chain_length(i) * ( log( phi_chain(i) ) - 1 )
    end do
-   fjct = f_tot + fjct - enthalpy - fhead - ftail
+   fjct = f_tot - fcomb - enthalpy - fhead - ftail
 
    f_comp(1) = enthalpy   ! overall interaction energy
    f_comp(2) = fhead      ! conformational energy of first block
    f_comp(3) = ftail      ! conformational energy of last  block
    f_comp(4) = fjct       ! junction translational energy (diblock)
+   f_comp(5) = fcomb      ! combinatoric contribution 
 
    end subroutine divide_energy
    !=============================================================
