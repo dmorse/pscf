@@ -128,11 +128,11 @@ contains
    ! SUBROUTINE
    !     fftc(direction,plan,in,out)
    ! PURPOSE
-   !    Calculates forward fft of in, returns result in out.
-   !    Wrapper for 1, 2, & 3 dimensional real -> complex transforms
+   !    Calculates complex -> complex fft of in, returns result in out.
+   !    Wrapper for 1, 2, & 3 dimensional complex -> complex transforms
    ! ARGUMENTS
    !    plan    - fft plan object
-   !    in, out - real(long) 3D arrays 
+   !    in, out - complex(long) 3D arrays 
    ! COMMENT
    !    in and out are dimensioned 0:ngrid(i)-1 for all i <= dim, 
    !    and 0:0 for any unused dimensions with dim < i <= 3

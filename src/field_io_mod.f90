@@ -74,10 +74,10 @@ contains
    call input(N,'N_star in field file=',i=field_unit)
    field = 0.0_long
    do i = 1, N
-      read(field_unit,*) swap,G(1:dim),N_arm
+      read(field_unit,*) swap, G(1:dim), N_arm
       if ( valid_wave(G) ) then
          i_star = star_of_wave( which_wave(G(1),G(2),G(3)) )
-         field(:,i_star) = swap * dsqrt( dble(N_arm) / dble(star_count(i_star)) )
+         field(:,i_star) = swap * dsqrt(dble(N_arm)/dble(star_count(i_star)))
       end if
    end do
 
@@ -150,10 +150,10 @@ contains
    !---------------------------------------------------------------
    subroutine output_field_grid(field,field_unit,group_name,ngrid)
 
-   real(long)                    :: field(:,:)   ! (N_monomer, N_basis)
-   integer                       :: field_unit
-   character(*),intent(IN)       :: group_name
-   integer                       :: ngrid(:)     ! (3)
+   real(long)                 :: field(:,:)   ! (N_monomer, N_basis)
+   integer                    :: field_unit
+   character(*),intent(IN)    :: group_name
+   integer                    :: ngrid(:)     ! (3)
    !***
 
    complex(long)   :: k_grid(0:ngrid(1)/2,&

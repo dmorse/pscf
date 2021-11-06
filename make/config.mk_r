@@ -21,9 +21,6 @@ FAST=-O3 -ffree-form
 NOPT=-ffree-form
 LINK=-O3 -ffree-form -lgfortran
 
-# Mac OS X, gfortran as installed by MacPorts package manager
-#F90=/opt/local/bin/gfortran-mp-5
-
 # Intel compiler
 # F90=ifort
 # FAST=-O3 -free
@@ -52,8 +49,8 @@ FFT_FILE=fft3_mod
 # LAPACKLIB = path(s) to directories containing lapack and blas
 
 # Fedora linux (as installed by yum) and Mac OS X
+#LAPACKLIB= -framework accelerate
 LAPACKLIB= -llapack -lblas
-#LAPACKLIB= -llapack -lblas -latlas
 
 # Ubuntu linux (as installed by apt-get)
 #LAPACKLIB=/usr/lib/liblapack.so.3gf /usr/lib/libf77blas.so.3gf /usr/lib/libatlas.so.3gf

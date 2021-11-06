@@ -10,7 +10,7 @@
 !-----------------------------------------------------------------------
 !****m  scf/grid_basis_mod
 ! PURPOSE
-!   grid -- to -- basis and reverse conversions
+!   kgrid to symmetry adapted basis and reverse conversions
 ! SOURCE
 !-----------------------------------------------------------------------
 module grid_basis_mod
@@ -22,6 +22,7 @@ module grid_basis_mod
    PRIVATE
    PUBLIC :: basis_to_kgrid
    PUBLIC :: kgrid_to_basis
+   PUBLIC :: check_kgrid_symmetry
    PUBLIC :: check_symmetry
    !***
 
@@ -67,24 +68,24 @@ contains
    end if
 
    kgrid=0.0_long
-   do i1=0,i1max
+   do i1 = 0, i1max
       kfft(1)=i1
-      do i2=0,ngrid(2)-1
+      do i2 = 0, ngrid(2)-1
          kfft(2)=i2
-         do i3=0,ngrid(3)-1
+         do i3 = 0, ngrid(3)-1
             kfft(3)=i3
 
-            kbz    = G_to_bz(kfft)
+            kbz = G_to_bz(kfft)
             i_wave = which_wave(kbz(1),kbz(2),kbz(3))
 
-            if( i_wave<1 .or. i_wave>N_wave ) then
+            if (i_wave < 1 .or. i_wave > N_wave) then
 
                   z=(0.0D0,0.0D0)
 
             else
 
-               c=coeff(i_wave)
-               i_star=star_of_wave(i_wave)
+               c = coeff(i_wave)
+               i_star = star_of_wave(i_wave)
                
                if ( present(no_parity) .and. ( no_parity ) ) then
 
@@ -96,17 +97,18 @@ contains
                   case(0)
                      z = basis(i_star) * c
                   case(1)
-                     if(i_star==N_star)stop "star_invert(N_star)=1"
-                     if(star_invert(i_star+1)/=-1)then
-                        write(6,*) "star_invert(",i_star,  ") = 1"
-                        write(6,*) "star_invert(",i_star+1,")/=-1"
-                        stop 
+                     if (i_star == N_star) stop "Error: star_invert(N_star)=1"
+                     if (star_invert(i_star+1) /= -1)then
+                        write(6,*) "Error:"
+                        write(6,*) "star_invert(", i_star,   ") = 1"
+                        write(6,*) "star_invert(", i_star+1, ")/=-1"
+                        stop
                      endif
                      a = basis(i_star)
                      b = basis(i_star+1)
                      z = dcmplx(a,-b) * c / sq2
                   case(-1)
-                     if(star_invert(i_star-1)/=1)then
+                     if (star_invert(i_star-1) /= 1)then
                         write(6,*) "star_invert(",i_star,  ") = -1"
                         write(6,*) "star_invert(",i_star-1,")/=  1"
                         stop 
@@ -122,7 +124,7 @@ contains
 
             end if
 
-            kgrid(i1,i2,i3) = z
+            kgrid(i1, i2, i3) = z
          end do
       end do
    end do
@@ -155,12 +157,12 @@ contains
    integer      :: kbz(3)       ! First Brillouin zone k
    integer      :: i_star,i_wave
    real(long)   :: sq2
-   complex(long):: z, c
+   complex(long):: z, c, b
 
    sq2=dsqrt(2.0_long)
   
    basis=0.0_long
-   do i_star=1,N_star
+   do i_star=1, N_star
       kbz=0
       kbz(1:dim)=wave_of_star(:,i_star)
       i_wave=which_wave(kbz(1),kbz(2),kbz(3))
@@ -179,6 +181,10 @@ contains
          if (kfft(1) > ngrid(1)/2) then
             kfft = -kfft
             kfft = G_to_fft(kfft)
+            if (kfft(1) > ngrid(1)/2) then
+               write(6,*) "Error: Failure to shift k for real field"
+               stop
+            endif
             z = conjg( kgrid(kfft(1),kfft(2),kfft(3)) )
          else
             z = kgrid( kfft(1), kfft(2), kfft(3) )
@@ -186,11 +192,16 @@ contains
 
          select case( star_invert(i_star) )
          case(0)
+            b = z/c
+            if (abs(aimag(b)) > 1.0-8) then
+               write(6,*) "Error: Phase error in kgrid_to_basis"
+               stop
+            endif
             basis(i_star) = dble(z/c)
          case(1)
             basis(i_star) = dble(z/c) * sq2
          case(-1)
-            basis(i_star) =aimag(z/c) * sq2
+            basis(i_star) = aimag(z/c) * sq2
          case default
             stop "Illegal star_invert value in grid_to_basis."
          end select
@@ -198,6 +209,55 @@ contains
    end do
 
    end subroutine kgrid_to_basis
+   !==============================================================
+
+
+   !****p grid_basis_mod/check_kgrid_symmetry ---------------------------
+   ! SUBROUTINE
+   !   check_kgrid_symmetry(kgrid, isSymmetric)
+   ! PURPOSE
+   !   Checks if kgrid representation of a field is consistent with 
+   !   the assumed space group symmetry.
+   ! ARGUMENTS
+   !   kgrid       - DFT of a real periodic field, on an FFT grid
+   !   isSymmetric - (output) true if field has specified symmetry
+   ! SOURCE
+   !---------------------------------------------------------------------
+   subroutine check_kgrid_symmetry(kgrid, isSymmetric)
+   implicit none
+   complex(long),intent(IN) :: kgrid(0:,0:,0:)
+   logical ,intent(OUT)     :: isSymmetric
+   !***
+
+   ! Local variables
+   integer      :: kfft(3)      ! (0:N(1)-1,...), natural order of fft
+   integer      :: kbz(3)       ! First Brillouin zone k
+   integer      :: i_star, i_wave
+   complex(long):: c, zr, z
+   logical      :: hasRoot
+ 
+   isSymmetric = .true. 
+   do i_star=1, N_star
+      hasRoot = .false.
+      do i_wave = star_begin(i_star), star_end(i_star)
+         kbz = 0
+         kbz(1:dim) = wave(1:dim, i_wave)
+         kfft = G_to_fft(kbz)
+         if (kfft(1) < ngrid(1)/2) then
+            c = coeff(i_wave)
+            if (.not. hasRoot) then
+               zr = kgrid(kfft(1), kfft(2), kfft(3))/c
+               hasRoot = .true.
+            else
+               z = kgrid(kfft(1), kfft(2), kfft(3))/c
+               if (abs(z-zr) > 1.0E-7) then
+                  isSymmetric = .false.
+               endif
+            endif
+         endif
+      enddo
+   end do
+   end subroutine check_kgrid_symmetry
    !==============================================================
 
 
@@ -231,7 +291,7 @@ contains
          do i = 0, ngrid(1)-1
             G(1)=i
             Gbz=G_to_bz(G) 
-            i_wave=which_wave(Gbz(1),Gbz(2),Gbz(3))
+            i_wave = which_wave(Gbz(1),Gbz(2),Gbz(3))
 
             if ( i_wave<1 .OR. i_wave>N_wave ) then
                n_dead = n_dead + 1

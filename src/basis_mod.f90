@@ -22,6 +22,7 @@
 !    David Morse (2002) Original version, for specral algorithm
 !    Chris Tyler (2002-2003) various corrections and additions
 !    Jian Qin (2005-2007) modified for pseudo-spectral algorithm
+!    David Morse (2021) Bugfix: closed stars, non-centrosymmetric group
 !
 ! SOURCE
 !-----------------------------------------------------------------------
@@ -463,8 +464,10 @@ contains
    ! TODO: Clean up or remove code vestigial code for the spectral 
    ! method, then remove grid_flag and grid.
 
-   ! Calculate array G_max(dim) : maximum wavevector indices in the BZ.
-   ! The components of G_Max are used as dimensions of which_wave
+   ! ------------------------------------------------------------------
+   ! Calculate array G_max(dim) : maximum wave indices in the BZ.
+   ! The components of G_Max are used as dimensions of which_wave.
+   ! ------------------------------------------------------------------
    Gsq_max = Gabs_max*Gabs_max
    twopi   = 4.0_long*acos(0.0_long)
    G_max   = 0
@@ -473,7 +476,7 @@ contains
       G_max(i) = int( Gabs_max * a_abs / twopi ) + 1
    enddo
 
-   ! Calculate number of plane waves
+   ! Calculate the total number of plane waves
    N_wave = 0
 
    if ( .not. grid ) then
@@ -539,7 +542,8 @@ contains
 
    end if !  basis if-then
 
-   ! Allocate module arrays
+   ! Allocate public module arrays
+
    if (allocated(wave)) deallocate(wave)
    allocate(wave(dim,N_wave), stat = j)
    if (j.ne.0) stop 'make_basis allocate wave error'
@@ -724,9 +728,9 @@ contains
 
    ! Local variables
    integer    :: list(3, max_list), star(3, max_star)
+   integer    :: list_index(max_list), star_index(max_star)
    real(long) :: star_phase(max_star)
    real(long) :: Gsq_max, twopi
-   integer    :: list_index(max_list), star_index(max_star)
    integer    :: G1(3), G2(3)
    integer    :: first_list, last_list, list_N, star_N
    integer    :: i, j, k, l, i_index, i_star, root, invert_flag

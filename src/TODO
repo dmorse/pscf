@@ -1,0 +1,15 @@
+Add more consistency tests to basis_mod:
+
+   - For closed stars:
+       - Find partner of each wave, test complex conjugacy
+       - If the wave is its own partner, coeff must be real
+
+   - For open stars:
+       - Find the partner of each wave in first, test complex conjugacy
+
+   - Formulate clear conventions for coefficients in closed stars, based on 
+     the coefficient of the first wave:
+
+       A) If the real part is nonzero, it is positive
+       B) If the coefficient is pure imaginary, the imaginary part is positive
+
