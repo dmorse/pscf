@@ -1111,11 +1111,19 @@ contains
    real(long)               :: error1, error2, error_new, error_new_1
    integer                  :: mm,nn, itr_prev
 
+   ! Check prerequisites
+   ! Note: Current AM algorithm is only valid in canonical ensemble
+   if (ensemble == 1) then
+      write(6,*) "Error: AM iterator was invoked in grand canonical ensemble."
+      write(6,*) "The current version is only valid in canonical ensemble."
+      stop
+   endif
+      
+   stop "Error while mapping Jacobian."
    dev=0
    om_hist=0
    dev_cp=0
    cp_hist=0
-
 
    M = N - 1 + ensemble 
 
