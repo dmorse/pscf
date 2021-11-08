@@ -157,7 +157,7 @@ contains
    integer      :: kbz(3)       ! First Brillouin zone k
    integer      :: i_star,i_wave
    real(long)   :: sq2
-   complex(long):: z, c, b
+   complex(long):: z, c
 
    sq2=dsqrt(2.0_long)
   
@@ -192,11 +192,6 @@ contains
 
          select case( star_invert(i_star) )
          case(0)
-            b = z/c
-            if (abs(aimag(b)) > 1.0-8) then
-               write(6,*) "Error: Phase error in kgrid_to_basis"
-               stop
-            endif
             basis(i_star) = dble(z/c)
          case(1)
             basis(i_star) = dble(z/c) * sq2
