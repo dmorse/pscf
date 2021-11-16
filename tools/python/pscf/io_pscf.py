@@ -16,7 +16,7 @@ class IO:
         """
         Default construct an initially empty object.
         """
-	self.comment = None
+        self.comment = None
 
     def input_comment(self, file, comment=None):
         """
@@ -45,8 +45,8 @@ class IO:
                -- 'N' -> no comment string
         """
         if f == 'A':
-	    if not self.input_comment(file, comment):
-	        return None
+            if not self.input_comment(file, comment):
+                return None
         data = file.readline().strip()
         if type == 'int':
             return int(data)
@@ -60,7 +60,7 @@ class IO:
             elif data in ['F','false','FALSE','FALSE']:
                 return 0
             else:
-                raise "Invalid logical variable:", data
+                raise("Invalid logical variable:", data)
         else:
             raise 'Illegal type in input_var'
     
@@ -78,8 +78,8 @@ class IO:
                -- 'C' -> column vector (n lines)
         """
         if f == 'A':
-	    if not self.input_comment(file,comment):
-	        return None
+            if not self.input_comment(file,comment):
+                return None
         if s == 'R':   # Row Vector
             data = file.readline().split()
             if n:
@@ -116,8 +116,8 @@ class IO:
              -- 'L' -> symmetric lower triangular (0 diagonals)
         """
         if f == 'A':
-	    if not self.input_comment(file,comment):
-	        return None
+            if not self.input_comment(file,comment):
+                return None
         # Emulate initialization of m x n array
         if not n:
            n = m
@@ -170,8 +170,8 @@ class IO:
         elif type == 'real':
             return '%20.10E' % data
         elif type == 'char':
-    	    data = "'" + data + "'" 
-	    return "%20s" % data 
+            data = "'" + data + "'" 
+            return "%20s" % data 
         elif type == 'logic':
             if data:
                 data = 'T'
@@ -221,8 +221,8 @@ class IO:
         s    -- 'R' -> row vector (one line)
              -- 'C' -> column vector (n lines)
         """
-	if not n:
-  	    n = len(data)
+        if not n:
+            n = len(data)
         if f == 'A':
             self.output_comment(file, comment)
         for i in range(n):
@@ -248,7 +248,7 @@ class IO:
              -- 'S' -> symmetric
              -- 'L' -> symmetric lower triangular (0 diagonals)
         """
-	if not m:
+        if not m:
            m = len(data)
         if not n:
            n = m
