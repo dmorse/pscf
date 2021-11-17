@@ -1,7 +1,6 @@
-from io import IO, IoException
+from io_pscf import IO, IoException
 from version import Version
 import string
-import sys
 
 class ParamFile(object):
     """
