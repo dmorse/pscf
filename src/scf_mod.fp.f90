@@ -872,10 +872,14 @@ contains
    if (present(pressure)) then
       pressure = -f_Helmholtz
       do i = 1, N_chain
-         pressure = pressure + mu_chain(i)*phi_chain(i)/chain_length(i)
+         if ( phi_chain(i) > 1.0E-8) then
+            pressure = pressure + mu_chain(i)*phi_chain(i)/chain_length(i)
+         end if
       end do
       do i = 1, N_solvent
-         pressure = pressure + mu_solvent(i)*phi_solvent(i)/solvent_size(i)
+         if ( phi_solvent(i) > 1.0E-8) then
+            pressure = pressure + mu_solvent(i)*phi_solvent(i)/solvent_size(i)
+         end if
       end do
    end if
  
