@@ -1,5 +1,5 @@
 from outfile import OutFile
-import sys, os, string
+import os, string
 
 class Sweep(object):
     """

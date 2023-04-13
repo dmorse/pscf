@@ -1,8 +1,6 @@
-from io import IO, IoException
+from io_pscf import IO
 from version import Version
 from paramfile import ParamFile
-import string 
-import sys
 
 class OutFile(ParamFile):
     """

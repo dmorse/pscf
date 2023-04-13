@@ -1182,6 +1182,9 @@ contains
              +  chi(2,3)*rho(1,k+1) + chi(1,3)*rho(2,k+1) )/N_monomer &!
                       - omega(alpha,k+1)
             end do
+         else
+            write(6,*) 'Error: Anderson Mixing is only implemented for N_monomer = 2 or 3'
+            stop
          endif
    
       end do

@@ -1,6 +1,3 @@
-from io import IO, IoException
-import string 
-
 class Version(object):
     '''
     Abstract representation of a file format version tag
@@ -16,13 +13,13 @@ class Version(object):
         '''
 
         # Read first line to determine file format
-	line = file.readline().strip()
+        line = file.readline().strip()
         if line == '':
             self.major = 0
             self.minor = 9
         else:
-  	    line = line.split()
-	    if line[0] == 'format':
+            line = line.split()
+            if line[0] == 'format':
                 self.major = int(line[1])
                 self.minor = int(line[2])
             else: 
@@ -44,7 +41,7 @@ class Version(object):
 
     def ge(self, major, minor):
         if (self.major >= major and self.minor >= minor):
-            return true
+            return True
         else:
-            return false
+            return False
 
