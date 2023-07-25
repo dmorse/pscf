@@ -49,7 +49,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'PSCF'
-copyright = u'2016, Regents of the University of Minnesota'
+copyright = u'2017, Regents of the University of Minnesota'
 author = u'David Morse'
 
 # The version info for the project you're documenting, acts as replacement for
