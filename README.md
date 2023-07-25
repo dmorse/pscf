@@ -7,12 +7,24 @@ field theory (SCFT) for spatially periodic structures formed by block
 copolymer melts and mixtures of block copolymers with linear 
 homopolymers and/or small molecule solvents.
 
-The version of the PSCF package provided here is the original version,
-which was written in Fortran 90. A newer C++/Cuda version that allows
-use of GPU acceleration, is available in a separate github repository 
-at https://github.com/dmorse/pscfpp. Currently, the C++/Cuda version 
-and Fortran versions of PSCF each contain a few features that are not 
-available in the other code.
+# History: Legacy and Current Versions
+
+The version of PSCF provided here is a legacy version that was written 
+in Fortran 90. The current version of PSCF is a C++/CUDA package that 
+is available in a separate github repository at 
+https://github.com/dmorse/pscfpp
+
+Almost all of the features of this legacy Fortran version have been 
+ported to the current C++/CUDA version of PSCF, which also provides
+some important new features. The home page for PSCF, which provides 
+a discussion of the differences between the two versions and links 
+to both is available at https://pscf-home.cems.umn.edu
+
+The Fortran version provided in this repository is no longer under 
+development, and is not being patched to correct any newly reported 
+bugs. New users are thus strongly encouraged to use the current 
+C++/Cuda version.  Users of this legacy Fortran version are encouraged 
+to switch to the current version when they can. 
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,8 +33,8 @@ the LICENSE file in the top-level PSCF directory.
 
 # Dependencies
 
-PSCF depends upon the FFTW fast Fourier transform library and the
-LAPACK linear algebra library.  These packages must be installed
+This version of PSCF depends upon the FFTW fast Fourier transform library 
+and the LAPACK linear algebra library.  These packages must be installed
 before attempting to compile the program from source.
 
 # User Documentation
@@ -105,5 +117,5 @@ file regarding the use of preprocessor to generate some files.
 
 # Support 
 
-Development of PSCF has been supported by National Science Foundation 
-grants NSF-DMR097338 and NSF-DMR130436.
+Development of this Fortran version of PSCF has been supported by 
+National Science Foundation grants NSF-DMR097338 and NSF-DMR130436.
