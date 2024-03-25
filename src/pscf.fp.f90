@@ -111,7 +111,7 @@ program pscf
 
    !# ifdef DEVEL
    ! Variables for free energy decomposition
-   real(long)      :: f_component(4)  !
+   real(long)      :: f_component(5)  !
    real(long)      :: overlap(:,:)    ! overlap integrals
    allocatable     :: overlap
    !# endif
@@ -1170,7 +1170,8 @@ contains ! internal subroutines of program pscf
    call output(f_component(1),'f_enthalpy')
    call output(f_component(2),'f_head')
    call output(f_component(3),'f_tail')
-   call output(f_component(4),'f_excess')
+   call output(f_component(4),'f_junction')
+   call output(f_component(5),'f_combinatoric')
    !# endif
 
    ! Timing and resource statistics
