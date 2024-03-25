@@ -141,7 +141,7 @@ contains
       allocate(d_mu_chain(N_chain))
       d_mu_chain = 0.0_long
       allocate(d_mu_solvent(N_solvent))
-      d_phi_solvent=0.0_long 
+      d_mu_solvent=0.0_long 
    endif
 
    allocate(d_solvent_size(N_solvent))
